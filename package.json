@@ -1,0 +1,25 @@
+{
+  "name": "detpro-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "DetPro — Mỗi ngày biết thêm một điều hay. One a day, the DetPro way. Web DetPro bằng Next.js (thay hẳn bản CRA, #190).",
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start -p 3001",
+    "dong-bo": "node scripts/dong-bo-du-lieu.mjs"
+  },
+  "dependencies": {
+    "bootstrap": "5.3.3",
+    "google-tts-api": "2.0.2",
+    "lucide-react": "0.511.0",
+    "mongodb": "7.7.0",
+    "next": "16.4.3",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "server-only": "0.0.1"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  }
+}

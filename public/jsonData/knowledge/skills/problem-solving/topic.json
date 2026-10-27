@@ -1,0 +1,30 @@
+{
+  "branch": "skills",
+  "branchTitle": {
+    "vi": "Kỹ năng làm việc & cuộc sống",
+    "en": "Life and work skills"
+  },
+  "slug": "problem-solving",
+  "title": {
+    "vi": "Giải quyết vấn đề và ra quyết định",
+    "en": "Problem solving and decision making"
+  },
+  "level": "B1",
+  "intro": {
+    "en": "How do you find the real problem, compare your options and make a good decision when time and information are limited? This topic teaches a practical step by step way to solve problems at work and at home, and the traps to avoid.",
+    "vi": "Làm sao để tìm ra đúng vấn đề, so sánh các phương án và quyết định tốt khi thời gian và thông tin có hạn? Chủ đề này hướng dẫn cách giải quyết vấn đề từng bước, dùng được cả ở công sở lẫn ở nhà, cùng những cái bẫy cần tránh."
+  },
+  "lessons": [
+    {
+      "id": "lesson-1",
+      "title": {
+        "vi": "Giải quyết vấn đề và ra quyết định",
+        "en": "Problem solving and decision making"
+      },
+      "level": "B1",
+      "questions": 50,
+      "status": "draft",
+      "updatedAt": "2026-10-14"
+    }
+  ]
+}

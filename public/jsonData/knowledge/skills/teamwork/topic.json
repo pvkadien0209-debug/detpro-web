@@ -1,0 +1,30 @@
+{
+  "branch": "skills",
+  "branchTitle": {
+    "vi": "Kỹ năng làm việc & cuộc sống",
+    "en": "Life and work skills"
+  },
+  "slug": "teamwork",
+  "title": {
+    "vi": "Làm việc nhóm và dẫn dắt nhóm nhỏ",
+    "en": "Teamwork and leading a small team"
+  },
+  "level": "B1",
+  "intro": {
+    "en": "How do you make a small team work well together, from agreeing goals and dividing tasks to running short meetings and handling a member who does not do their part? This topic teaches practical steps for working in a team and leading one for the first time, with real situations to practise.",
+    "vi": "Làm sao để một nhóm nhỏ phối hợp tốt, từ thống nhất mục tiêu, chia việc, họp ngắn gọn đến xử lý thành viên không làm phần việc của mình? Chủ đề này dạy bạn các bước thực tế để làm việc nhóm và lần đầu dẫn dắt một nhóm, qua những tình huống thường gặp để luyện tập."
+  },
+  "lessons": [
+    {
+      "id": "lesson-1",
+      "title": {
+        "vi": "Làm việc nhóm và dẫn dắt nhóm nhỏ",
+        "en": "Teamwork and leading a small team"
+      },
+      "level": "B1",
+      "questions": 50,
+      "status": "draft",
+      "updatedAt": "2026-10-14"
+    }
+  ]
+}

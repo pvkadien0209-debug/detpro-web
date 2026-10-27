@@ -1,0 +1,52 @@
+{
+  "branch": "career",
+  "branchTitle": {
+    "vi": "Công việc & sự nghiệp",
+    "en": "Career"
+  },
+  "slug": "job-interview-preparation",
+  "title": {
+    "vi": "Chuẩn bị trước buổi phỏng vấn xin việc",
+    "en": "Preparing for a job interview"
+  },
+  "level": "B1",
+  "intro": {
+    "en": "What should you know about a company before you walk into the interview room? This topic teaches you how to research the company, the role and the team, and how to use that knowledge naturally in the interview.",
+    "vi": "Bạn nên biết gì về công ty trước khi bước vào phòng phỏng vấn? Chủ đề này giúp bạn biết cách tìm hiểu công ty, vị trí và đội nhóm, và cách dùng những hiểu biết đó một cách tự nhiên trong buổi phỏng vấn."
+  },
+  "lessons": [
+    {
+      "id": "lesson-1",
+      "title": {
+        "vi": "Tìm hiểu công ty và vị trí ứng tuyển",
+        "en": "Research the company and the role"
+      },
+      "level": "B1",
+      "questions": 50,
+      "status": "draft",
+      "updatedAt": "2026-10-14"
+    },
+    {
+      "id": "lesson-2",
+      "title": {
+        "vi": "Hồ sơ, trang phục và đúng giờ",
+        "en": "Documents, clothes and punctuality"
+      },
+      "level": "B1",
+      "questions": 50,
+      "status": "draft",
+      "updatedAt": "2026-10-14"
+    },
+    {
+      "id": "lesson-3",
+      "title": {
+        "vi": "Trả lời các câu hỏi phỏng vấn thường gặp",
+        "en": "Answering common interview questions"
+      },
+      "level": "B1",
+      "questions": 50,
+      "status": "draft",
+      "updatedAt": "2026-10-14"
+    }
+  ]
+}

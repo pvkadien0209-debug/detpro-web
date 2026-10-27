@@ -1,0 +1,30 @@
+{
+  "branch": "skills",
+  "branchTitle": {
+    "vi": "Kỹ năng làm việc & cuộc sống",
+    "en": "Life and work skills"
+  },
+  "slug": "time-management",
+  "title": {
+    "vi": "Quản lý thời gian và sắp xếp ưu tiên",
+    "en": "Time management and priorities"
+  },
+  "level": "B1",
+  "intro": {
+    "en": "How do you decide what to do first when everything feels urgent? This topic teaches practical ways to set priorities, plan your day and week, say no politely, handle interruptions, beat procrastination and protect your energy.",
+    "vi": "Làm sao biết việc nào làm trước khi việc gì cũng có vẻ gấp? Chủ đề này dạy những cách làm thực tế để sắp xếp ưu tiên, lập kế hoạch ngày và tuần, từ chối khéo, xử lý việc bị cắt ngang, vượt qua trì hoãn và giữ năng lượng làm việc."
+  },
+  "lessons": [
+    {
+      "id": "lesson-1",
+      "title": {
+        "vi": "Quản lý thời gian và sắp xếp ưu tiên",
+        "en": "Time management and priorities"
+      },
+      "level": "B1",
+      "questions": 50,
+      "status": "draft",
+      "updatedAt": "2026-10-14"
+    }
+  ]
+}

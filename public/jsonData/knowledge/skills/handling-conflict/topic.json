@@ -1,0 +1,30 @@
+{
+  "branch": "skills",
+  "branchTitle": {
+    "vi": "Kỹ năng làm việc & cuộc sống",
+    "en": "Life and work skills"
+  },
+  "slug": "handling-conflict",
+  "title": {
+    "vi": "Xử lý xung đột và cuộc nói chuyện khó",
+    "en": "Handling conflict and difficult conversations"
+  },
+  "level": "B1",
+  "intro": {
+    "en": "What should you do when a talk with your boss, a colleague, a family member or a neighbour starts to turn into a fight? This topic teaches you step by step how to stay calm, listen, say what you need without blame, apologise properly and help two people find a solution.",
+    "vi": "Bạn nên làm gì khi cuộc nói chuyện với sếp, đồng nghiệp, người nhà hay hàng xóm bắt đầu biến thành cãi vã? Chủ đề này hướng dẫn từng bước cách giữ bình tĩnh, lắng nghe, nói điều mình cần mà không đổ lỗi, xin lỗi đúng cách và giúp hai người tìm ra giải pháp."
+  },
+  "lessons": [
+    {
+      "id": "lesson-1",
+      "title": {
+        "vi": "Bình tĩnh, lắng nghe và hoá giải mâu thuẫn",
+        "en": "Stay calm, listen and resolve conflict"
+      },
+      "level": "B1",
+      "questions": 50,
+      "status": "draft",
+      "updatedAt": "2026-10-14"
+    }
+  ]
+}

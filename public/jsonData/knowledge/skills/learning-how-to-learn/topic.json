@@ -1,0 +1,30 @@
+{
+  "branch": "skills",
+  "branchTitle": {
+    "vi": "Kỹ năng làm việc & cuộc sống",
+    "en": "Life and work skills"
+  },
+  "slug": "learning-how-to-learn",
+  "title": {
+    "vi": "Tự học và học cách học",
+    "en": "Self-study and learning how to learn"
+  },
+  "level": "B1",
+  "intro": {
+    "en": "Why do some people learn a new skill in weeks while others reread the same notes for months? This topic teaches you practical methods to set clear goals, remember more with less time, build study habits and learn new skills quickly at work.",
+    "vi": "Vì sao có người học được kỹ năng mới trong vài tuần, còn người khác đọc đi đọc lại cùng một tập ghi chép suốt nhiều tháng? Chủ đề này giúp bạn biết cách đặt mục tiêu rõ ràng, nhớ lâu hơn với ít thời gian hơn, xây thói quen học và học nhanh kỹ năng mới ở chỗ làm."
+  },
+  "lessons": [
+    {
+      "id": "lesson-1",
+      "title": {
+        "vi": "Học cách học: mục tiêu, ghi nhớ và thói quen",
+        "en": "Learning how to learn: goals, memory and habits"
+      },
+      "level": "B1",
+      "questions": 50,
+      "status": "draft",
+      "updatedAt": "2026-10-14"
+    }
+  ]
+}

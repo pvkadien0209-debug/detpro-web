@@ -1,0 +1,21 @@
+/* NV-Q7 (#112) — Vòng Đét (VongDet.js). Màu vòng cố định #ffd23f; chỉ màu nền vòng (--vd-track) đổi theo nền trang. */
+.vd { display: inline-grid; place-items: center; flex: none; vertical-align: middle; line-height: 0; }
+.vd svg { display: block; overflow: visible; }
+.vd-track { stroke: var(--vd-track, rgba(23, 32, 51, .12)); }
+.vd-arc { transition: stroke-dasharray .4s ease; }
+/* Khép đủ 360°: nảy nhẹ một lần + quầng vàng toả ra rồi tắt */
+.vd.is-pop svg { animation: vd-pop .6s ease-out; }
+.vd-halo { transform-origin: 20px 20px; animation: vd-halo .8s ease-out forwards; }
+@keyframes vd-pop { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
+@keyframes vd-halo { from { opacity: .9; transform: scale(1); } to { opacity: 0; transform: scale(1.55); } }
+/* Đang tải: nét tự vẽ từ 2 giờ tới 12 giờ (300°), khe giữ nguyên ở 1 giờ — không xoay vòng */
+.vd.is-loading .vd-arc { transition: none; animation: vd-draw 1.4s ease-in-out infinite; }
+@keyframes vd-draw { 0% { stroke-dasharray: 0 88; } 70%, 100% { stroke-dasharray: 73.3 88; } }
+.vd-loading { display: inline-flex; align-items: center; gap: 10px; }
+.vd-missing { display: block; margin-bottom: 12px; }
+@media (prefers-reduced-motion: reduce) {
+  .vd-arc { transition: none; }
+  .vd.is-pop svg, .vd-halo { animation: none; }
+  .vd-halo { display: none; }
+  .vd.is-loading .vd-arc { animation: none; }
+}

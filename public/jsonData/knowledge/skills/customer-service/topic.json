@@ -1,0 +1,30 @@
+{
+  "branch": "skills",
+  "branchTitle": {
+    "vi": "Kỹ năng làm việc & cuộc sống",
+    "en": "Life and work skills"
+  },
+  "slug": "customer-service",
+  "title": {
+    "vi": "Phục vụ khách hàng và xử lý khiếu nại",
+    "en": "Customer service and handling complaints"
+  },
+  "level": "B1",
+  "intro": {
+    "en": "What do you say when a customer is angry, wants a refund you cannot give, or leaves a bad review online? This topic teaches you practical steps to understand customers, handle complaints calmly and turn problems into loyalty, in a shop, on the phone or in chat.",
+    "vi": "Bạn nói gì khi khách đang giận, đòi hoàn tiền mà bạn không thể làm, hay để lại đánh giá xấu trên mạng? Chủ đề này dạy bạn các bước thực tế để hiểu khách, xử lý khiếu nại bình tĩnh và biến sự cố thành sự gắn bó, dù ở cửa hàng, qua điện thoại hay tin nhắn."
+  },
+  "lessons": [
+    {
+      "id": "lesson-1",
+      "title": {
+        "vi": "Phục vụ khách hàng và xử lý khiếu nại",
+        "en": "Customer service and handling complaints"
+      },
+      "level": "B1",
+      "questions": 50,
+      "status": "draft",
+      "updatedAt": "2026-10-14"
+    }
+  ]
+}

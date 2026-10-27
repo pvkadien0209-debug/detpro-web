@@ -1,0 +1,8 @@
+/* N1 — phần nền chung (thay index.css của CRA). Giao diện chính vẫn là kt.css (tiền tố .kt-). */
+html, body { margin: 0; padding: 0; }
+body { font-family: var(--font-bvp, "Be Vietnam Pro"), system-ui, sans-serif; background: #f4f6f9; color: #172033; -webkit-font-smoothing: antialiased; }
+
+
+/* #190 — phần chữ dựng sẵn cho Google ở các trang danh mục (ẩn với mắt người xem, trang thật hiện cùng nội dung) */
+.kt-ssr { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.kt-ssr-loading { min-height: 60vh; display: grid; place-items: center; }

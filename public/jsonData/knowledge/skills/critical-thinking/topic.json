@@ -1,0 +1,30 @@
+{
+  "branch": "skills",
+  "branchTitle": {
+    "vi": "Kỹ năng làm việc & cuộc sống",
+    "en": "Life and work skills"
+  },
+  "slug": "critical-thinking",
+  "title": {
+    "vi": "Tư duy phản biện: phân tích, so sánh, đánh giá thông tin",
+    "en": "Critical thinking: analyse, compare, evaluate"
+  },
+  "level": "B1",
+  "intro": {
+    "en": "How do you know whether a message, a claim or a proposal is really true? This topic trains you to separate facts from opinions, check sources, compare options fairly, spot weak arguments and reach balanced conclusions.",
+    "vi": "Làm sao biết một tin nhắn, một nhận định hay một đề xuất có thật sự đúng? Chủ đề này luyện cho bạn cách tách sự thật khỏi ý kiến, kiểm tra nguồn tin, so sánh lựa chọn công bằng, nhận ra lập luận yếu và đi đến kết luận cân bằng."
+  },
+  "lessons": [
+    {
+      "id": "lesson-1",
+      "title": {
+        "vi": "Tư duy phản biện: phân tích, so sánh, đánh giá thông tin",
+        "en": "Critical thinking: analyse, compare, evaluate"
+      },
+      "level": "B1",
+      "questions": 50,
+      "status": "draft",
+      "updatedAt": "2026-10-14"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "branch": "skills",
+  "branchTitle": {
+    "vi": "Kỹ năng làm việc & cuộc sống",
+    "en": "Life and work skills"
+  },
+  "slug": "persuasion-negotiation",
+  "title": {
+    "vi": "Thuyết phục và đàm phán",
+    "en": "Persuasion and negotiation"
+  },
+  "level": "B1",
+  "intro": {
+    "en": "How do you get a fair deal when you ask for a raise, bargain at a shop or need someone to agree with your idea? This topic teaches you how to find the real need behind a demand, prepare your limit, persuade with evidence, trade instead of giving in, resist pressure and confirm the deal in writing.",
+    "vi": "Làm sao để có thoả thuận công bằng khi xin tăng lương, trả giá lúc mua hàng hay cần người khác đồng ý với ý tưởng của bạn? Chủ đề này giúp bạn biết cách tìm nhu cầu thật đằng sau lời đòi hỏi, chuẩn bị giới hạn, thuyết phục bằng bằng chứng, trao đổi thay vì nhượng bộ không công, đứng vững trước áp lực và xác nhận thoả thuận bằng văn bản."
+  },
+  "lessons": [
+    {
+      "id": "lesson-1",
+      "title": {
+        "vi": "Thuyết phục và đàm phán",
+        "en": "Persuasion and negotiation"
+      },
+      "level": "B1",
+      "questions": 50,
+      "status": "draft",
+      "updatedAt": "2026-10-14"
+    }
+  ]
+}

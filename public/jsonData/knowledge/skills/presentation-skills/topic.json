@@ -1,0 +1,30 @@
+{
+  "branch": "skills",
+  "branchTitle": {
+    "vi": "Kỹ năng làm việc & cuộc sống",
+    "en": "Life and work skills"
+  },
+  "slug": "presentation-skills",
+  "title": {
+    "vi": "Thuyết trình và trình bày ý tưởng",
+    "en": "Presenting your ideas"
+  },
+  "level": "B1",
+  "intro": {
+    "en": "How do you get a room, a video call or a busy boss to understand and act on your idea? This topic teaches you how to find one key message, structure a talk, use slides, manage nerves, answer hard questions and stay within time.",
+    "vi": "Làm sao để cả phòng họp, một cuộc gọi trực tuyến hay một người sếp bận rộn hiểu và hành động theo ý tưởng của bạn? Chủ đề này giúp bạn biết cách chọn một thông điệp chính, sắp xếp bài nói, dùng slide, kiểm soát hồi hộp, trả lời câu hỏi khó và giữ đúng thời gian."
+  },
+  "lessons": [
+    {
+      "id": "lesson-1",
+      "title": {
+        "vi": "Thuyết trình và trình bày ý tưởng",
+        "en": "Presenting your ideas"
+      },
+      "level": "B1",
+      "questions": 50,
+      "status": "draft",
+      "updatedAt": "2026-10-14"
+    }
+  ]
+}

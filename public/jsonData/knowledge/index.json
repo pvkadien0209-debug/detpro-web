@@ -1,0 +1,281 @@
+{
+  "branches": [
+    {
+      "slug": "career",
+      "title": {
+        "en": "Career",
+        "vi": "Công việc & sự nghiệp"
+      },
+      "topics": [
+        {
+          "title": {
+            "en": "Preparing for a job interview",
+            "vi": "Chuẩn bị trước buổi phỏng vấn xin việc"
+          },
+          "status": "available",
+          "slug": "job-interview-preparation",
+          "lessons": 3,
+          "level": "B1"
+        },
+        {
+          "slug": "communication-at-work",
+          "title": {
+            "en": "Communication skills at work",
+            "vi": "Kỹ năng giao tiếp nơi công sở"
+          },
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "slug": "skills",
+      "title": {
+        "en": "Life and work skills",
+        "vi": "Kỹ năng làm việc & cuộc sống"
+      },
+      "topics": [
+        {
+          "slug": "problem-solving",
+          "title": {
+            "en": "Problem solving and decision making",
+            "vi": "Giải quyết vấn đề và ra quyết định"
+          },
+          "status": "available",
+          "lessons": 1
+        },
+        {
+          "slug": "time-management",
+          "title": {
+            "en": "Time management and priorities",
+            "vi": "Quản lý thời gian và sắp xếp ưu tiên"
+          },
+          "status": "available",
+          "lessons": 1
+        },
+        {
+          "slug": "critical-thinking",
+          "title": {
+            "en": "Critical thinking: analyse, compare, evaluate",
+            "vi": "Tư duy phản biện: phân tích, so sánh, đánh giá thông tin"
+          },
+          "status": "available",
+          "lessons": 1
+        },
+        {
+          "slug": "teamwork",
+          "title": {
+            "en": "Teamwork and leading a small team",
+            "vi": "Làm việc nhóm và dẫn dắt nhóm nhỏ"
+          },
+          "status": "available",
+          "lessons": 1
+        },
+        {
+          "slug": "handling-conflict",
+          "title": {
+            "en": "Handling conflict and difficult conversations",
+            "vi": "Xử lý xung đột và cuộc nói chuyện khó"
+          },
+          "status": "available",
+          "lessons": 1
+        },
+        {
+          "slug": "persuasion-negotiation",
+          "title": {
+            "en": "Persuasion and negotiation",
+            "vi": "Thuyết phục và đàm phán"
+          },
+          "status": "available",
+          "lessons": 1
+        },
+        {
+          "slug": "customer-service",
+          "title": {
+            "en": "Customer service and handling complaints",
+            "vi": "Phục vụ khách hàng và xử lý khiếu nại"
+          },
+          "status": "available",
+          "lessons": 1
+        },
+        {
+          "slug": "presentation-skills",
+          "title": {
+            "en": "Presenting your ideas",
+            "vi": "Thuyết trình và trình bày ý tưởng"
+          },
+          "status": "available",
+          "lessons": 1
+        },
+        {
+          "slug": "learning-how-to-learn",
+          "title": {
+            "en": "Self-study and learning how to learn",
+            "vi": "Tự học và học cách học"
+          },
+          "status": "available",
+          "lessons": 1
+        }
+      ]
+    },
+    {
+      "slug": "graduates",
+      "title": {
+        "en": "Graduates",
+        "vi": "Sinh viên chuẩn bị ra trường"
+      },
+      "topics": [
+        {
+          "slug": "before-graduating",
+          "title": {
+            "en": "What students should prepare before graduating",
+            "vi": "Những điều sinh viên cần chuẩn bị trước khi ra trường"
+          },
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "slug": "how-to-in-english",
+      "title": {
+        "en": "How to … in English",
+        "vi": "Cách thức … bằng tiếng Anh"
+      },
+      "topics": [
+        {
+          "slug": "introduce-yourself",
+          "title": {
+            "en": "How to introduce yourself in English",
+            "vi": "Cách giới thiệu bản thân bằng tiếng Anh"
+          },
+          "status": "planned"
+        },
+        {
+          "slug": "answer-interview-questions",
+          "title": {
+            "en": "How to answer interview questions in English",
+            "vi": "Cách trả lời phỏng vấn bằng tiếng Anh"
+          },
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "slug": "english-knowledge",
+      "title": {
+        "en": "English knowledge",
+        "vi": "Kiến thức tiếng Anh"
+      },
+      "topics": [
+        {
+          "slug": "grammar-structures",
+          "title": {
+            "en": "English grammar structures you need",
+            "vi": "Các cấu trúc ngữ pháp tiếng Anh bạn cần học"
+          },
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "slug": "science",
+      "title": {
+        "en": "Science",
+        "vi": "Khoa học"
+      },
+      "topics": [
+        {
+          "slug": "solar-system",
+          "title": {
+            "en": "The Solar System",
+            "vi": "Hệ Mặt Trời"
+          },
+          "status": "planned"
+        },
+        {
+          "slug": "human-body",
+          "title": {
+            "en": "The human body",
+            "vi": "Cơ thể người"
+          },
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "slug": "travel-vietnam",
+      "title": {
+        "en": "Travel & Vietnam",
+        "vi": "Du lịch & Việt Nam"
+      },
+      "topics": [
+        {
+          "slug": "world-heritage",
+          "title": {
+            "en": "World heritage sites in Vietnam",
+            "vi": "Di sản thế giới tại Việt Nam"
+          },
+          "status": "planned"
+        },
+        {
+          "slug": "travel-abroad-skills",
+          "title": {
+            "en": "Handling problems when travelling abroad",
+            "vi": "Xử lý sự cố khi đi du lịch, công tác nước ngoài"
+          },
+          "status": "available",
+          "lessons": 1
+        }
+      ]
+    },
+    {
+      "slug": "food-health",
+      "title": {
+        "en": "Food & health",
+        "vi": "Ẩm thực & sức khoẻ"
+      },
+      "topics": [
+        {
+          "slug": "vietnamese-food",
+          "title": {
+            "en": "Famous Vietnamese dishes",
+            "vi": "Món Việt nổi tiếng thế giới"
+          },
+          "status": "planned"
+        },
+        {
+          "slug": "basic-nutrition",
+          "title": {
+            "en": "Everyday nutrition basics",
+            "vi": "Dinh dưỡng cơ bản hằng ngày"
+          },
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "slug": "sports",
+      "title": {
+        "en": "Sports",
+        "vi": "Thể thao"
+      },
+      "topics": [
+        {
+          "slug": "world-football",
+          "title": {
+            "en": "World football",
+            "vi": "Bóng đá thế giới"
+          },
+          "status": "planned"
+        },
+        {
+          "slug": "running-for-beginners",
+          "title": {
+            "en": "Running for beginners",
+            "vi": "Chạy bộ cho người mới"
+          },
+          "status": "planned"
+        }
+      ]
+    }
+  ]
+}

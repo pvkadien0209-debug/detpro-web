@@ -1,0 +1,30 @@
+{
+  "branch": "travel-vietnam",
+  "branchTitle": {
+    "vi": "Du lịch & Việt Nam",
+    "en": "Travel & Vietnam"
+  },
+  "slug": "travel-abroad-skills",
+  "title": {
+    "vi": "Xử lý sự cố khi đi du lịch, công tác nước ngoài",
+    "en": "Handling problems when travelling abroad"
+  },
+  "level": "B1",
+  "intro": {
+    "en": "What should you do when you lose your passport, miss a flight or get sick far from home? This topic teaches calm, practical steps for common travel problems, from preparing before the trip to handling scams and business trip surprises.",
+    "vi": "Bạn nên làm gì khi mất hộ chiếu, lỡ chuyến bay hay bị ốm ở nơi xa nhà? Chủ đề này hướng dẫn các bước bình tĩnh, thực tế để xử lý những sự cố thường gặp, từ chuẩn bị trước chuyến đi đến đối phó với lừa đảo và tình huống bất ngờ khi đi công tác."
+  },
+  "lessons": [
+    {
+      "id": "lesson-1",
+      "title": {
+        "vi": "Xử lý sự cố khi đi du lịch, công tác nước ngoài",
+        "en": "Handling problems when travelling abroad"
+      },
+      "level": "B1",
+      "questions": 50,
+      "status": "draft",
+      "updatedAt": "2026-10-14"
+    }
+  ]
+}

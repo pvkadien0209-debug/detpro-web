@@ -1,0 +1,17 @@
+# thư viện, bản build
+/node_modules
+/.next/
+/out/
+/build
+next-env.d.ts
+*.tsbuildinfo
+
+# biến môi trường (khoá, chuỗi kết nối) — không đưa lên git
+.env
+.env*.local
+
+# máy / trình soạn
+.DS_Store
+Thumbs.db
+npm-debug.log*
+.vercel
