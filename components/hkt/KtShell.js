@@ -8,7 +8,7 @@ import { Link, useNavigate } from "@/lib/router"; // Next.js: thay react-router-
 import { Home, LayoutGrid, PlayCircle, Users, BarChart3, Search, Clapperboard, Megaphone } from "lucide-react";
 import { loadUnitsIndex, readLastUnit, unitPath, audiencePath, topicColor, lowerFirst } from "./unitData";
 // Next.js: kt.css nạp toàn cục ở app/layout.js
-import TopicArt, { TOPIC_ART } from "./topicArt";
+import TopicArt from "./topicArt";
 import VongDet, { SIGN, VongDetLoading } from "./VongDet";
 
 export const NAV = [
@@ -196,6 +196,7 @@ function BrandFooter() {
         <Link to="/knowledge">Chủ đề</Link>
         <Link to="/for">Hoàn cảnh</Link>
         <Link to="/videos">Video</Link>
+        <a href="/?huong-dan=1">Xem lại hướng dẫn</a>
         {BRAND.fanpage && (
           <a href={BRAND.fanpage} target="_blank" rel="noopener noreferrer">
             Fanpage DetPro
@@ -211,7 +212,8 @@ export function TopicThumb({ idx, topic, branchTitle, small, className = "" }) {
   return (
     <div className={`kt-thumb ${small ? "is-small" : ""} ${className}`} style={{ background: topicColor(idx, topic.slug) }}>
       {branchTitle && <span className="kt-thumb-cat">{branchTitle}</span>}
-      {TOPIC_ART[topic.slug] ? <TopicArt slug={topic.slug} /> : <span className="kt-thumb-q" aria-hidden="true">?</span>}
+      {/* #199: mọi chủ đề đều có hình (topicArtMore.js), không còn dấu "?" */}
+      <TopicArt slug={topic.slug} />
       <span className="kt-thumb-t">{topic.title?.vi || topic.title}</span>
       {!small && topic.audienceTitle && <span className="kt-thumb-who">Dành cho {lowerFirst(topic.audienceTitle)}</span>}
     </div>

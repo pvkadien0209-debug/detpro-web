@@ -35,8 +35,10 @@ export function VideoThumb({ v, idx, w = 640 }) {
 
 export function VideoCard({ v, idx, compact }) {
   const who = v.u?.audienceTitle || v.t?.audienceTitle;
+  // #196: màu của chủ đề (giống ảnh bìa chủ đề) → viền, nhãn chủ đề, nền nhạt của thẻ
+  const tc = v.t ? topicColor(idx, v.t.slug) : "#334155";
   return (
-    <Link className={`kt-vcard ${compact ? "is-compact" : ""}`} to={`/videos/${v.slug}`} aria-label={`Xem video: ${titleOf(v)}`}>
+    <Link className={`kt-vcard ${compact ? "is-compact" : ""}`} style={{ "--tc": tc }} to={`/videos/${v.slug}`} aria-label={`Xem video: ${titleOf(v)}`}>
       <span className="kt-vcard-media">
         <VideoThumb v={v} idx={idx} w={compact ? 320 : 640} />
       </span>

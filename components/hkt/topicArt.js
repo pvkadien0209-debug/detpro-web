@@ -3,6 +3,7 @@
 // viewBox 0 0 160 120 · lớp "f" = tô trắng mờ · "s" = tô trắng đặc · kiểu nét trong kt.css (.kt-art).
 // Thêm chủ đề mới: thêm một khoá slug → chuỗi SVG; không có thì ảnh bìa hiện dấu "?" như cũ.
 import React from "react";
+import { artFor } from "./topicArtMore"; // #199: hình cho mọi chủ đề còn lại, không còn dấu "?"
 
 export const TOPIC_ART = {
   "job-interview-preparation":
@@ -70,7 +71,6 @@ export const TOPIC_ART = {
 };
 
 export default function TopicArt({ slug, className = "" }) {
-  const art = TOPIC_ART[slug];
-  if (!art) return null;
+  const art = artFor(slug, TOPIC_ART); // #199: hình riêng → hình ghép → đoán theo slug
   return <svg className={`kt-art ${className}`} viewBox="0 0 160 120" aria-hidden="true" focusable="false" dangerouslySetInnerHTML={{ __html: art }} />;
 }

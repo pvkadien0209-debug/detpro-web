@@ -1,19 +1,37 @@
 "use client";
 // SP04 · Trang chủ "/" — SP09 (#063, Đ3): giao diện mới tham khảo F8.
 // Khối chào + số liệu nội dung (UX-Q7) · khối "Bạn đang học dở" · lối tắt theo hoàn cảnh · mỗi nhánh một hàng thẻ chủ đề.
-// Trang chủ cũ (khoá Rèn luyện HỌC 2 – RÈN 8) vẫn ở /ren-luyen.
+// #191: bỏ lời mời sang khoá Rèn luyện (/ren-luyen không còn trên web Next.js, #189).
+// #206: băng video "Bắt đầu với DetPro" (quẹt ngang) + "Học một bài trong 4 bước" + hỏi đáp + 4 bóng chỉ lần đầu (#201).
 import React, { useEffect, useState } from "react";
 import { Link } from "@/lib/router"; // Next.js: thay react-router-dom
 import { Helmet } from "@/lib/helmet"; // Next.js: tiêu đề/mô tả đặt ở trang máy chủ (generateMetadata)
 import { Layers, Clock } from "lucide-react";
 import KtShell, { TopicThumb } from "./KtShell";
 import { VongDetLoading } from "./VongDet";
+import HomeVideos from "./HomeVideos";
+import HomeTour from "./HomeTour";
 import {
   loadUnitsIndex, readLastUnit, readUnitProgress, unitPath, audiencePath, PARTS, unitDoneCount, seriesProgress,
   learnTypePath, openLearnTypes, branchesOf,
 } from "./unitData";
 
 const nf = (n) => n.toLocaleString("vi-VN");
+
+// #206 — "Học một bài trong 4 bước" và hỏi đáp cho người mới (kịch bản #201 §3)
+const STEPS4 = [
+  ["Chọn bài", "đúng hoàn cảnh của bạn"],
+  ["Đọc bài", "khoảng 6 phút, hoặc xem video tóm tắt"],
+  ["Luyện 3 phần", "Trắc nghiệm · Nghe nói · True or false"],
+  ["Xem kết quả", "làm lại câu sai · lần sau bấm Học tiếp"],
+];
+const FAQ = [
+  ["DetPro có mất phí không?", "Miễn phí, không cần tài khoản."],
+  ["Tôi kém tiếng Anh có học được không?", "Được. Chữ có song ngữ, nghe lại bao nhiêu lần cũng được; không tiện nói thì chuyển sang Gõ."],
+  ["Tiến độ lưu ở đâu?", "Trên trình duyệt của máy bạn. Đổi máy hoặc xoá dữ liệu trình duyệt thì tiến độ bắt đầu lại."],
+  ["Mỗi ngày nên học bao lâu?", "20–30 phút là đủ. Đều đặn quan trọng hơn học dồn."],
+  ["Nội dung pháp lý, tài chính có thay tư vấn được không?", "Không. Nội dung mang tính tham khảo chung, không thay thế tư vấn cho trường hợp cụ thể."],
+];
 
 /** Thẻ chủ đề dùng chung (trang chủ, trang Chủ đề, Của tôi). */
 export function TopicCard({ idx, topic }) {
@@ -119,6 +137,18 @@ export default function HomeKnowledge() {
         )}
       </section>
 
+      <HomeVideos />
+
+      <ol className="kt-4steps" aria-label="Học một bài trong 4 bước">
+        {STEPS4.map(([b, t], k) => (
+          <li key={b}>
+            <i>{k + 1}</i>
+            <b>{b}</b>
+            <span>{t}</span>
+          </li>
+        ))}
+      </ol>
+
       {idx && (
         <div className="kt-doors">
           {openLearnTypes(idx).map((x) => (
@@ -183,14 +213,16 @@ export default function HomeKnowledge() {
         </p>
       )}
 
-      <section className="kt-legacy">
-        <p>
-          Bạn tìm <strong>khoá rèn luyện tiếng Anh HỌC 2 – RÈN 8</strong> và hướng dẫn ghép âm?
-        </p>
-        <Link className="kt-btn" to="/ren-luyen">
-          Đến trang Rèn luyện
-        </Link>
+      <section className="kt-faq" aria-labelledby="kt-faq-h">
+        <h2 id="kt-faq-h">Câu hỏi thường gặp</h2>
+        {FAQ.map(([q, a]) => (
+          <details key={q}>
+            <summary>{q}</summary>
+            <p>{a}</p>
+          </details>
+        ))}
       </section>
+      <HomeTour ready={!!idx} />
     </KtShell>
   );
 }

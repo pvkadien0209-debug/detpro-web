@@ -1,0 +1,111 @@
+// #206 — 6 video slide-show trang chủ "Bắt đầu với DetPro" (kịch bản #201, anh chốt TC-Q1–Q6).
+// Giọng đọc TIẾNG ANH + phụ đề tiếng Việt như video bài (TC-Q1). Dùng chung cho:
+//   - web: băng video quẹt ngang ở trang chủ (HomeVideos.js) — video chưa render thì phát bản xem trước bằng slide;
+//   - Remotion (my-sta-video): chép sang SEO\DetPro\video\trang-chu\kich-ban-tc.json để dựng video + tạo giọng.
+// Mỗi slide: en = lời Đét đọc · vi = phụ đề · show = chữ lớn trên slide (**…** = tô vàng) · art = hình gợi ý · sec = giây.
+// Tên tệp video trên Drive: trang-chu-<id>--w01.mp4 (+ .jpg ảnh bìa) — web tự nhận khi tệp có trong DetProMedia.
+
+export const HOME_VIDEOS = [
+  {
+    id: "tc1",
+    title: "DetPro là gì?",
+    blurb: "Hiểu trang làm gì trong 45 giây",
+    color: "#0f6e5a",
+    slides: [
+      { art: "ring", sec: 7, show: "**Mỗi ngày biết thêm** một điều hay", en: "Hi, I'm Det. Every day, I help you learn one more useful thing.", vi: "Xin chào, mình là Đét. Mỗi ngày, mình giúp bạn biết thêm một điều hay." },
+      { art: "cards", sec: 8, show: "Kiến thức **dùng được ngay**", en: "On DetPro, you learn things you can use right away: job interviews, renting a room, work, travel.", vi: "Ở DetPro, bạn học kiến thức dùng được ngay: đi phỏng vấn, thuê trọ, đi làm, du lịch." },
+      { art: "article", sec: 6, show: "Bài viết ngắn · **~6 phút**", en: "Each lesson is a short article. It takes about six minutes to read.", vi: "Mỗi bài là một bài viết ngắn, đọc khoảng sáu phút." },
+      { art: "abc", sec: 9, show: "Nghe – nói tiếng Anh = **cách học**", en: "Then you answer questions by listening and speaking English. English is how you learn. The knowledge is what you keep.", vi: "Rồi bạn trả lời câu hỏi bằng cách nghe và nói tiếng Anh. Tiếng Anh là cách học, kiến thức là thứ bạn mang về." },
+      { art: "free", sec: 7, show: "**Miễn phí** · mở là học", en: "It's free, and you don't need an account. Pick a topic and start.", vi: "Miễn phí, không cần đăng ký. Chọn một chủ đề là học được ngay." },
+      { art: "logo", sec: 7, show: "One a day, **the DetPro way**", en: "One a day, the DetPro way.", vi: "Mỗi ngày một điều — quyết tâm mỗi ngày, tiến bộ mỗi ngày." },
+    ],
+  },
+  {
+    id: "tc2",
+    title: "Học một bài trong 4 bước",
+    blurb: "Từ chọn bài đến xem kết quả",
+    color: "#2456a6",
+    slides: [
+      { art: "steps", sec: 6, show: "**4 bước** · 1 bài", en: "Learning a lesson on DetPro takes just four steps. Let's go together.", vi: "Học một bài trên DetPro chỉ có bốn bước. Đi cùng mình nhé." },
+      { art: "screen-home", sec: 9, show: "① **Chọn bài** đúng hoàn cảnh", en: "Step one: choose a lesson. Pick the topic or situation that fits you, then tap Start.", vi: "Bước một: chọn bài. Chọn chủ đề hoặc hoàn cảnh hợp với bạn, rồi bấm Bắt đầu học." },
+      { art: "article", sec: 8, show: "② **Đọc bài** hoặc xem video", en: "Step two: read the article, or watch the short video if you prefer.", vi: "Bước hai: đọc bài, hoặc xem video tóm tắt nếu bạn ngại đọc." },
+      { art: "table", sec: 7, show: "Bảng thông tin = **chỗ tra**", en: "The Info Table has all forty questions, so you can check them any time.", vi: "Phần Bảng thông tin có đủ 40 câu hỏi để bạn tra lại bất cứ lúc nào." },
+      { art: "abc", sec: 10, show: "③ **Luyện** 3 phần", en: "Step three: practise. The quiz helps you remember, listening and speaking build your reflexes, and true or false makes it stick.", vi: "Bước ba: luyện. Trắc nghiệm để nhớ, Nghe nói để phản xạ, True or false để chắc chắn." },
+      { art: "report", sec: 8, show: "④ **Kết quả** → làm lại câu sai", en: "Step four: see your results, and try the wrong answers again.", vi: "Bước bốn: xem kết quả và làm lại đúng những câu còn sai." },
+      { art: "ring", sec: 9, show: "Bấm **Học tiếp**", en: "Next time, tap Continue to go back to where you stopped. Your progress is saved on your device.", vi: "Lần sau, bấm Học tiếp là quay về đúng chỗ đang dở. Tiến độ lưu ngay trên máy của bạn." },
+      { art: "thumb", sec: 6, show: "Thử ngay **một bài**", en: "One lesson, four steps, about half an hour. Try one now!", vi: "Một bài, bốn bước, khoảng nửa giờ. Thử ngay một bài nhé!" },
+    ],
+  },
+  {
+    id: "tc3",
+    title: "Nói vào micro thế nào?",
+    blurb: "Không còn ngại phần Nghe nói",
+    color: "#b4472e",
+    slides: [
+      { art: "mic", sec: 7, show: "Nói với máy: **dễ hơn bạn nghĩ**", en: "Speaking English to a computer for the first time? I was nervous too. Here's how.", vi: "Lần đầu nói tiếng Anh với máy? Mình cũng run. Làm thế này là dễ." },
+      { art: "allow", sec: 6, show: "Bấm **Cho phép** micro", en: "The first time, your browser asks to use the microphone. Tap Allow.", vi: "Lần đầu, trình duyệt hỏi quyền dùng micro. Bạn bấm Cho phép." },
+      { art: "abc", sec: 7, show: "Nghe → **chọn trong đầu**", en: "Listen to the question and the three answers. Tap the speaker to hear them again.", vi: "Nghe câu hỏi và ba đáp án. Muốn nghe lại thì bấm loa." },
+      { art: "wave", sec: 8, show: "Bấm **Nói** → đọc đáp án", en: "Tap Speak and say your answer out loud. It keeps listening until you tap Send or Stop.", vi: "Bấm Nói, đọc to đáp án bạn chọn. Máy nghe tới khi bạn bấm Gửi hoặc Dừng." },
+      { art: "text", sec: 8, show: "Xem chữ → **Gửi**", en: "Check what it heard. If it's right, tap Send. If not, tap Clear and try again.", vi: "Xem chữ máy nghe được. Đúng ý thì bấm Gửi, sai thì bấm Xoá nói lại." },
+      { art: "half", sec: 7, show: "Khớp ≥ 50% là **đạt**", en: "You don't need to be perfect. Half of the words or more counts as correct.", vi: "Không cần nói hoàn hảo: khớp từ một nửa trở lên là tính đúng." },
+      { art: "keyboard", sec: 6, show: "Không tiện nói → **Gõ**", en: "In a busy place? Switch to Type instead.", vi: "Đang ở chỗ đông người? Chuyển sang Gõ cũng được." },
+      { art: "thumb", sec: 6, show: "Sai cũng là **tiến bộ**", en: "Mistakes are fine. Every time you speak, you get better.", vi: "Nói sai cũng không sao. Mỗi lần nói là một lần tiến bộ." },
+    ],
+  },
+  {
+    id: "tc4",
+    title: "20 giờ đầu tiên",
+    blurb: "Vì sao học ngắn, đều mỗi ngày lại hiệu quả",
+    color: "#7a3fa0",
+    source: "Theo ý sách “20 Giờ Đầu Tiên” (The First 20 Hours) của Josh Kaufman",
+    slides: [
+      { art: "book", sec: 7, show: "Theo **20 Giờ Đầu Tiên** · Josh Kaufman", en: "This idea comes from the book The First 20 Hours, by Josh Kaufman.", vi: "Ý tưởng này từ cuốn sách 20 Giờ Đầu Tiên của Josh Kaufman." },
+      { art: "n10000", sec: 8, show: "~~10.000 giờ~~", en: "You may have heard that you need ten thousand hours to be great. That's for becoming a master.", vi: "Bạn từng nghe: muốn giỏi phải luyện mười nghìn giờ? Đó là để thành bậc thầy." },
+      { art: "n20", sec: 9, show: "**20 giờ** · đủ dùng", en: "To be good enough for your own needs, many people need only about twenty hours of the right practice.", vi: "Muốn làm được, đủ dùng cho việc của mình, nhiều người chỉ cần khoảng hai mươi giờ luyện tập đúng cách." },
+      { art: "curve", sec: 9, show: "**Rào cản thất vọng**", en: "The first hours are the hardest. Everyone feels clumsy and wants to quit. The book calls this the frustration barrier.", vi: "Khó nhất là mấy giờ đầu: ai cũng lúng túng, dễ bỏ cuộc. Sách gọi đó là rào cản thất vọng." },
+      { art: "steps", sec: 5, show: "4 bước **học nhanh**", en: "Here are four steps to get past it.", vi: "Vượt qua bằng bốn bước." },
+      { art: "split", sec: 9, show: "① **Chia nhỏ**", en: "One: break it down. DetPro splits each skill into a series of lessons, and each lesson into five small parts.", vi: "Một: chia nhỏ. DetPro chia mỗi kỹ năng thành chuỗi bài, mỗi bài năm phần nhỏ." },
+      { art: "article", sec: 9, show: "② **Học vừa đủ** để tự sửa", en: "Two: learn just enough to correct yourself. Read a short article, then let each explanation show you what went wrong.", vi: "Hai: học vừa đủ để tự sửa. Đọc bài ngắn, rồi để từng lời giải thích chỉ cho bạn chỗ sai." },
+      { art: "free", sec: 9, show: "③ **Dẹp rào cản**", en: "Three: remove the barriers. No account, just open your phone and learn. Tap Continue to jump right back in.", vi: "Ba: dẹp rào cản. Không cần tài khoản, mở điện thoại là học, bấm Học tiếp là vào đúng chỗ." },
+      { art: "clock", sec: 9, show: "④ **Luyện đều** mỗi ngày", en: "Four: practise every day. Twenty to thirty minutes a day, and in a few weeks you reach twenty hours.", vi: "Bốn: luyện đều. Mỗi ngày hai mươi đến ba mươi phút, vài tuần là đủ hai mươi giờ." },
+      { art: "ring", sec: 6, show: "Bắt đầu từ **hôm nay**", en: "Your first twenty hours start with today's lesson.", vi: "Hai mươi giờ đầu tiên, bắt đầu từ bài hôm nay." },
+    ],
+  },
+  {
+    id: "tc5",
+    title: "10 mẹo học nhanh",
+    blurb: "Nguyên tắc trong sách → việc làm ngay trên DetPro",
+    color: "#c07a00",
+    source: "Theo ý sách “20 Giờ Đầu Tiên” (The First 20 Hours) của Josh Kaufman",
+    slides: [
+      { art: "book", sec: 7, show: "**10 mẹo** · mỗi mẹo 10 giây", en: "Ten tips from The First 20 Hours by Josh Kaufman. Ten seconds each.", vi: "Mười mẹo từ sách 20 Giờ Đầu Tiên của Josh Kaufman, mỗi mẹo mười giây." },
+      { art: "n1", sec: 10, show: "Chọn **đúng hoàn cảnh** của bạn", en: "One: choose something you really want to do. Open Situations and pick yours.", vi: "Một: chọn việc bạn thật sự muốn làm được. Vào Hoàn cảnh, chọn đúng hoàn cảnh của bạn." },
+      { art: "n2", sec: 10, show: "Xong **một chuỗi** rồi mới sang chuỗi mới", en: "Two: one skill at a time. Finish one series before you open the next.", vi: "Hai: mỗi lúc một kỹ năng. Học xong một chuỗi rồi mới mở chuỗi mới." },
+      { art: "n3", sec: 10, show: "Đọc “**Sau chuỗi này, bạn sẽ…**”", en: "Three: know your target. Read the line that says what you'll be able to do.", vi: "Ba: biết trước mình muốn đạt tới đâu. Đọc dòng “Sau chuỗi này, bạn sẽ…”." },
+      { art: "n4", sec: 10, show: "Làm **từng phần một**", en: "Four: break it down. Each lesson has five parts. Do one at a time.", vi: "Bốn: chia nhỏ. Mỗi bài năm phần, làm từng phần một." },
+      { art: "n5", sec: 10, show: "Ghim DetPro lên **màn hình**", en: "Five: remove distractions. Pin DetPro to your phone's home screen.", vi: "Năm: dẹp thứ cản trở. Ghim DetPro lên màn hình điện thoại." },
+      { art: "n6", sec: 10, show: "Giờ học **cố định**", en: "Six: set a fixed time every day, like eight p.m.", vi: "Sáu: đặt giờ học cố định mỗi ngày, ví dụ tám giờ tối." },
+      { art: "n7", sec: 10, show: "Đọc **giải thích** ngay sau câu sai", en: "Seven: get fast feedback. Read the explanation right after a wrong answer.", vi: "Bảy: phản hồi nhanh. Đọc giải thích ngay sau mỗi câu sai." },
+      { art: "n8", sec: 10, show: "**20 phút** = một phần", en: "Eight: practise in short timed blocks. Twenty minutes, one part.", vi: "Tám: luyện theo đồng hồ, từng đợt ngắn. Hai mươi phút là một phần." },
+      { art: "n9", sec: 10, show: "Hôm sau: **Làm lại câu sai**", en: "Nine: review with spaces. Tomorrow, tap Retry wrong answers.", vi: "Chín: ôn cách quãng. Hôm sau bấm Làm lại câu sai." },
+      { art: "n10", sec: 10, show: "Mệt thì **nghỉ**", en: "Ten: take care of your body. Tired? Stop. Your progress is saved.", vi: "Mười: tôn trọng cơ thể. Mệt thì dừng, tiến độ đã lưu, mai học tiếp." },
+      { art: "thumb", sec: 6, show: "Chọn **một mẹo** · làm ngay", en: "Pick one tip and try it today.", vi: "Chọn một mẹo, làm ngay hôm nay." },
+    ],
+  },
+  {
+    id: "tc6",
+    title: "Tìm đúng bài cho bạn",
+    blurb: "Hoàn cảnh · chủ đề · tìm kiếm",
+    color: "#1f7a8c",
+    slides: [
+      { art: "doors", sec: 9, show: "**3 cửa** học", en: "DetPro has three doors: skills, knowledge, and professional topics for people at work.", vi: "DetPro có ba cửa: kỹ năng, kiến thức, và chuyên môn cho người đi làm." },
+      { art: "people", sec: 10, show: "Bắt đầu từ **hoàn cảnh**", en: "Or start from your situation: a new student away from home, a job seeker, someone moving abroad.", vi: "Hoặc bắt đầu từ hoàn cảnh: tân sinh viên xa nhà, người đi phỏng vấn, người sắp ra nước ngoài…" },
+      { art: "search", sec: 6, show: "Gõ để **tìm**", en: "Know what you need? Type it in the search box.", vi: "Biết mình cần gì? Gõ vào ô tìm kiếm." },
+      { art: "cards", sec: 9, show: "Bài tổng → **đi sâu**", en: "Each topic is a series. The overview comes first, then each lesson goes deeper.", vi: "Mỗi chủ đề là một chuỗi bài, bài tổng mở đầu, các bài sau đi sâu dần." },
+      { art: "thumb", sec: 6, show: "Bấm **Bắt đầu học**", en: "Pick a series and tap Start. That's it!", vi: "Chọn một chuỗi, bấm Bắt đầu học. Vậy thôi!" },
+    ],
+  },
+];
+
+export const videoSeconds = (v) => v.slides.reduce((n, s) => n + s.sec, 0);
+export const fmtSec = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
