@@ -1003,7 +1003,8 @@ export function TrueFalsePart({ unit, prog, update, player, openExplain, refButt
   const qs = unit.questions;
   const qa = prog.qa && prog.qa.items?.length === qaTotal(qs.length) ? prog.qa : null;
   useEffect(() => {
-    if (!qa) update({ qa: newQaRun(qs.length) });
+    // #262: tạo lượt mới chỉ khi tiến độ MỚI NHẤT chưa có lượt (đọc trong hàm, không dùng prog lúc dựng — tránh xoá lượt / mốc cũ)
+    if (!qa) update((p) => (p.qa && p.qa.items?.length === qaTotal(qs.length) ? {} : { qa: newQaRun(qs.length) }));
   }, [qa]); // eslint-disable-line react-hooks/exhaustive-deps
   const pos = qa?.pos ?? 0;
   const it = qa?.items[pos];

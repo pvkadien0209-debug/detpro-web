@@ -70,10 +70,22 @@ export default function UnitPage({ initialUnit = null }) {
   const pDone = grp ? (p, key) => partDoneNhom(p, key, grp.ng) : partDone;
   const pCount = grp ? (p) => unitGreenCount(p, grp.ng) : unitDoneCount;
 
+  // #262: phần con (vd. True or false) ghi tiến độ ngay khi dựng — TRƯỚC khi effect này đọc tiến độ đã lưu → trước đây ghi đè mất các mốc cũ.
+  // Nay: ghi trước lúc đọc xong thì xếp hàng, đọc xong mới gộp vào tiến độ cũ rồi ghi một lần.
+  const progKey = useRef(null);
+  const progQueue = useRef([]);
   useEffect(() => {
     let live = true;
     setError(false);
-    setProg(readProg(audience, slug) || {});
+    const base = readProg(audience, slug) || {};
+    progKey.current = `${audience}/${slug}`;
+    const q = progQueue.current;
+    progQueue.current = [];
+    if (q.length) {
+      const n = q.reduce((acc, patch) => ({ ...acc, ...(typeof patch === "function" ? patch(acc) : patch) }), base);
+      writeProg(audience, slug, n);
+      setProg(n);
+    } else setProg(base);
     loadUnit(audience, slug)
       .then((u) => live && setLoaded({ key: `${audience}/${slug}`, unit: u }))
       .catch(() =>
@@ -103,12 +115,14 @@ export default function UnitPage({ initialUnit = null }) {
   }, [audience, slug]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const update = useCallback(
-    (patch) =>
+    (patch) => {
+      if (progKey.current !== `${audience}/${slug}`) return void progQueue.current.push(patch); // #262 chưa đọc xong tiến độ
       setProg((p) => {
-        const n = { ...p, ...patch };
+        const n = { ...p, ...(typeof patch === "function" ? patch(p) : patch) }; // #260 patch dạng hàm = đọc tiến độ mới nhất
         writeProg(audience, slug, n);
         return n;
-      }),
+      });
+    },
     [audience, slug]
   );
 
@@ -217,6 +231,13 @@ export default function UnitPage({ initialUnit = null }) {
     if (mark && !grp) markSeen(); // #258 trong nhóm: xong phần bằng nút "Đã xong mốc này"
     navigate(P(st.u.audience, st.u.slug, st.key), { state: { tab: true } });
   };
+  // #260: trong nhóm, mở Bảng thông tin là xong phần này (bảng chỉ để xem)
+  useEffect(() => {
+    if (grp && part === "info" && !locked && !loading && !prog.seen?.info) {
+      update((p) => ({ seen: { ...(p.seen || {}), info: 1 } }));
+      grp.flushNow?.();
+    }
+  }, [grp, part, locked, loading, prog.seen?.info]); // eslint-disable-line react-hooks/exhaustive-deps
   const partInfo = PARTS.find((p) => p.key === part);
   const drill = DRILL.includes(part);
   const PartIcon = PART_ICONS[part];
@@ -379,7 +400,7 @@ export default function UnitPage({ initialUnit = null }) {
             {part === "listen-speak" && <SayPart {...common} onNextPart={nextStep ? onNextPart : null} />}
             {part === "true-or-false" && <TrueFalsePart {...common} results={<UnitResults s={summary} />} onNextPart={nextStep ? onNextPart : null} />}
             {grp && <XongMoc prog={prog} part={part} ng={grp.ng} label={partInfo?.label} onXong={() => {
-              update({ xong: { ...(prog.xong || {}), [part]: Date.now() }, ...(part === "" || part === "info" ? { seen: { ...(prog.seen || {}), [part === "" ? "article" : "info"]: 1 } } : {}) });
+              update((p) => ({ xong: { ...(p.xong || {}), [part]: Date.now() }, ...(part === "" || part === "info" ? { seen: { ...(p.seen || {}), [part === "" ? "article" : "info"]: 1 } } : {}) }));
               grp.flushNow?.();
             }} onNext={nextStep ? () => goStep(nextStep) : null} />}
             {summary?.started && !drill && part !== "" && (
@@ -492,7 +513,11 @@ function XongMoc({ prog, part, ng, label, onXong, onNext }) {
       <p className="nh-xong-dk">
         <b>Điều kiện xong {label}:</b> {dk.text} {dk.dat ? "✅" : "⏳"}
       </p>
-      {at ? (
+      {dk.tuXong ? (
+        <p className="nh-xong-ok">
+          <Check size={16} aria-hidden="true" /> Đã xong — đã lưu cho nhóm.
+        </p>
+      ) : at ? (
         <p className="nh-xong-ok">
           <Check size={16} aria-hidden="true" /> Đã xong mốc này lúc {new Date(at).toLocaleString("vi-VN", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" })} — đã lưu cho nhóm.
         </p>
@@ -501,7 +526,7 @@ function XongMoc({ prog, part, ng, label, onXong, onNext }) {
           <Check size={16} aria-hidden="true" /> Đã xong mốc này
         </button>
       )}
-      {at && onNext && (
+      {(at || dk.tuXong) && onNext && (
         <button type="button" className="kt-btn" onClick={onNext}>
           Sang phần tiếp ›
         </button>

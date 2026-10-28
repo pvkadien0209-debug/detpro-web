@@ -8,10 +8,11 @@
 //  GET  /api/nhom/<mã>/tep/<id>           nghe một đoạn âm thanh
 //  POST /api/nhom/<mã>/hdr                #232 (k) thêm hướng dẫn riêng: link / audio (form-data) / chữ  ·  POST …/hdr/xoa
 //  POST /api/nhom/<mã>/nhan               #231 lời nhắn / chọc nhau trên cây (icon + câu mẫu)  ·  POST …/nhan/xoa
+//  GET  /api/nhom/<mã>/nhat-ky?ai=       #260 nhật ký học (của tôi; người lập nhóm xem ai=)
 //  GET  /api/nhom/<mã>/huong-dan          (tiêu đề x-nhom-k) mọi thứ cho người hướng dẫn
 //  POST /api/nhom/<mã>/quan-ly            { k, viec, … } cài đặt, duyệt bài nói tự do (+ nhận xét), Tạm nghỉ, PIN, xoá ID
 import {
-  HttpErr, xemNhom, vao, docTienDo, ghiTienDo, baoGuiNoi, docTin, guiTin, suaTin, docTep, guiNhan, xoaNhan, themHdr, xoaHdr, xemHuongDan, quanLy,
+  HttpErr, xemNhom, vao, docTienDo, ghiTienDo, baoGuiNoi, docTin, guiTin, suaTin, docTep, guiNhan, xoaNhan, themHdr, xoaHdr, xemHuongDan, quanLy, docNhatKy,
 } from "@/lib/nhom.server";
 
 export const runtime = "nodejs";
@@ -49,6 +50,8 @@ export async function GET(req, { params }) {
         return ok(await docTin(ma, u.searchParams.get("sau")));
       case "huong-dan":
         return ok(await xemHuongDan(ma, w.k || u.searchParams.get("k"), w.id, w.pin)); // #253: người lập nhóm = id + PIN
+      case "nhat-ky": // #260 nhật ký người học: của tôi, hoặc người lập nhóm xem ?ai=
+        return ok(await docNhatKy(ma, { id: w.id, pin: w.pin, k: w.k, ai: u.searchParams.get("ai") }));
       case "tep": {
         const t = await docTep(ma, act[1]);
         return new Response(t.data, { headers: { "Content-Type": t.mime, "Cache-Control": "private, max-age=86400" } });

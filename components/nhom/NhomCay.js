@@ -11,6 +11,7 @@ import NhomTree, { leafState } from "./NhomTree";
 import { PinGate } from "./NhomVao";
 import { StatsCard, NhanCard, nhanMoi, markNhanSeen } from "./NhomExtra";
 import PartGuide from "@/components/hkt/PartGuide";
+import NhatKyList from "./NhomNhatKy"; // #260
 import { PartPopup, QaPopup } from "./NhomPopup"; // #250 (NHA A3, D, E); bỏ "Hướng dẫn riêng" (NHA H)
 import { useNhomView, useNow, changInfo, baiLabel, Countdown, NhacBell, CopyBtn, origin, errText, NhomChat } from "./NhomShared";
 import { api, setPin, setMyId } from "./nhomClient";
@@ -135,6 +136,7 @@ function MySettings({ ma, me, nhom, onLeft }) {
           )}
         </div>
       </section>
+      <NhatKyList ma={ma} uid={me.id} ai={me.id} />
       <section className="nh-card">
         <h2>Đổi người dùng trên máy này</h2>
         <p className="kt-muted">Máy này đang nhớ bạn là “{me.ten}” (và PIN). Máy dùng chung thì bấm để quên.</p>

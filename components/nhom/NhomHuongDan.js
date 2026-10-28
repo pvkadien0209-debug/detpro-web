@@ -11,6 +11,7 @@ import NhomTree from "./NhomTree";
 import { NhomTable } from "./NhomCay";
 import { StatsCard, NhanCard } from "./NhomExtra";
 import PartGuide from "@/components/hkt/PartGuide";
+import NhatKyList from "./NhomNhatKy"; // #260
 import { PartPopup, QaPopup } from "./NhomPopup"; // #250 (NHA A3, E); bỏ tab "Hướng dẫn riêng" (NHA H)
 import { api, saveK, loadK, tepUrl, rememberGroup } from "./nhomClient";
 import { useNhomView, useNow, changInfo, baiLabel, Countdown, CopyBtn, origin, errText, NhomChat } from "./NhomShared";
@@ -117,6 +118,7 @@ export function NoiTab({ ma, k, uid, data, reload, now }) {
 // ---------- Học viên ----------
 export function HvTab({ ma, k, uid, data, reload }) {
   const [err, setErr] = useState("");
+  const [nk, setNk] = useState(""); // #260 đang xem nhật ký của ai
   const call = async (body, confirmText) => {
     if (confirmText && !window.confirm(confirmText)) return;
     setErr("");
@@ -144,6 +146,9 @@ export function HvTab({ ma, k, uid, data, reload }) {
               <button type="button" className="nh-mini" onClick={() => { const p = window.prompt("PIN mới 4 số (để trống = bỏ PIN)", ""); if (p !== null) call({ viec: "pin", id: m.id, pin: p }); }}>
                 {m.coPin ? "Đặt lại PIN" : "Đặt PIN"}
               </button>
+              <button type="button" className="nh-mini" onClick={() => setNk(nk === m.id ? "" : m.id)} aria-expanded={nk === m.id}>
+                Nhật ký
+              </button>
               <button type="button" className="nh-mini" onClick={() => call({ viec: "trang-thai", id: m.id, trangThai: m.trangThai === "hoc" ? "tam-nghi" : "hoc" })}>
                 {m.trangThai === "hoc" ? "Tạm nghỉ" : "Học lại"}
               </button>
@@ -151,6 +156,11 @@ export function HvTab({ ma, k, uid, data, reload }) {
                 Xoá
               </button>
             </span>
+            {nk === m.id && (
+              <div className="nh-nk-in">
+                <NhatKyList ma={ma} uid={uid} k={k} ai={m.id} title={`Nhật ký học của ${m.ten}`} />
+              </div>
+            )}
           </li>
         ))}
       </ul>

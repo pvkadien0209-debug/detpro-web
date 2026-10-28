@@ -1260,3 +1260,15 @@ body.nh-inpop .kt-page { padding: 12px !important; }
 .nh-xong-ok { margin: 0; display: flex; gap: 6px; align-items: center; color: #0f6e56; font-weight: 600; }
 .nh-xong .kt-btn[disabled] { opacity: .5; cursor: not-allowed; }
 body.nh-in .kt-learn.is-drill .nh-xong { margin-top: 18px; }
+
+/* #260 Nhật ký học từng người */
+.nh-nk h2 { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.nh-nk-list { list-style: none; margin: 8px 0 0; padding: 0; max-height: 420px; overflow: auto; }
+.nh-nk-list li { display: flex; gap: 12px; padding: 7px 4px; border-bottom: 1px solid #eef1f5; font-size: 14px; }
+.nh-nk-list li time { flex: none; width: 92px; color: var(--kt-muted); font-variant-numeric: tabular-nums; }
+.nh-nk-list li small { color: var(--kt-muted); }
+.nh-nk-list li.is-xong span { color: #0f6e56; font-weight: 600; }
+.nh-nk-list li.is-chung span { color: #8a5a00; }
+.nh-hv li { flex-wrap: wrap; }
+.nh-nk-in { flex: 1 1 100%; margin-top: 8px; }
+.nh-nk-in .nh-card { margin: 0; box-shadow: none; border: 1px solid #e2e8f0; }

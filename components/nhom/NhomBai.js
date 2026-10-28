@@ -14,11 +14,13 @@ import { useNhomView, useNow, changInfo, baiLabel, Countdown, NhacBell, NhomChat
 import { NGUONG_MAC_DINH, PART_SHORT, nhomPath, nhomUnitPath, baiKey } from "@/components/hkt/nhomRules";
 
 const SAVE_MS = 2500;
+// #262: trang bài trong nhóm dựng lại mỗi lần đổi phần → giữ tiến độ mới nhất trong bộ nhớ trang (bản đọc từ máy chủ có thể chưa kịp nhận lần ghi vừa rồi)
+const memProg = new Map(); // "MA/id" → { bài: tiến độ }
 
 function Inner({ ma, id, initialProg, initialUnit }) {
   const { audience, slug, part = "" } = useParams();
   const view = useNhomView(ma, { every: 15000 });
-  const [tienDo, setTienDo] = useState(initialProg || {});
+  const [tienDo, setTienDo] = useState(() => ({ ...(initialProg || {}), ...(memProg.get(`${ma}/${id}`) || {}) }));
   const tdRef = useRef(tienDo);
   tdRef.current = tienDo;
   const pending = useRef(new Map()); // bài → tiến độ chờ ghi
@@ -81,6 +83,7 @@ function Inner({ ma, id, initialProg, initialUnit }) {
         const bai = `${aud}/${sl}`;
         setTienDo((t) => ({ ...t, [bai]: p }));
         tdRef.current = { ...tdRef.current, [bai]: p };
+        memProg.set(`${ma}/${id}`, { ...(memProg.get(`${ma}/${id}`) || {}), [bai]: p });
         pending.current.set(bai, p);
         clearTimeout(timer.current);
         timer.current = setTimeout(() => flushRef.current(), SAVE_MS);

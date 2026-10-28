@@ -1,0 +1,9 @@
+VIEC #262 - Sua loi: sang True or false thi mat cac moc da xong truoc do
+
+Goi nay GOM CA #260 (nhat ky hoc) -> KHONG can bam thu muc #260 nua.
+Bam theo thu tu:
+  00-giai-nen-goi-truoc-tien.bat
+  1-day-len-web.bat
+
+Thu: trong nhom, xong Bai viet + Bang, bam sang True or false -> 2 moc truoc van con (cham xanh).
+Ca tu hoc rieng cung da sua (truoc day mo thang trang True or false cung mat tien do).

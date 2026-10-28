@@ -52,14 +52,15 @@ export function partDatNhom(p, key, ng = NGUONG_MAC_DINH, total = 40) {
   return false;
 }
 /** #258 Xanh (XONG) của một phần trong nhóm = đạt điều kiện VÀ đã bấm "Đã xong mốc này" (p.xong[key] = giờ bấm). */
-export const partDoneNhom = (p, key, ng, total) => !!p?.xong?.[key] && partDatNhom(p, key, ng, total);
+// #260: Bảng thông tin chỉ để xem (không chọn đáp án) → mở là xong, không cần bấm nút.
+export const partDoneNhom = (p, key, ng, total) => (key === "info" || !!p?.xong?.[key]) && partDatNhom(p, key, ng, total);
 /** #258 Mô tả điều kiện của một phần + đã đạt chưa (cho nút "Đã xong mốc này"). Bài viết / Bảng: đạt khi đã mở tới cuối trang. */
 export function dieuKien(p, key, ng = NGUONG_MAC_DINH) {
   ng = { ...NGUONG_MAC_DINH, ...(ng || {}) };
   const pp = { ...(p || {}), seen: { ...(p?.seen || {}), article: 1, info: 1 } };
   const dat = partDatNhom(pp, key, ng);
   if (key === "") return { dat, text: "Đọc hết bài viết" };
-  if (key === "info") return { dat, text: "Xem Bảng thông tin 40 câu" };
+  if (key === "info") return { dat, text: "Bảng chỉ để xem, không chọn đáp án — mở là xong", tuXong: true };
   if (key === "quiz") return { dat, text: `Trắc nghiệm đúng ${ng.quiz}/40 — đang ${partCount(p, "quiz")}/40` };
   if (key === "listen-speak") return { dat, text: `Nghe nói đúng ${ng["listen-speak"]}/40 — đang ${partCount(p, "listen-speak")}/40` };
   if (key === "true-or-false") {
