@@ -2,12 +2,12 @@
 // #230 Học cùng — /nhom/tao?chu-de=<nhánh>/<chủ đề>: người hướng dẫn mở lớp (thiết kế mục 4a).
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "@/lib/router";
-import { Users, Link2, ShieldCheck } from "lucide-react";
+import { Users, Link2 } from "lucide-react";
 import KtShell from "@/components/hkt/KtShell";
 import { loadUnitsIndex, allTopics } from "@/components/hkt/unitData";
-import { api, saveK, rememberGroup, myGroups, loadK } from "./nhomClient";
+import { api, saveK, rememberGroup, myGroups, loadK, setPin, setMyId } from "./nhomClient";
 import { CopyBtn, origin, errText } from "./NhomShared";
-import { HAN_MAC_DINH, NHAC_MAC_DINH, TOI_DA } from "@/components/hkt/nhomRules";
+import { HAN_MAC_DINH, NHAC_MAC_DINH, TOI_DA, nhomPath, idFromName } from "@/components/hkt/nhomRules";
 
 function Choice({ label, value, onChange, options, custom }) {
   const isPreset = options.some(([v]) => v === value);
@@ -37,6 +37,9 @@ export default function NhomTao() {
   const [topicKey, setTopicKey] = useState("");
   const [ten, setTen] = useState("");
   const [tenHD, setTenHD] = useState("");
+  // #250 (NHA A1): người lập nhóm cũng học → tên + ID + PIN bắt buộc
+  const [myId, setMyId] = useState("");
+  const [myPin, setMyPin] = useState("");
   const [quiz, setQuiz] = useState(40);
   const [say, setSay] = useState(40);
   const [tf, setTf] = useState("xong");
@@ -61,6 +64,9 @@ export default function NhomTao() {
   const submit = async (e) => {
     e.preventDefault();
     if (!topic) return setErr("Chọn chuỗi bài");
+    if (!tenHD.trim()) return setErr("Nhập tên của bạn");
+    if (!/^[a-z0-9][a-z0-9-]{1,19}$/.test(myId)) return setErr("ID của bạn 2–20 ký tự: chữ thường không dấu, số, dấu gạch");
+    if (!/^\d{4}$/.test(myPin)) return setErr("Đặt PIN 4 số cho ID của bạn");
     setBusy(true);
     setErr("");
     try {
@@ -68,9 +74,12 @@ export default function NhomTao() {
         body: {
           topic: topicKey, ten: ten || topic.title.vi, tenHuongDan: tenHD,
           nguong: { quiz, "listen-speak": say, tf }, hanChangGio: han, nhacGio: nhac, kenhGuiBai: kenh, batBuocPin: pin, toiDa,
+          nguoiTao: { id: myId, ten: tenHD.trim(), pin: myPin },
         },
       });
       saveK(r.ma, r.k);
+      setPin(r.ma, r.id, myPin);
+      setMyId(r.ma, r.id);
       rememberGroup(r.ma, ten || topic.title.vi);
       setDone(r);
     } catch (x) {
@@ -82,7 +91,6 @@ export default function NhomTao() {
 
   if (done) {
     const hv = `${origin()}/nhom/${done.ma}`;
-    const hd = `${origin()}/nhom/${done.ma}/huong-dan?k=${done.k}`;
     return (
       <KtShell active="topics">
         <div className="nh-wrap">
@@ -96,24 +104,16 @@ export default function NhomTao() {
               Chép lời mời + link
             </CopyBtn>
           </div>
-          <div className="nh-card is-warn">
-            <h2>
-              <ShieldCheck size={18} aria-hidden="true" /> Link hướng dẫn — CHỈ của bạn, đừng gửi ai
-            </h2>
-            <p className="nh-link">{hd}</p>
+          <div className="nh-card">
+            <h2>Bạn cũng là người học</h2>
             <p className="kt-muted">
-              Mã hướng dẫn <b className="nh-code">{done.k}</b> — lưu lại (ghi chú điện thoại). Máy này đã nhớ mã; sang máy khác thì mở link trên.
+              {/* #253: người lập nhóm cũng vào bằng link chung, chọn tên + PIN; máy này đã nhớ nên vào thẳng */}
+              ID của bạn: <b className="nh-code">{done.id}</b> — vào bằng link nhóm như mọi người, chọn tên mình và gõ PIN (máy này đã nhớ, không cần gõ lại). Trong nhóm bạn có thêm các tab Duyệt bài nói · Học viên · Cài đặt nhóm.
             </p>
-            <div className="nh-row">
-              <CopyBtn text={hd}>Chép link hướng dẫn</CopyBtn>
-              <Link className="kt-btn kt-btn--pri" to={`/nhom/${done.ma}/huong-dan?k=${done.k}`}>
-                Vào trang hướng dẫn
-              </Link>
-            </div>
+            <Link className="kt-btn kt-btn--pri" to={nhomPath(done.ma, done.id)}>
+              Vào học với ID {done.id}
+            </Link>
           </div>
-          <p className="kt-muted">
-            Tự học? Bạn vừa là người hướng dẫn: mở <Link to={`/nhom/${done.ma}`}>link nhóm</Link> để tạo ID học của mình.
-          </p>
         </div>
       </KtShell>
     );
@@ -132,7 +132,7 @@ export default function NhomTao() {
             {mine.map((g, i) => (
               <React.Fragment key={g.ma}>
                 {i > 0 && " · "}
-                <Link to={`/nhom/${g.ma}/huong-dan?k=${loadK(g.ma)}`}>
+                <Link to={`/nhom/${g.ma}`}>
                   {g.ten} ({g.ma})
                 </Link>
               </React.Fragment>
@@ -168,10 +168,34 @@ export default function NhomTao() {
             <span className="nh-flabel">Tên lớp</span>
             <input value={ten} maxLength={80} placeholder={topic?.title.vi || "Ví dụ: Lớp phỏng vấn 12A"} onChange={(e) => setTen(e.target.value)} />
           </label>
+        </div>
+
+        <div className="nh-card">
+          <h2>Bạn — người lập nhóm (vừa hướng dẫn, vừa học)</h2>
           <label className="nh-field">
-            <span className="nh-flabel">Tên người hướng dẫn (hiện trong Hỏi đáp)</span>
-            <input value={tenHD} maxLength={40} placeholder="Ví dụ: Cô Hà" onChange={(e) => setTenHD(e.target.value)} />
+            <span className="nh-flabel">Tên của bạn (hiện trên cây và trong Hỏi đáp) *</span>
+            <input
+              value={tenHD}
+              maxLength={40}
+              required
+              placeholder="Ví dụ: Cô Hà"
+              onChange={(e) => {
+                setTenHD(e.target.value);
+                if (!myId || myId === idFromName(tenHD)) setMyId(idFromName(e.target.value));
+              }}
+            />
           </label>
+          <div className="nh-row">
+            <label className="nh-field">
+              <span className="nh-flabel">ID học của bạn *</span>
+              <input value={myId} maxLength={20} required placeholder="co-ha" onChange={(e) => setMyId(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))} />
+            </label>
+            <label className="nh-field">
+              <span className="nh-flabel">PIN 4 số *</span>
+              <input inputMode="numeric" maxLength={4} required value={myPin} placeholder="••••" onChange={(e) => setMyPin(e.target.value.replace(/\D/g, ""))} />
+            </label>
+          </div>
+          <p className="kt-muted">Chỉ người lập nhóm duyệt bài nói tự do và đổi cài đặt. PIN giữ ID học của bạn — học viên không vào thay được.</p>
         </div>
 
         <div className="nh-card">

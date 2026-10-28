@@ -4,9 +4,9 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "@/lib/router";
 import { Lock, UserPlus, Users, KeyRound } from "lucide-react";
-import KtShell from "@/components/hkt/KtShell";
+import KtShell, { useBodyClass } from "@/components/hkt/KtShell";
 import { VongDetLoading } from "@/components/hkt/VongDet";
-import { api, setPin, getPin, ApiErr } from "./nhomClient";
+import { api, setPin, getPin, ApiErr, getMyId, setMyId } from "./nhomClient";
 import { useNhomView, errText } from "./NhomShared";
 import { idFromName, isId, nhomPath } from "@/components/hkt/nhomRules";
 
@@ -21,6 +21,7 @@ function PinForm({ ma, id, ten, onOk, onCancel, msg }) {
     setPin(ma, id, pin);
     try {
       await api(`${ma}/vao`, { id, body: { id } });
+      setMyId(ma, id); // #253: nhớ "tôi là ai" trên máy này
       onOk();
     } catch (x) {
       setPin(ma, id, "");
@@ -68,6 +69,9 @@ export function PinGate({ ma, id, children }) {
   useEffect(() => {
     check();
   }, [ma, id]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (state.s === "ok") setMyId(ma, id); // #253
+  }, [state.s]); // eslint-disable-line react-hooks/exhaustive-deps
   if (state.s === "load")
     return (
       <div className="nh-center">
@@ -77,7 +81,7 @@ export function PinGate({ ma, id, children }) {
   if (state.s === "pin")
     return (
       <div className="nh-center">
-        <PinForm ma={ma} id={id} ten={state.ten} msg={state.msg} onOk={check} onCancel={() => navigate(nhomPath(ma))} />
+        <PinForm ma={ma} id={id} ten={state.ten} msg={state.msg} onOk={check} onCancel={() => navigate(`${nhomPath(ma)}?doi=1`)} />
       </div>
     );
   if (state.s === "err")
@@ -94,6 +98,7 @@ export function PinGate({ ma, id, children }) {
 }
 
 export default function NhomVao({ ma }) {
+  useBodyClass("nh-in"); // #253
   const { data, err, reload } = useNhomView(ma, { every: 0 });
   const navigate = useNavigate();
   const [pick, setPick] = useState(null);
@@ -105,6 +110,15 @@ export default function NhomVao({ ma }) {
   const [dongY, setDongY] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
+  // #250 (NHA C): từ trang người hướng dẫn "Tham gia mới" → mở sẵn khung tạo ID
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("moi")) setMoi(true);
+  }, []);
+  // #253: máy này đã vào nhóm → vào thẳng cây của mình (PIN đã lưu trên máy; sai/thiếu thì hỏi lại)
+  useEffect(() => {
+    const toi = getMyId(ma);
+    if (data && toi && !new URLSearchParams(window.location.search).get("doi") && data.members.some((m) => m.id === toi)) navigate(nhomPath(ma, toi));
+  }, [data]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (err)
     return (
@@ -130,6 +144,7 @@ export default function NhomVao({ ma }) {
     if (m.coPin && !getPin(ma, m.id)) return setPick(m);
     try {
       await api(`${ma}/vao`, { id: m.id, body: { id: m.id } });
+      setMyId(ma, m.id);
       navigate(nhomPath(ma, m.id));
     } catch (e) {
       if (e.status === 401) setPick(m);
@@ -143,6 +158,7 @@ export default function NhomVao({ ma }) {
     try {
       await api(`${ma}/vao`, { body: { moi: true, id, ten, pin: pin || undefined } });
       if (pin) setPin(ma, id, pin);
+      setMyId(ma, id);
       navigate(nhomPath(ma, id));
     } catch (x) {
       setMsg(errText(x));
@@ -177,7 +193,10 @@ export default function NhomVao({ ma }) {
                     {m.ten.trim().charAt(0).toUpperCase()}
                   </span>
                   <span>
-                    <b>{m.ten}</b>
+                    <b>
+                      {m.ten}
+                      {g.nguoiTaoId === m.id && " · người lập nhóm"}
+                    </b>
                     <small>
                       {m.id}
                       {m.coPin && (

@@ -1,11 +1,10 @@
 "use client";
 // #231/#232 — HƯỚNG DẪN CHUNG gắn vào từng phần bài: có sẵn, nói cách dùng phần đó (kèm video chung #228), phòng khi người học chưa biết làm.
-// (Hướng dẫn RIÊNG = tài liệu người hướng dẫn tự làm cho lớp — xem components/nhom/NhomHdr.js.)
+// #250 (NHA H): bỏ "Hướng dẫn riêng" — người hướng dẫn dặn dò trong Hỏi đáp của từng bài.
 // lần đầu vào một phần → hiện ra HỎI "Xem hướng dẫn ngắn?"; các lần sau có nút "?" để mở lại khi cần.
 // Dùng ở: 5 phần của bài (UnitPage), cây nhóm (Học cùng), trang người hướng dẫn. Đã hỏi phần nào → nhớ trên máy (localStorage).
 import React, { useEffect, useState } from "react";
 import { HelpCircle } from "lucide-react";
-import { Link } from "@/lib/router";
 import { Modal } from "./UnitParts";
 import HomeVideos from "./HomeVideos";
 import { GUIDE_VIDEOS } from "./trangChuVideoData";
@@ -68,8 +67,8 @@ export const GUIDES = {
       "Bài sau chỉ mở khi mọi người xong bài trước — đồng hồ đếm ngược và chuông nhắc giúp cả nhóm giữ nhịp.",
       "Bấm tên một bạn: xem thống kê luyện tập, gửi icon / câu động viên hoặc chọc nhau trên cây của bạn ấy.",
       "Bài nói tự do: nói những gì bạn nghĩ và nhớ, gửi qua kênh của nhóm, rồi bấm “Đã gửi bài nói” — người hướng dẫn duyệt thì bông xanh.",
-      "Nút “Hướng dẫn riêng” (nếu có): video / audio / lời dặn người hướng dẫn làm riêng cho lớp.",
-      "Có gì chưa hiểu: bấm Hỏi đáp (chữ hoặc giọng ≤ 2 phút).",
+      "Lá đánh số 1–5: rê chuột xem mô tả, bấm vào là làm phần đó ngay trong cửa sổ nổi.",
+      "Nút tròn trên thân cây = Hỏi đáp riêng của bài đó (người hướng dẫn dặn dò ở đây). Hỏi đáp chung vẫn ở nút 💬.",
     ],
   },
   "huong-dan": {
@@ -79,7 +78,8 @@ export const GUIDES = {
       "Gửi link nhóm cho học viên (Zalo…). Link trang này là của riêng bạn — đừng gửi ai.",
       "Tổng quan: cây cả nhóm, bấm tên một người để xem thống kê và nhắn lên cây. “Chép lời nhắc” để dán vào Zalo.",
       "Bài nói tự do: học viên gửi audio qua kênh của bạn rồi bấm “Đã gửi” (ô vàng) → bạn nghe, ghi nhận xét, bấm Duyệt → xanh.",
-      "Hướng dẫn riêng: video bạn tự quay (dán link YouTube / Drive), ghi âm hoặc lời dặn — gắn vào cả lớp, một bài hay một phần; học viên vào đúng chỗ sẽ được hỏi xem. Có thể đăng kèm lên Hỏi đáp hoặc chép gửi Zalo.",
+      "Dặn dò riêng cho lớp: đăng vào Hỏi đáp của từng bài (nút tròn trên thân cây) — link video, ghi âm hoặc lời dặn.",
+      "Bạn cũng học: ID học của bạn (tạo lúc mở lớp, có PIN) nằm trên cây như mọi người; bấm lá để làm ngay.",
       "Học viên bỏ dở: chuyển “Tạm nghỉ” để nhóm đi tiếp. Quên PIN: đặt lại ở tab Học viên.",
       "Cài đặt: ngưỡng qua phần, đếm ngược, tần suất nhắc — đổi lúc nào cũng được, áp từ chặng đang mở.",
     ],
@@ -106,6 +106,7 @@ const markSeen = (k) => {
 export default function PartGuide({ k, extra, className = "kt-guidebtn", label }) {
   const g = GUIDES[k];
   const [mode, setMode] = useState(null); // null | "ask" | "open"
+  const [all, setAll] = useState(false); // #250 (NHA A2): xem cả danh sách video ngay trong cửa sổ, không chuyển trang
   useEffect(() => {
     setMode(g && !seen(k) ? "ask" : null);
   }, [k]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -114,6 +115,7 @@ export default function PartGuide({ k, extra, className = "kt-guidebtn", label }
   const close = () => {
     markSeen(k);
     setMode(null);
+    setAll(false);
   };
   return (
     <>
@@ -145,9 +147,15 @@ export default function PartGuide({ k, extra, className = "kt-guidebtn", label }
           {extra && <li className="is-extra">{extra}</li>}
         </ol>
         {g.video && <HomeVideos list={vid(g.video)} title="Video ngắn" sub="Hướng dẫn chung — tiếng Anh, phụ đề Việt" id={`kt-pg-${g.video}`} />}
-        <p className="kt-guide-link">
-          <Link to="/huong-dan">🎬 Xem thêm 7 video hướng dẫn: vì sao và làm thế nào cho hiệu quả →</Link>
-        </p>
+        {all ? (
+          <HomeVideos list={GUIDE_VIDEOS} title="Tất cả video hướng dẫn" sub="Vì sao và làm thế nào cho hiệu quả" id={`kt-pg-all-${k || "bai"}`} />
+        ) : (
+          <p className="kt-guide-link">
+            <button type="button" className="kt-linkbtn" onClick={() => setAll(true)}>
+              🎬 Xem thêm {GUIDE_VIDEOS.length} video hướng dẫn: vì sao và làm thế nào cho hiệu quả
+            </button>
+          </p>
+        )}
       </Modal>
     </>
   );

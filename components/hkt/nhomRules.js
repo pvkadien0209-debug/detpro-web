@@ -148,3 +148,19 @@ export const NHAN_MAU = [
   "Phần này bạn làm đỉnh quá",
   "Cùng về đích nào!",
 ];
+
+// #250 (NHA A3): MỐC NHỎ trong một chặng — 5 phần chia đều thời hạn chặng: phần thứ j (0–4) hết hạn lúc mở + hạn × (j+1)/5.
+export const mocNho = (moLuc, hanGio, j, now = Date.now()) => (hanGio ? dongHo(moLuc, (hanGio * (Math.min(j, 4) + 1)) / PART_KEYS.length, now) : null);
+/** Phần đang làm của một người trong bài (theo tóm tắt tom.g): 0–4, 5 = xong cả 5 phần. */
+export const phanDangLam = (t) => {
+  const j = PART_KEYS.findIndex((_, x) => !t?.g?.[x]);
+  return j < 0 ? PART_KEYS.length : j;
+};
+// #250 (NHA D): mô tả ngắn từng lá (rê chuột vào lá)
+export const PART_TIP = {
+  "": "Đọc bài viết — chú ý chữ tô đậm",
+  info: "Bảng 40 câu — tự tìm đáp án trong bài",
+  quiz: "Trắc nghiệm 40 câu, sai thì chọn lại",
+  "listen-speak": "Nghe câu hỏi, nói lại đáp án đúng",
+  "true-or-false": "80 câu đúng / sai, luyện phản xạ",
+};

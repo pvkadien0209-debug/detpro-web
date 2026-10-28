@@ -4,7 +4,7 @@
 // view = "nhom" (cả nhóm: lá xanh nhạt + "2/4", xanh đậm phát sáng khi cả nhóm xong) hoặc id một người (cây riêng).
 import React, { useEffect, useRef } from "react";
 import VongDet from "@/components/hkt/VongDet";
-import { PART_KEYS, PART_SHORT, baiKey, baiMo } from "@/components/hkt/nhomRules";
+import { PART_KEYS, PART_SHORT, PART_TIP, baiKey, baiMo } from "@/components/hkt/nhomRules";
 
 const W = 400;
 const STEP = 132;
@@ -25,7 +25,8 @@ export function flowerState(members, key, view) {
   return { xanh, vang, of: list.length, all: list.length > 0 && xanh === list.length };
 }
 
-export default function NhomTree({ nhom, members, view = "nhom", onLeaf, onFlower, dots }) {
+// #250: lá đánh số 1–5 + rê chuột thấy mô tả ngắn (NHA D); nút 💬 nhỏ trên thân mỗi chặng = Hỏi đáp của bài đó (NHA E)
+export default function NhomTree({ nhom, members, view = "nhom", onLeaf, onFlower, dots, onQa, tinBai }) {
   const bai = nhom.chuoi.bai;
   const n = bai.length;
   const ch = nhom.changHienTai || 0;
@@ -116,17 +117,38 @@ export default function NhomTree({ nhom, members, view = "nhom", onLeaf, onFlowe
                     onClick={() => onLeaf?.({ u, k, pk, j })}
                     onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onLeaf?.({ u, k, pk, j })}
                   >
+                    <title>{`${j + 1}. ${PART_SHORT[pk]} — ${PART_TIP[pk]}${open ? ` · ${st.n}/${st.of} xong` : " · chưa mở"}`}</title>
                     <line x1={lx} y1={ly} x2={cx} y2={cy} className="nh-stem" />
                     <ellipse cx={cx} cy={cy} rx={17} ry={10} transform={`rotate(${rot} ${cx} ${cy})`} filter={st.all && open ? "url(#nhGlow)" : undefined} />
-                    {view === "nhom" && open && st.n > 0 && !st.all && (
+                    {view === "nhom" && open && st.n > 0 && !st.all ? (
                       <text x={cx} y={cy + 4} textAnchor="middle" className="nh-leafn">
                         {st.n}/{st.of}
+                      </text>
+                    ) : (
+                      <text x={cx} y={cy + 4} textAnchor="middle" className="nh-leafno">
+                        {j + 1}
                       </text>
                     )}
                     {dots?.[`${key}|${pk}`] && <circle cx={cx + 13} cy={cy - 9} r={5} className="nh-dot" />}
                   </g>
                 );
               })}
+              {onQa && (
+                <g
+                  className={`nh-qa ${tinBai?.[key] ? "has-tin" : ""}`}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Hỏi đáp ${label}${tinBai?.[key] ? ` (${tinBai[key]} tin)` : ""}`}
+                  onClick={() => onQa({ u, k })}
+                  onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onQa({ u, k })}
+                >
+                  <title>{`Hỏi đáp ${label}: hỏi – đáp riêng bài này`}</title>
+                  <circle cx={trunkX} cy={y0} r={13} />
+                  <text x={trunkX} y={y0 + 4} textAnchor="middle">
+                    {tinBai?.[key] ? tinBai[key] : "?"}
+                  </text>
+                </g>
+              )}
               <g
                 className={`nh-flower ${!open ? "is-off" : fl.all ? "is-green" : fl.vang || fl.xanh ? "is-yellow" : "is-none"}`}
                 role="button"

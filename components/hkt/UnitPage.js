@@ -13,6 +13,8 @@ import PartGuide from "./PartGuide"; // #231 hướng dẫn riêng từng phần
 import { useNhom } from "@/components/nhom/nhomClient";
 import { partDoneNhom, unitGreenCount, baiMo } from "./nhomRules";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import HomeVideos from "./HomeVideos"; // #253
+import { GUIDE_VIDEOS } from "./trangChuVideoData";
 import { Link, useLocation, useNavigate, useParams } from "@/lib/router"; // Next.js: thay react-router-dom
 import { Helmet } from "@/lib/helmet"; // Next.js: tiêu đề/mô tả đặt ở trang máy chủ (generateMetadata)
 import { ChevronLeft, ChevronDown, Check, PanelRight, X, CircleCheck } from "lucide-react";
@@ -60,6 +62,7 @@ export default function UnitPage({ initialUnit = null }) {
   const sideRef = useRef(null);
   useBodyClass("kt-shell");
   const grp = useNhom(); // null khi học riêng
+  const [vidsOpen, setVidsOpen] = useState(false); // #253 trong nhóm: xem video hướng dẫn trong cửa sổ, không rời nhóm
   const vset = useVideoSet(); // #241 tick xanh bài có video trong mục lục
   const readProg = grp ? grp.readProg : readUnitProgress;
   const writeProg = grp ? grp.writeProg : writeUnitProgress;
@@ -341,7 +344,7 @@ export default function UnitPage({ initialUnit = null }) {
             )}
             {part === "" && (
               <p className="kt-guide-link">
-                <Link to="/huong-dan">🎬 Xem thêm 7 video hướng dẫn: vì sao và làm thế nào cho hiệu quả →</Link>
+                {grp ? <button type="button" className="kt-linkbtn" onClick={() => setVidsOpen(true)}>🎬 Xem thêm 7 video hướng dẫn: vì sao và làm thế nào cho hiệu quả</button> : <Link to="/huong-dan">🎬 Xem thêm 7 video hướng dẫn: vì sao và làm thế nào cho hiệu quả →</Link>}
               </p>
             )}
             {part === "info" && (
@@ -434,10 +437,15 @@ export default function UnitPage({ initialUnit = null }) {
           })}
           {/* #237: link 7 video hướng dẫn chung — có cả ở trang chủ và trong bài */}
           <p className="kt-guide-link kt-lside-guide">
-            <Link to="/huong-dan">🎬 Xem thêm 7 video hướng dẫn: vì sao và làm thế nào cho hiệu quả →</Link>
+            {grp ? <button type="button" className="kt-linkbtn" onClick={() => setVidsOpen(true)}>🎬 Xem thêm 7 video hướng dẫn: vì sao và làm thế nào cho hiệu quả</button> : <Link to="/huong-dan">🎬 Xem thêm 7 video hướng dẫn: vì sao và làm thế nào cho hiệu quả →</Link>}
           </p>
         </aside>
       </div>
+      {grp && vidsOpen && (
+        <Modal open onClose={() => setVidsOpen(false)} title="Video hướng dẫn">
+          <HomeVideos list={GUIDE_VIDEOS} title="Tất cả video hướng dẫn" sub="Vì sao và làm thế nào cho hiệu quả" id="kt-u-allvids" />
+        </Modal>
+      )}
 
       <footer className={`kt-lbot ${drill ? "is-drill" : ""}`}>
         <button type="button" className="kt-nav" disabled={!prevStep} onClick={() => goStep(prevStep)}>

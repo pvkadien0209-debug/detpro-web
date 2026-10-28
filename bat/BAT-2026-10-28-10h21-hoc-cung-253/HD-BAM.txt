@@ -1,0 +1,13 @@
+VIEC #253 - Hoc cung: vao nhom bang link chung, chon ten + PIN
+
+Bam theo thu tu:
+  00-giai-nen-goi-truoc-tien.bat  : chep 10 tep web + QUY-TRINH-SAN-XUAT-TIET-KIEM.md vao dung cho
+  1-day-len-web.bat               : day len GitHub -> Vercel tu cap nhat (gom ca #250 va 60 bai #249 neu chua day)
+
+Thu sau khi web cap nhat:
+  - Mo link nhom /nhom/<MA>, chon ten minh, go PIN -> vao trang nhom.
+  - Tai lai trang: khong phai go lai PIN (may nho). May moi thi go lai PIN.
+  - Nguoi lap nhom: thay them tab Duyet bai noi / Hoc vien / Cai dat nhom (khong can link k=...).
+  - Nut "Cap nhat" lay du lieu moi nhat tu Mongo.
+  - Trong nhom khong con thanh menu ngoai; bam gi cung o lai trong nhom.
+  - Muon doi nguoi tren may: tab Cua toi > "Quen toi tren may nay".

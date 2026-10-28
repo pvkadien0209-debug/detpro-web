@@ -1216,3 +1216,36 @@ tr.is-pause { opacity: .55; }
 .kt-lvlnote small { color: var(--kt-muted); }
 .kt-lvlline { font-size: 14px; color: var(--kt-ink-2); line-height: 1.6; }
 .kt-lvlline .kt-lvl { margin-right: 6px; }
+
+/* #250 (NHA.docx lần 2) — Học cùng: cửa sổ nổi làm bài / Hỏi đáp theo bài, lá đánh số, mốc nhỏ, nút chung dưới cùng */
+.nh-pop { position: fixed; inset: 0; z-index: 1150; background: rgba(23, 32, 51, .45); display: flex; align-items: center; justify-content: center; padding: 12px; }
+.nh-pop-in { background: var(--kt-bg, #fff); border-radius: 16px; width: min(640px, 100%); max-height: calc(100vh - 24px); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, .25); }
+.nh-pop-in.is-wide { width: min(1100px, 100%); height: calc(100vh - 24px); }
+.nh-pop-in > header { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--kt-line, #e6e8ee); }
+.nh-pop-in > header b { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nh-pop-in > header button { background: none; border: 0; cursor: pointer; padding: 4px; color: inherit; }
+.nh-pop-full { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 600; }
+.nh-pop-frame { flex: 1; width: 100%; border: 0; min-height: 0; }
+.nh-pop-in > .nh-chat, .nh-pop-in > div:not(header) { overflow: auto; }
+body.nh-noscroll { overflow: hidden; }
+body.nh-inpop .kt-top, body.nh-inpop .kt-rail, body.nh-inpop .kt-tabbar, body.nh-inpop .kt-brand { display: none !important; }
+body.nh-inpop .kt-page { margin: 0 !important; padding-top: 0 !important; }
+.nh-leafno { font-size: 10px; font-weight: 800; fill: #5b6474; pointer-events: none; }
+.nh-leaf.is-all .nh-leafno { fill: #fff; }
+.nh-qa { cursor: pointer; outline: none; }
+.nh-qa circle { fill: #fff; stroke: #8a6a4a; stroke-width: 1.5; }
+.nh-qa text { font-size: 11px; font-weight: 800; fill: #8a6a4a; pointer-events: none; }
+.nh-qa.has-tin circle { fill: #ffe9a8; stroke: #c99a00; }
+.nh-qa:hover circle, .nh-qa:focus-visible circle { stroke-width: 2.5; }
+.nh-moc { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 4px 0 12px; padding: 10px 12px; border-radius: 12px; background: #f4f8f6; }
+.nh-foot { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0 8px; padding-top: 14px; border-top: 1px solid var(--kt-line, #e6e8ee); }
+.nh-alsome select { min-width: 220px; }
+.kt-linkbtn { background: none; border: 0; padding: 0; color: var(--kt-accent, #12936b); font: inherit; font-weight: 600; cursor: pointer; text-decoration: underline; }
+body.nh-noscroll .kt-guideask { display: none; }
+/* #253 đã vào nhóm thì không có lối ra khỏi nhóm: ẩn menu chung của web */
+body.nh-in .kt-rail, body.nh-in .kt-tabbar, body.nh-in .kt-search, body.nh-in .kt-go, body.nh-in .kt-brand { display: none !important; }
+body.nh-in .kt-logo { pointer-events: none; }
+body.nh-in .kt-page { padding-left: 32px; max-width: 1240px; }
+@media (max-width: 640px) { body.nh-in .kt-page { padding: calc(var(--kt-top) + 18px) 16px 40px; } }
+body.nh-inpop .kt-page { padding: 12px !important; }
+.nh-spin { animation: nhspin 1s linear infinite; } @keyframes nhspin { to { transform: rotate(360deg); } }

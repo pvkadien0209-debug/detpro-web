@@ -175,9 +175,11 @@ const writeSeen = (ma, who, v) => {
  * Hỏi đáp: who = { id } (học viên) hoặc { k } (người hướng dẫn). gan = nhãn tự gắn khi hỏi từ trang bài.
  * floating: nút 💬 nổi + khung trượt; không thì hiện thẳng trong trang.
  */
-export function NhomChat({ ma, who, gan, floating = false, chatTat, linkFor, slotId }) {
+export function NhomChat({ ma, who, gan, floating = false, chatTat, linkFor, slotId, chiBai }) {
   const [open, setOpen] = useState(!floating);
-  const [list, setList] = useState([]);
+  const [all, setAll] = useState([]);
+  // #250 (NHA E): chiBai = chỉ hiện tin gắn một bài (Hỏi đáp trên thân cây)
+  const list = chiBai ? all.filter((x) => x.gan?.bai === chiBai || (x.traLoi && all.some((y) => y._id === x.traLoi && y.gan?.bai === chiBai))) : all;
   const [text, setText] = useState("");
   const [reply, setReply] = useState(null);
   const [err, setErr] = useState("");
@@ -204,7 +206,7 @@ export function NhomChat({ ma, who, gan, floating = false, chatTat, linkFor, slo
       const d = await api(`${ma}/tin`, { query: { sau: lastRef.current } });
       if (d.tin.length) {
         lastRef.current = d.tin[d.tin.length - 1].luc;
-        setList((l) => {
+        setAll((l) => {
           const m = new Map(l.map((x) => [x._id, x]));
           d.tin.forEach((x) => m.set(x._id, x));
           return [...m.values()].sort((a, b) => new Date(a.luc) - new Date(b.luc));
@@ -216,7 +218,7 @@ export function NhomChat({ ma, who, gan, floating = false, chatTat, linkFor, slo
   }, [ma]);
   const full = useCallback(async () => {
     lastRef.current = "";
-    setList([]);
+    setAll([]);
     await pull();
   }, [pull]);
 

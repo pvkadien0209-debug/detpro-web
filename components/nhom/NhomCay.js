@@ -3,17 +3,18 @@
 // đồng hồ chặng + chuông nhắc (4a), bài nói tự do (mục 6), ai đang làm gì, Giục bạn, Hỏi đáp (mục 8), cài đặt của tôi.
 import React, { useMemo, useState } from "react";
 import { Link, useNavigate } from "@/lib/router";
-import { Users, TreeDeciduous, Table2, UserCog, Share2, ExternalLink, Check, LogOut, KeyRound, X } from "lucide-react";
-import KtShell from "@/components/hkt/KtShell";
+import { Users, TreeDeciduous, Table2, UserCog, Share2, ExternalLink, Check, LogOut, KeyRound, X, RefreshCw, Flower2, Settings } from "lucide-react";
+import KtShell, { useBodyClass } from "@/components/hkt/KtShell";
+import { NoiTab, HvTab, CdTab } from "./NhomHuongDan"; // #253 người lập nhóm quản lý ngay trong trang nhóm
 import { VongDetLoading } from "@/components/hkt/VongDet";
 import NhomTree, { leafState } from "./NhomTree";
 import { PinGate } from "./NhomVao";
 import { StatsCard, NhanCard, nhanMoi, markNhanSeen } from "./NhomExtra";
 import PartGuide from "@/components/hkt/PartGuide";
-import { HdrButton, HdrItem, hdrFor } from "./NhomHdr";
+import { PartPopup, QaPopup } from "./NhomPopup"; // #250 (NHA A3, D, E); bỏ "Hướng dẫn riêng" (NHA H)
 import { useNhomView, useNow, changInfo, baiLabel, Countdown, NhacBell, CopyBtn, origin, errText, NhomChat } from "./NhomShared";
-import { api, setPin } from "./nhomClient";
-import { PART_KEYS, PART_SHORT, baiKey, baiMo, nhomPath, nhomUnitPath, unitGreen, dangDo } from "@/components/hkt/nhomRules";
+import { api, setPin, setMyId } from "./nhomClient";
+import { PART_KEYS, PART_SHORT, baiKey, baiMo, nhomPath, nhomUnitPath, unitGreen, dangDo, mocNho, phanDangLam } from "@/components/hkt/nhomRules";
 
 const ago = (d, now) => {
   const s = Math.max(0, (now - new Date(d).getTime()) / 1000);
@@ -135,6 +136,13 @@ function MySettings({ ma, me, nhom, onLeft }) {
         </div>
       </section>
       <section className="nh-card">
+        <h2>Đổi người dùng trên máy này</h2>
+        <p className="kt-muted">Máy này đang nhớ bạn là “{me.ten}” (và PIN). Máy dùng chung thì bấm để quên.</p>
+        <button type="button" className="kt-btn" onClick={() => { setPin(ma, me.id, ""); setMyId(ma, ""); window.location.href = `${nhomPath(ma)}?doi=1`; }}>
+          Quên tôi trên máy này
+        </button>
+      </section>
+      <section className="nh-card">
         <h2>
           <LogOut size={18} aria-hidden="true" /> Rời nhóm
         </h2>
@@ -155,7 +163,10 @@ function Inner({ ma, id }) {
   const [view, setView] = useState("nhom");
   const [leaf, setLeaf] = useState(null);
   const [flower, setFlower] = useState(null);
+  const [pop, setPop] = useState(null); // #250 { title, href } — làm phần bài trong cửa sổ nổi
+  const [qa, setQa] = useState(null); // #250 { u, k } — Hỏi đáp riêng một bài
   const [msg, setMsg] = useState("");
+  const [busyR, setBusyR] = useState(false);
 
   const me = data?.members.find((m) => m.id === id);
   const nhom = data?.nhom;
@@ -205,6 +216,16 @@ function Inner({ ma, id }) {
     }
   };
   const share = `${origin()}/nhom/${ma}`;
+  const laChu = nhom.nguoiTaoId === id; // #253 người lập nhóm: có thêm các tab quản lý
+  const capNhat = async () => {
+    setBusyR(true);
+    await reload();
+    setBusyR(false);
+    setMsg(`Đã cập nhật lúc ${new Date().toLocaleTimeString("vi-VN")}.`);
+  };
+  const openPart = (u, k, pk) => setPop({ title: `${baiLabel(u, k)} · ${PART_SHORT[pk]}`, href: unitLink(u, pk) });
+  const myJ = ci.u ? phanDangLam(me.tom?.[curKey]) : 5;
+  const myMoc = ci.u && myJ < 5 ? mocNho(nhom.moChangLuc?.[ci.ch], nhom.hanChangGio, myJ, now) : null;
   const nhan = data.nhan || [];
   const moi = nhanMoi(ma, id, nhan);
   const viewM = view !== "nhom" ? data.members.find((m) => m.id === view) : null;
@@ -235,8 +256,10 @@ function Inner({ ma, id }) {
           )}
         </div>
         <div className="nh-head-r">
-          <HdrButton ma={ma} nhom={nhom} list={hdrFor(data.hdr, null)} place="cả lớp" className="kt-btn nh-guide" />
-          <PartGuide k="nhom" className="kt-btn nh-guide" label="Hướng dẫn chung" />
+          <button type="button" className="kt-btn" onClick={capNhat} disabled={busyR} title="Lấy dữ liệu mới nhất từ máy chủ">
+            <RefreshCw size={16} aria-hidden="true" className={busyR ? "nh-spin" : ""} /> Cập nhật
+          </button>
+          <PartGuide k={laChu ? "huong-dan" : "nhom"} className="kt-btn nh-guide" label="Hướng dẫn chung" />
           <NhacBell nhom={nhom} now={now} chuaXong={meNotDone} />
           <CopyBtn text={share} className="kt-btn">
             <Share2 size={16} aria-hidden="true" /> Chép link nhóm
@@ -244,9 +267,9 @@ function Inner({ ma, id }) {
         </div>
       </header>
       {ci.u && meNotDone && (
-        <Link className="kt-btn kt-btn--pri nh-cta" to={unitLink(ci.u, firstOpenPart(ci.u))}>
+        <button type="button" className="kt-btn kt-btn--pri nh-cta" onClick={() => openPart(ci.u, ci.ch, firstOpenPart(ci.u))}>
           Học tiếp {baiLabel(ci.u, ci.ch)} · {me.tom?.[curKey]?.d || "bắt đầu"}
-        </Link>
+        </button>
       )}
       {ci.u && !meNotDone && me.trangThai === "hoc" && ci.ch + 1 < nhom.chuoi.bai.length && (
         <Link className="kt-btn nh-cta" to={unitLink(nhom.chuoi.bai[ci.ch + 1], firstOpenPart(nhom.chuoi.bai[ci.ch + 1]))}>
@@ -259,6 +282,7 @@ function Inner({ ma, id }) {
           ["cay", TreeDeciduous, "Cây"],
           ["bang", Table2, "Xem dạng bảng"],
           ["toi", UserCog, "Của tôi"],
+          ...(laChu ? [["noi", Flower2, "Duyệt bài nói"], ["hv", Users, "Học viên"], ["cd", Settings, "Cài đặt nhóm"]] : []),
         ].map(([k, I, t]) => (
           <button key={k} type="button" role="tab" aria-selected={tab === k} className={tab === k ? "is-on" : ""} onClick={() => setTab(k)}>
             <I size={16} aria-hidden="true" /> {t}
@@ -286,13 +310,33 @@ function Inner({ ma, id }) {
             ))}
           </div>
           <div className="nh-cay-grid">
-            <NhomTree nhom={nhom} members={data.members} view={view} onLeaf={setLeaf} onFlower={setFlower} />
+            <NhomTree
+              nhom={nhom}
+              members={data.members}
+              view={view}
+              tinBai={data.tinBai}
+              onQa={setQa}
+              onLeaf={(x) => (baiMo(x.k, nhom.changHienTai) && (view === id || view === "nhom") ? openPart(x.u, x.k, x.pk) : setLeaf(x))}
+              onFlower={setFlower}
+            />
             <aside className="nh-side">
               {viewM && <StatsCard nhom={nhom} m={viewM} />}
               {viewM && <NhanCard ma={ma} who={{ id }} meKey={id} nhom={nhom} m={viewM} nhan={nhan} onSent={reload} />}
               {!viewM && ci.u && (
                 <section className="nh-card">
                   <h2>Ai chưa xong {baiLabel(ci.u, ci.ch)}</h2>
+                  {/* #250 (NHA A3): đồng hồ mốc nhỏ ngay dưới tiêu đề + nút làm ngay */}
+                  {meNotDone && (
+                    <div className="nh-moc">
+                      <span>
+                        Mốc của bạn: <b>{myJ + 1}. {PART_SHORT[PART_KEYS[myJ]]}</b>
+                      </span>
+                      <Countdown dh={myMoc} big />
+                      <button type="button" className="kt-btn kt-btn--pri" onClick={() => openPart(ci.u, ci.ch, PART_KEYS[myJ])}>
+                        Làm mốc này ngay
+                      </button>
+                    </div>
+                  )}
                   {slow.length ? (
                     <ul className="nh-slow">
                       {slow.map((m) => (
@@ -300,7 +344,7 @@ function Inner({ ma, id }) {
                           <span>
                             <b>{m.ten}</b> · {m.tom?.[curKey]?.d || "chưa bắt đầu"}
                           </span>
-                          <Countdown dh={ci.dh} />
+                          <Countdown dh={mocNho(nhom.moChangLuc?.[ci.ch], nhom.hanChangGio, phanDangLam(m.tom?.[curKey]), now)} label={`mốc ${phanDangLam(m.tom?.[curKey]) + 1}`} />
                           {m.id !== id && !meNotDone && (
                             <button type="button" className="nh-mini" onClick={() => giuc(m)}>
                               Giục bạn
@@ -312,16 +356,6 @@ function Inner({ ma, id }) {
                   ) : (
                     <p>Mọi người đã xong — chặng sau sắp mở.</p>
                   )}
-                </section>
-              )}
-              {!viewM && (data.hdr || []).length > 0 && (
-                <section className="nh-card">
-                  <h2>📌 Hướng dẫn riêng của {nhom.tenHuongDan || "người hướng dẫn"}</h2>
-                  <div className="nh-hdrlist">
-                    {data.hdr.map((x) => (
-                      <HdrItem key={x._id} ma={ma} nhom={nhom} x={x} />
-                    ))}
-                  </div>
                 </section>
               )}
               {!viewM && <p className="kt-muted nh-hint">Bấm tên một người để xem thống kê và gửi lời nhắn, chọc nhau trên cây của họ.</p>}
@@ -353,6 +387,9 @@ function Inner({ ma, id }) {
           onNoi={(m, u, k) => setFlower({ u, k })}
         />
       )}
+      {laChu && tab === "noi" && <NoiTab ma={ma} uid={id} data={data} reload={reload} now={now} />}
+      {laChu && tab === "hv" && <HvTab ma={ma} uid={id} data={data} reload={reload} />}
+      {laChu && tab === "cd" && <CdTab ma={ma} uid={id} data={data} reload={reload} />}
       {tab === "toi" && <MySettings ma={ma} me={me} nhom={nhom} onLeft={() => navigate(nhomPath(ma))} />}
 
       {leaf && (
@@ -369,13 +406,10 @@ function Inner({ ma, id }) {
               );
             })}
           </ul>
-          {hdrFor(data.hdr, baiKey(leaf.u), leaf.pk).map((x) => (
-            <HdrItem key={x._id} ma={ma} nhom={nhom} x={x} />
-          ))}
           {baiMo(leaf.k, nhom.changHienTai) ? (
-            <Link className="kt-btn kt-btn--pri" to={unitLink(leaf.u, leaf.pk)}>
+            <button type="button" className="kt-btn kt-btn--pri" onClick={() => { setLeaf(null); openPart(leaf.u, leaf.k, leaf.pk); }}>
               Làm phần này
-            </Link>
+            </button>
           ) : (
             <p>🔒 Mở khi cả nhóm xong {baiLabel(nhom.chuoi.bai[leaf.k - 1], leaf.k - 1)}.</p>
           )}
@@ -415,6 +449,18 @@ function Inner({ ma, id }) {
         </Sheet>
       )}
 
+      {pop && <PartPopup title={pop.title} href={pop.href} onClose={() => { setPop(null); reload(); }} />}
+      {qa && (
+        <QaPopup
+          ma={ma}
+          who={{ id }}
+          label={`${baiLabel(qa.u, qa.k)}: ${qa.u.title}`}
+          gan={{ bai: baiKey(qa.u), phan: "", cau: null, nhan: baiLabel(qa.u, qa.k) }}
+          chatTat={nhom.chatTat}
+          linkFor={(gan) => { const [aud, slug] = gan.bai.split("/"); return nhomUnitPath(ma, id, aud, slug, gan.phan); }}
+          onClose={() => { setQa(null); reload(); }}
+        />
+      )}
       <NhomChat ma={ma} who={{ id }} floating chatTat={nhom.chatTat} linkFor={(gan) => {
         const [aud, slug] = gan.bai.split("/");
         return nhomUnitPath(ma, id, aud, slug, gan.phan);
@@ -424,6 +470,7 @@ function Inner({ ma, id }) {
 }
 
 export default function NhomCay({ ma, id }) {
+  useBodyClass("nh-in"); // #253: đã vào nhóm thì không có lối ra khỏi nhóm (ẩn menu chung của web)
   return (
     <KtShell>
       <PinGate ma={ma} id={id}>

@@ -7,9 +7,9 @@ import { Link, useParams } from "@/lib/router";
 import { Users, Lock } from "lucide-react";
 import UnitPage from "@/components/hkt/UnitPage";
 import { PinGate } from "./NhomVao";
-import { NhomCtx, api, getPin } from "./nhomClient";
-import { HdrButton, hdrFor } from "./NhomHdr"; // #232 hướng dẫn riêng
+import { NhomCtx, api, getPin, inPopup } from "./nhomClient"; // #250: bỏ "Hướng dẫn riêng" (NHA H) — dùng Hỏi đáp
 import { VongDetLoading } from "@/components/hkt/VongDet";
+import { useBodyClass } from "@/components/hkt/KtShell";
 import { useNhomView, useNow, changInfo, baiLabel, Countdown, NhacBell, NhomChat } from "./NhomShared";
 import { NGUONG_MAC_DINH, PART_SHORT, nhomPath, nhomUnitPath, baiKey } from "@/components/hkt/nhomRules";
 
@@ -86,7 +86,7 @@ function Inner({ ma, id, initialProg, initialUnit }) {
         timer.current = setTimeout(() => flushRef.current(), SAVE_MS);
       },
       setCau: (i) => (cauRef.current = i),
-      renderBar: () => <Bar ma={ma} id={id} nhom={nhom} me={me} skew={view.skew} hdr={hdrFor(view.data?.hdr, `${audience}/${slug}`, part)} place={PART_SHORT[part]} />,
+      renderBar: () => <Bar ma={ma} id={id} nhom={nhom} me={me} skew={view.skew} />,
       renderLocked: (k) => (
         <div className="nh-locked">
           <Lock size={40} aria-hidden="true" />
@@ -132,8 +132,9 @@ function Inner({ ma, id, initialProg, initialUnit }) {
   );
 }
 
-function Bar({ ma, id, nhom, me, skew, hdr, place }) {
+function Bar({ ma, id, nhom, me, skew }) {
   const now = useNow(skew);
+  const pop = inPopup(); // #250: đang mở trong cửa sổ nổi trên cây → không có nút "Về cây nhóm"
   const ci = changInfo(nhom, now);
   const myDone = me && ci.u ? (me.tom?.[baiKey(ci.u)]?.g || []).filter(Boolean).length === 5 : true;
   return (
@@ -144,16 +145,24 @@ function Bar({ ma, id, nhom, me, skew, hdr, place }) {
       </span>
       {ci.u && <Countdown dh={ci.dh} label={baiLabel(ci.u, ci.ch)} />}
       <NhacBell nhom={nhom} now={now} chuaXong={me?.trangThai === "hoc" && !myDone} />
-      <HdrButton ma={ma} nhom={nhom} list={hdr || []} place={place} />
       <span id="nh-chat-slot" />
-      <Link className="nh-bar-back" to={nhomPath(ma, id)}>
-        Về cây nhóm
-      </Link>
+      {!pop && (
+        <Link className="nh-bar-back" to={nhomPath(ma, id)}>
+          Về cây nhóm
+        </Link>
+      )}
     </div>
   );
 }
 
 export default function NhomBai({ ma, id, initialUnit }) {
+  useBodyClass("nh-in"); // #253 không có lối ra khỏi nhóm
+  // #250: trong cửa sổ nổi → ẩn khung web (thanh trên, thanh trái, chân trang)
+  useEffect(() => {
+    if (!inPopup()) return undefined;
+    document.body.classList.add("nh-inpop");
+    return () => document.body.classList.remove("nh-inpop");
+  }, []);
   return (
     <PinGate ma={ma} id={id}>
       {(prog) => <Inner ma={ma} id={id} initialProg={prog} initialUnit={initialUnit} />}

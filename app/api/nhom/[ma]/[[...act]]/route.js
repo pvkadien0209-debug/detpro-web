@@ -48,7 +48,7 @@ export async function GET(req, { params }) {
       case "tin":
         return ok(await docTin(ma, u.searchParams.get("sau")));
       case "huong-dan":
-        return ok(await xemHuongDan(ma, w.k || u.searchParams.get("k")));
+        return ok(await xemHuongDan(ma, w.k || u.searchParams.get("k"), w.id, w.pin)); // #253: người lập nhóm = id + PIN
       case "tep": {
         const t = await docTep(ma, act[1]);
         return new Response(t.data, { headers: { "Content-Type": t.mime, "Cache-Control": "private, max-age=86400" } });
@@ -88,7 +88,8 @@ export async function POST(req, { params }) {
       case "hdr/xoa":
         return ok(await xoaHdr(ma, body));
       case "quan-ly":
-        return ok(await quanLy(ma, body));
+        // #253: người lập nhóm (tiêu đề x-nhom-id/pin) — b.id trong quản lý là ID học viên bị tác động, nên tách riêng
+        return ok(await quanLy(ma, { ...body, id: b.id, pin: b.pin, tuId: w.id, tuPin: w.pin }));
       default:
         throw new HttpErr(404, "Không có");
     }

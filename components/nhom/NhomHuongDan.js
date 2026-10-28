@@ -4,22 +4,21 @@
 // Học viên (PIN, Tạm nghỉ, xoá), Cài đặt (4a), Hỏi đáp. #231: bỏ tab giọng Nghe nói (không ghi giọng nữa).
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "@/lib/router";
-import { ShieldCheck, TreeDeciduous, Users, Settings, MessageCircle, Flower2, Pin } from "lucide-react";
-import KtShell from "@/components/hkt/KtShell";
+import { ShieldCheck, TreeDeciduous, Users, Settings, MessageCircle, Flower2, UserPlus } from "lucide-react";
+import KtShell, { useBodyClass } from "@/components/hkt/KtShell";
 import { VongDetLoading } from "@/components/hkt/VongDet";
 import NhomTree from "./NhomTree";
 import { NhomTable } from "./NhomCay";
 import { StatsCard, NhanCard } from "./NhomExtra";
 import PartGuide from "@/components/hkt/PartGuide";
-import { HdrTab } from "./NhomHdr";
+import { PartPopup, QaPopup } from "./NhomPopup"; // #250 (NHA A3, E); bỏ tab "Hướng dẫn riêng" (NHA H)
 import { api, saveK, loadK, tepUrl, rememberGroup } from "./nhomClient";
 import { useNhomView, useNow, changInfo, baiLabel, Countdown, CopyBtn, origin, errText, NhomChat } from "./NhomShared";
-import { PART_SHORT, baiKey, nhomPath, fmtHan } from "@/components/hkt/nhomRules";
+import { PART_KEYS, PART_SHORT, baiKey, baiMo, nhomPath, nhomUnitPath, fmtHan, mocNho, phanDangLam } from "@/components/hkt/nhomRules";
 
 const TABS = [
   ["tq", TreeDeciduous, "Tổng quan"],
   ["noi", Flower2, "Bài nói tự do"],
-  ["hdr", Pin, "Hướng dẫn riêng"],
   ["hv", Users, "Học viên"],
   ["cd", Settings, "Cài đặt"],
   ["chat", MessageCircle, "Hỏi đáp"],
@@ -47,14 +46,14 @@ function KeyForm({ ma, onKey }) {
 }
 
 // ---------- Bài nói tự do: học viên × bài ----------
-function NoiTab({ ma, k, data, reload, now }) {
+export function NoiTab({ ma, k, uid, data, reload, now }) {
   const { nhom, members } = data;
   const [note, setNote] = useState({});
   const [err, setErr] = useState("");
   const call = async (body) => {
     setErr("");
     try {
-      await api(`${ma}/quan-ly`, { k, body: { k, ...body } });
+      await api(`${ma}/quan-ly`, { k, id: uid, body: { k, ...body } });
       await reload();
     } catch (e) {
       setErr(errText(e));
@@ -116,13 +115,13 @@ function NoiTab({ ma, k, data, reload, now }) {
 }
 
 // ---------- Học viên ----------
-function HvTab({ ma, k, data, reload }) {
+export function HvTab({ ma, k, uid, data, reload }) {
   const [err, setErr] = useState("");
   const call = async (body, confirmText) => {
     if (confirmText && !window.confirm(confirmText)) return;
     setErr("");
     try {
-      await api(`${ma}/quan-ly`, { k, body: { k, ...body } });
+      await api(`${ma}/quan-ly`, { k, id: uid, body: { k, ...body } });
       await reload();
     } catch (e) {
       setErr(errText(e));
@@ -164,27 +163,38 @@ function HvTab({ ma, k, data, reload }) {
 }
 
 // ---------- Cài đặt (4a) ----------
-function CdTab({ ma, k, data, reload }) {
+export function CdTab({ ma, k, uid, data, reload }) {
   const g = data.nhom;
   const [f, setF] = useState(() => ({
     ten: g.ten, tenHuongDan: g.tenHuongDan, quiz: g.nguong.quiz, say: g.nguong["listen-speak"], tf: g.nguong.tf, hanChangGio: g.hanChangGio, nhacGio: g.nhacGio,
     kenhGuiBai: g.kenhGuiBai, batBuocPin: g.batBuocPin, chatTat: g.chatTat, toiDa: g.toiDa,
   }));
   const [msg, setMsg] = useState("");
-  const set = (k2) => (e) => setF((x) => ({ ...x, [k2]: e.target.type === "checkbox" ? e.target.checked : e.target.value }));
+  const [dirty, setDirty] = useState(false);
+  // #250 (NHA G): luôn hiện đúng giá trị đang lưu trên máy chủ (MongoDB) — tải lại khi dữ liệu nhóm đổi mà mình chưa sửa dở
+  useEffect(() => {
+    if (dirty) return;
+    setF({ ten: g.ten, tenHuongDan: g.tenHuongDan, quiz: g.nguong.quiz, say: g.nguong["listen-speak"], tf: g.nguong.tf, hanChangGio: g.hanChangGio, nhacGio: g.nhacGio, kenhGuiBai: g.kenhGuiBai, batBuocPin: g.batBuocPin, chatTat: g.chatTat, toiDa: g.toiDa });
+  }, [g, dirty]);
+  const set = (k2) => (e) => {
+    setDirty(true);
+    setF((x) => ({ ...x, [k2]: e.target.type === "checkbox" ? e.target.checked : e.target.value }));
+  };
   const save = async (e) => {
     e.preventDefault();
     setMsg("");
     try {
       await api(`${ma}/quan-ly`, {
         k,
+        id: uid,
         body: {
           k, viec: "cai-dat",
           caiDat: { ten: f.ten, tenHuongDan: f.tenHuongDan, nguong: { quiz: +f.quiz, "listen-speak": +f.say, tf: f.tf === "xong" ? "xong" : +f.tf }, hanChangGio: +f.hanChangGio, nhacGio: +f.nhacGio, kenhGuiBai: f.kenhGuiBai, batBuocPin: f.batBuocPin, chatTat: f.chatTat, toiDa: +f.toiDa },
         },
       });
       await reload();
-      setMsg("Đã lưu — áp cho chặng đang mở trở đi.");
+      setDirty(false);
+      setMsg(`Đã lưu lên máy chủ lúc ${new Date().toLocaleTimeString("vi-VN")} — áp cho chặng đang mở trở đi.`);
     } catch (x) {
       setMsg(errText(x));
     }
@@ -192,13 +202,16 @@ function CdTab({ ma, k, data, reload }) {
   return (
     <form className="nh-card nh-cdform" onSubmit={save}>
       <h2>Cài đặt lớp</h2>
+      <p className="kt-muted">
+        Đang dùng (lưu trên máy chủ): qua Trắc nghiệm {g.nguong.quiz}/40 · Nghe nói {g.nguong["listen-speak"]}/40 · True or false {g.nguong.tf === "xong" ? "làm xong lượt" : `đúng ≥ ${g.nguong.tf}%`} · đếm ngược {g.hanChangGio ? `${g.hanChangGio} giờ/chặng` : "tắt"} · nhắc {g.nhacGio ? `mỗi ${g.nhacGio} giờ` : "tắt"} · tối đa {g.toiDa} người{g.batBuocPin ? " · bắt buộc PIN" : ""}. Chỉ người lập nhóm (có link này) đổi được.
+      </p>
       <label className="nh-field"><span className="nh-flabel">Tên lớp</span><input value={f.ten} onChange={set("ten")} maxLength={80} /></label>
       <label className="nh-field"><span className="nh-flabel">Tên người hướng dẫn</span><input value={f.tenHuongDan} onChange={set("tenHuongDan")} maxLength={40} /></label>
       <label className="nh-field"><span className="nh-flabel">Qua Trắc nghiệm khi đúng (/40)</span><input type="number" min={1} max={40} value={f.quiz} onChange={set("quiz")} /></label>
       <label className="nh-field"><span className="nh-flabel">Qua Nghe nói khi nói đúng (/40)</span><input type="number" min={1} max={40} value={f.say} onChange={set("say")} /></label>
       <label className="nh-field">
         <span className="nh-flabel">True or false</span>
-        <select value={f.tf === "xong" ? "xong" : "pct"} onChange={(e) => setF((x) => ({ ...x, tf: e.target.value === "xong" ? "xong" : 80 }))}>
+        <select value={f.tf === "xong" ? "xong" : "pct"} onChange={(e) => { setDirty(true); setF((x) => ({ ...x, tf: e.target.value === "xong" ? "xong" : 80 })); }}>
           <option value="xong">Làm xong lượt</option>
           <option value="pct">Đúng ≥ N%</option>
         </select>
@@ -222,6 +235,8 @@ function Inner({ ma, k }) {
   const [tab, setTab] = useState("tq");
   const [view, setView] = useState("nhom");
   const [tblMode, setTblMode] = useState(false);
+  const [pop, setPop] = useState(null); // #250 làm phần bài (ID học của người lập nhóm) trong cửa sổ nổi
+  const [qa, setQa] = useState(null); // #250 Hỏi đáp riêng một bài
   useEffect(() => {
     if (data?.nhom) rememberGroup(ma, data.nhom.ten);
   }, [data?.nhom?.ten]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -250,6 +265,10 @@ function Inner({ ma, k }) {
   const nhac = ci.u
     ? `⏰ ${nhom.ten} — ${baiLabel(ci.u, ci.ch)}: ${ci.u.title}${ci.dh ? ` (${fmtHan(ci.dh.con)})` : ""}\nChưa xong: ${slow.map((m) => `${m.ten} (${m.tom?.[curKey]?.d || "chưa bắt đầu"})`).join(", ") || "không ai 🎉"}\nVào học: ${origin()}/nhom/${ma}`
     : "";
+  const myId = nhom.nguoiTaoId && members.some((m) => m.id === nhom.nguoiTaoId) ? nhom.nguoiTaoId : null;
+  const meM = myId ? members.find((m) => m.id === myId) : null;
+  const myJ = ci.u && meM ? phanDangLam(meM.tom?.[curKey]) : 5;
+  const openPart = (u, k, pk) => myId && setPop({ title: `${baiLabel(u, k)} · ${PART_SHORT[pk]}`, href: nhomUnitPath(ma, myId, u.audience, u.slug, pk) });
   const yellowOld = members.flatMap((m) => Object.entries(m.noi || {}).filter(([, n]) => n.baoGui && !n.xanh && now - new Date(n.baoGui).getTime() > 2 * 864e5).map(([b]) => `${m.ten} · ${b.split("/")[1]}`));
 
   return (
@@ -269,15 +288,6 @@ function Inner({ ma, k }) {
               </b>
               <Countdown dh={ci.dh} big />
             </p>
-          )}
-        </div>
-        <div className="nh-head-r">
-          <PartGuide k="huong-dan" className="kt-btn nh-guide" label="Hướng dẫn chung" />
-          <CopyBtn text={`${origin()}/nhom/${ma}`}>Chép link nhóm</CopyBtn>
-          {nhac && (
-            <CopyBtn text={nhac} className="kt-btn kt-btn--pri">
-              Chép lời nhắc (Zalo)
-            </CopyBtn>
           )}
         </div>
       </header>
@@ -316,7 +326,16 @@ function Inner({ ma, k }) {
             <NhomTable nhom={nhom} members={members} onNoi={() => setTab("noi")} />
           ) : (
             <div className="nh-cay-grid">
-              <NhomTree nhom={nhom} members={members} view={view} dots={dots} onFlower={() => setTab("noi")} />
+              <NhomTree
+                nhom={nhom}
+                members={members}
+                view={view}
+                dots={dots}
+                tinBai={data.tinBai}
+                onQa={setQa}
+                onLeaf={myId && (view === "nhom" || view === myId) ? (x) => baiMo(x.k, nhom.changHienTai) && openPart(x.u, x.k, x.pk) : undefined}
+                onFlower={() => setTab("noi")}
+              />
               <aside className="nh-side">
                 {view !== "nhom" && members.find((m) => m.id === view) && (
                   <>
@@ -326,25 +345,38 @@ function Inner({ ma, k }) {
                 )}
                 <section className="nh-card">
                   <h2>Chưa xong chặng đang mở</h2>
+                  {/* #250 (NHA A3): đồng hồ tính theo MỐC NHỎ (5 phần chia đều hạn chặng) + nút làm ngay */}
+                  {ci.u && (
+                    <div className="nh-moc">
+                      <span>
+                        Cả chặng: <b>{baiLabel(ci.u, ci.ch)}</b>
+                      </span>
+                      <Countdown dh={ci.dh} big />
+                      {meM && myJ < 5 && (
+                        <>
+                          <span>
+                            Mốc của bạn: <b>{myJ + 1}. {PART_SHORT[PART_KEYS[myJ]]}</b>
+                          </span>
+                          <Countdown dh={mocNho(nhom.moChangLuc?.[ci.ch], nhom.hanChangGio, myJ, now)} />
+                          <button type="button" className="kt-btn kt-btn--pri" onClick={() => openPart(ci.u, ci.ch, PART_KEYS[myJ])}>
+                            Làm mốc này ngay
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  )}
                   <ul className="nh-slow">
                     {slow.map((m) => (
                       <li key={m.id}>
                         <span>
                           <b>{m.ten}</b> · {m.tom?.[curKey]?.d || "chưa bắt đầu"}
                         </span>
-                        <Countdown dh={ci.dh} />
+                        <Countdown dh={mocNho(nhom.moChangLuc?.[ci.ch], nhom.hanChangGio, phanDangLam(m.tom?.[curKey]), now)} label={`mốc ${phanDangLam(m.tom?.[curKey]) + 1}`} />
                       </li>
                     ))}
                     {!slow.length && <li>Không ai — chặng sau sắp mở.</li>}
                   </ul>
                   <p className="kt-muted">Học viên bỏ dở? Chuyển “Tạm nghỉ” ở tab Học viên để nhóm đi tiếp.</p>
-                </section>
-                <section className="nh-card">
-                  <h2>Link học viên</h2>
-                  <p className="nh-link">{origin()}/nhom/{ma}</p>
-                  <p className="kt-muted">
-                    Bạn cũng học? Mở <Link to={nhomPath(ma)}>link nhóm</Link> và tạo ID.
-                  </p>
                 </section>
               </aside>
             </div>
@@ -352,17 +384,67 @@ function Inner({ ma, k }) {
         </>
       )}
       {tab === "noi" && <NoiTab ma={ma} k={k} data={data} reload={reload} now={now} />}
-      {tab === "hdr" && <HdrTab ma={ma} k={k} data={data} reload={reload} />}
       {tab === "hv" && <HvTab ma={ma} k={k} data={data} reload={reload} />}
       {tab === "cd" && <CdTab ma={ma} k={k} data={data} reload={reload} />}
       {tab === "chat" && (
         <NhomChat ma={ma} who={{ k }} linkFor={null} />
+      )}
+
+      {/* #250 (NHA C): bạn cũng là người học — chọn tên + PIN, hoặc tham gia mới */}
+      <section className="nh-card nh-alsome">
+        <h2>Bạn cũng học</h2>
+        <div className="nh-row">
+          {myId && (
+            <Link className="kt-btn kt-btn--pri" to={nhomPath(ma, myId)}>
+              Vào học với ID {myId} (gõ PIN)
+            </Link>
+          )}
+          <select defaultValue="" onChange={(e) => e.target.value && (window.location.href = nhomPath(ma, e.target.value))} aria-label="Chọn tên của bạn">
+            <option value="">— Chọn tên của bạn rồi gõ PIN —</option>
+            {members.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.ten} ({m.id})
+              </option>
+            ))}
+          </select>
+          <Link className="kt-btn" to={`${nhomPath(ma)}?moi=1`}>
+            <UserPlus size={16} aria-hidden="true" /> Tham gia mới
+          </Link>
+        </div>
+        <p className="kt-muted">Link học viên: {origin()}/nhom/{ma}</p>
+      </section>
+
+      {/* #250 (NHA B): các nút chung đặt dưới cùng */}
+      <div className="nh-foot">
+        <button type="button" className="kt-btn" onClick={reload} title="Lấy dữ liệu mới nhất từ máy chủ">
+          Cập nhật
+        </button>
+        <PartGuide k="huong-dan" className="kt-btn nh-guide" label="Hướng dẫn chung" />
+        <CopyBtn text={`${origin()}/nhom/${ma}`}>Chép link nhóm</CopyBtn>
+        {nhac && (
+          <CopyBtn text={nhac} className="kt-btn kt-btn--pri">
+            Chép lời nhắc (Zalo)
+          </CopyBtn>
+        )}
+      </div>
+
+      {pop && <PartPopup title={pop.title} href={pop.href} onClose={() => { setPop(null); reload(); }} />}
+      {qa && (
+        <QaPopup
+          ma={ma}
+          who={{ k }}
+          label={`${baiLabel(qa.u, qa.k)}: ${qa.u.title}`}
+          gan={{ bai: baiKey(qa.u), phan: "", cau: null, nhan: baiLabel(qa.u, qa.k) }}
+          linkFor={null}
+          onClose={() => { setQa(null); reload(); }}
+        />
       )}
     </div>
   );
 }
 
 export default function NhomHuongDan({ ma }) {
+  useBodyClass("nh-in"); // #253
   const [k, setK] = useState(null);
   useEffect(() => {
     const q = new URLSearchParams(window.location.search).get("k");
