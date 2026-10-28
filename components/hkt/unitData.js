@@ -364,3 +364,20 @@ export function readMinutes(unit) {
   const text = [a.intro, ...a.body.flatMap((s) => s.paragraphs.map((p) => p.text)), a.outro].join(" ").replace(/<[^>]+>/g, " ");
   return Math.max(3, Math.round(text.split(/\s+/).filter(Boolean).length / 220));
 }
+
+// ---------- #244 Trình độ tiếng Anh cần để hoàn thành bộ câu hỏi – trả lời: A · B · C ----------
+// Theo quy chuẩn soạn nội dung (A1 / B1 / C1 → câu trả lời 6–10 / 10–16 / 16–25 từ).
+export const LEVELS = {
+  A: { ten: "A — cơ bản", cefr: "A1–A2", tu: "6–10 từ", can: "Người mới học / tiếng Anh cơ bản làm được: câu ngắn, từ thông dụng hằng ngày." },
+  B: { ten: "B — trung cấp", cefr: "B1–B2", tu: "10–16 từ", can: "Cần tiếng Anh trung cấp: câu ghép, từ vựng đời sống và công việc; nghe hiểu câu dài vừa." },
+  C: { ten: "C — nâng cao", cefr: "C1–C2", tu: "16–25 từ", can: "Cần tiếng Anh khá – giỏi: câu dài, thuật ngữ chuyên môn (luật, tài chính, kỹ thuật…)." },
+};
+/** "B1" → "B". */
+export const bandOf = (lv) => (/^[ABC]/i.test(lv || "") ? lv[0].toUpperCase() : "B");
+/** Mức của một bài tính từ 40 câu: độ dài trung bình câu trả lời đúng (số từ). */
+export function levelOfQuestions(qs = [], declared) {
+  const n = qs.length;
+  const avg = n ? qs.reduce((s, q) => s + String(q.options?.[0] || "").split(/\s+/).filter(Boolean).length, 0) / n : 0;
+  const band = !n ? bandOf(declared) : avg < 10 ? "A" : avg <= 16.5 ? "B" : "C";
+  return { band, avg: Math.round(avg * 10) / 10, ...LEVELS[band] };
+}

@@ -8,6 +8,7 @@ import { Link } from "@/lib/router"; // Next.js: thay react-router-dom
 import { Helmet } from "@/lib/helmet"; // Next.js: tiêu đề/mô tả đặt ở trang máy chủ (generateMetadata)
 import { Layers, Clock, CircleCheck } from "lucide-react";
 import { useVideoSet, hasVideo } from "./UnitVideo"; // #241
+import { LEVELS, bandOf } from "./unitData"; // #244
 import KtShell, { TopicThumb } from "./KtShell";
 import { VongDetLoading } from "./VongDet";
 import HomeVideos from "./HomeVideos";
@@ -53,6 +54,9 @@ export function TopicCard({ idx, topic }) {
           <span>
             <Clock size={15} aria-hidden="true" />
             khoảng {Math.round(minutes / 60)} giờ
+          </span>
+          <span className={`kt-lvl is-${bandOf(topic.level)}`} title={`Tiếng Anh ${LEVELS[bandOf(topic.level)].ten} (${LEVELS[bandOf(topic.level)].cefr}) — ${LEVELS[bandOf(topic.level)].can}`}>
+            {/* #244 */}Tiếng Anh {bandOf(topic.level)}
           </span>
           {vset && (
             // #241: xanh = mọi bài đã có video · vàng = có một ít · xám = chưa có

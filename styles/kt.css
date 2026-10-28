@@ -1204,3 +1204,15 @@ tr.is-pause { opacity: .55; }
 .kt-vtick-ic { flex: none; margin-left: 6px; vertical-align: -2px; }
 .kt-vtick-ic.is-full { color: #12936b; }
 .kt-vtick-ic.is-none { color: #c3c9d2; }
+/* #244 Trình độ tiếng Anh A · B · C cần để hoàn thành bộ câu hỏi */
+.kt-lvl { display: inline-flex; align-items: center; gap: 4px; padding: 1px 8px; border-radius: 999px; font-weight: 700; font-size: 12.5px; line-height: 1.6; }
+.kt-lvl.is-A { background: #e2f5ec; color: #0b5747 !important; }
+.kt-lvl.is-B { background: #e6edfb; color: #2747c9 !important; }
+.kt-lvl.is-C { background: #f3e8fb; color: #6b3fd1 !important; }
+.kt-lvlnote { margin: 4px 0 14px; font-size: 14px; color: var(--kt-ink-2); }
+.kt-lvlnote summary { cursor: pointer; }
+.kt-lvlnote ul { list-style: none; padding: 0; margin: 8px 0; display: flex; flex-direction: column; gap: 6px; }
+.kt-lvlnote li { opacity: .7; } .kt-lvlnote li.is-on { opacity: 1; font-weight: 600; }
+.kt-lvlnote small { color: var(--kt-muted); }
+.kt-lvlline { font-size: 14px; color: var(--kt-ink-2); line-height: 1.6; }
+.kt-lvlline .kt-lvl { margin-right: 6px; }

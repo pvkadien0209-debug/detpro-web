@@ -18,7 +18,7 @@ import { Helmet } from "@/lib/helmet"; // Next.js: tiêu đề/mô tả đặt �
 import { ChevronLeft, ChevronDown, Check, PanelRight, X, CircleCheck } from "lucide-react";
 import {
   loadUnit, loadUnitsIndex, primeUnit, PARTS, unitPath, readUnitProgress, writeUnitProgress, unitSummary,
-  writeLastUnit, partDone, unitDoneCount, lowerFirst } from "./unitData";
+  writeLastUnit, partDone, unitDoneCount, lowerFirst, levelOfQuestions } from "./unitData";
 import { useBodyClass } from "./KtShell";
 import { PART_ICONS, partMeta } from "./TopicCourse";
 import {
@@ -305,7 +305,7 @@ export default function UnitPage({ initialUnit = null }) {
                 </span>
                 <h1 className="kt-h1">{m.title}</h1>
                 <p className="kt-sub">
-                  Chuỗi “{m.series}” · dành cho {lowerFirst(m.audienceTitle)} · bản nháp chờ duyệt
+                  Chuỗi “{m.series}” · dành cho {lowerFirst(m.audienceTitle)} · tiếng Anh mức {levelOfQuestions(qs, m.level).band} ({levelOfQuestions(qs, m.level).cefr}) · bản nháp chờ duyệt
                 </p>
                 {/* #098: video tóm tắt dưới tên bài, chỉ ở phần Bài viết, không tự phát */}
                 {part === "" && <UnitVideo audience={audience} slug={slug} title={m.title} />}
@@ -349,6 +349,15 @@ export default function UnitPage({ initialUnit = null }) {
                 <p className="kt-muted">
                   Bảng thông tin (bảng câu hỏi) cũng là bảng tham khảo: 40 câu, mỗi câu 3 đáp án, <b>không đánh dấu đáp án đúng</b> — đọc bài viết để tự tìm.
                 </p>
+                {/* #244: trình độ tiếng Anh cần để hoàn thành bộ câu hỏi – trả lời của bài này */}
+                {(() => {
+                  const lv = levelOfQuestions(qs, m.level);
+                  return (
+                    <p className="kt-lvlline">
+                      <b className={`kt-lvl is-${lv.band}`}>Tiếng Anh {lv.band}</b> Bộ {qs.length} câu ở mức <b>{lv.ten}</b> ({lv.cefr}): câu trả lời trung bình {String(lv.avg).replace(".", ",")} từ. {lv.can}
+                    </p>
+                  );
+                })()}
                 {/* #228: nghe lần lượt cả 40 câu, chọn hiện câu hỏi / đáp án / cả hai / nghe chay */}
                 <details className="kt-la-wrap">
                   <summary>🎧 Nghe cả {qs.length} câu (câu hỏi + đáp án đúng) — chọn hiện câu hỏi, đáp án, cả hai hoặc nghe chay</summary>

@@ -10,6 +10,7 @@ import { Helmet } from "@/lib/helmet"; // Next.js: tiêu đề/mô tả đặt �
 import { Check, ChevronDown, Layers, Clock, BookOpen, Mic, Users, Table2, MousePointerClick, ListChecks, CircleCheck } from "lucide-react";
 import KtShell, { TopicThumb } from "./KtShell";
 import { useVideoSet, hasVideo } from "./UnitVideo"; // #241 tick xanh bài có video
+import { LEVELS, bandOf } from "./unitData"; // #244
 import { loadUnitsIndex, unitPath, audiencePath, readUnitProgress, partDone, unitDoneCount, PARTS, learnTypePath, lowerFirst } from "./unitData";
 
 export const PART_ICONS = { "": BookOpen, info: Table2, quiz: MousePointerClick, "listen-speak": Mic, "true-or-false": ListChecks };
@@ -82,8 +83,24 @@ export default function TopicCourse({ topic, persona, active = "topics" }) {
               <Clock size={15} aria-hidden="true" />
               khoảng {Math.round(minutes / 60)} giờ
             </span>
-            <span>Trình độ {topic.level}</span>
+            <span className={`kt-lvl is-${bandOf(topic.level)}`} title={LEVELS[bandOf(topic.level)].can}>
+              Tiếng Anh {bandOf(topic.level)} ({topic.level})
+            </span>
           </div>
+          {/* #244: bộ câu hỏi – trả lời ở mức nào thì hoàn thành được */}
+          <details className="kt-lvlnote">
+            <summary>
+              Câu hỏi và câu trả lời ở mức <b>{LEVELS[bandOf(topic.level)].ten}</b> ({LEVELS[bandOf(topic.level)].cefr}) — {LEVELS[bandOf(topic.level)].can}
+            </summary>
+            <ul>
+              {Object.entries(LEVELS).map(([k, l]) => (
+                <li key={k} className={k === bandOf(topic.level) ? "is-on" : ""}>
+                  <b className={`kt-lvl is-${k}`}>{k}</b> {l.cefr} · câu trả lời {l.tu} · {l.can}
+                </li>
+              ))}
+            </ul>
+            <small>Chưa đủ trình độ vẫn học được: bật Tiếng Việt, chọn “Cả hai” để đọc câu hỏi và đáp án, hoặc chuyển sang Gõ.</small>
+          </details>
           <div className="kt-for">
             <Users size={22} aria-hidden="true" />
             <div>
