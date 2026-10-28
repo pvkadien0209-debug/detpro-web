@@ -1,7 +1,8 @@
 @echo off
 chcp 65001 >nul
-cd /d "%~dp0"
-echo [DetPro Next.js] Day code len https://github.com/pvkadien0209-debug/detpro-web (nhanh main)
+rem #233: tep .bat nam trong bat\<viec>\ -> ve thu muc goc DetPro truoc khi chay
+cd /d "%~dp0..\.."
+echo [DetPro] Day code len https://github.com/pvkadien0209-debug/detpro-web (nhanh main) - Vercel tu build
 if not exist ".git" (
   git init
   git remote add origin https://github.com/pvkadien0209-debug/detpro-web.git

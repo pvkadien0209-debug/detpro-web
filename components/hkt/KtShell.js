@@ -196,6 +196,7 @@ function BrandFooter() {
         <Link to="/knowledge">Chủ đề</Link>
         <Link to="/for">Hoàn cảnh</Link>
         <Link to="/videos">Video</Link>
+        <Link to="/huong-dan">Hướng dẫn học</Link>
         <a href="/?huong-dan=1">Xem lại hướng dẫn</a>
         {BRAND.fanpage && (
           <a href={BRAND.fanpage} target="_blank" rel="noopener noreferrer">

@@ -13,6 +13,7 @@ import { matchAnswer, scoreOption } from "./matcher";
 import { MATCH } from "./config";
 import { shownOptions, shuffle, newQaRun, reshuffleQaRest, qaTotal, paraKind, frameOf, hasIllustrativeCharacters } from "./unitData";
 import VongDet from "./VongDet";
+import { useNhom } from "@/components/nhom/nhomClient"; // #230 Học cùng
 
 const html = (s) => ({ __html: s });
 
@@ -331,6 +332,8 @@ export function PickPart({ unit, prog, update, player, openExplain, refButton, o
   const solved = !!pick.ok[i];
   const [gridOpen, setGridOpen] = useState(false);
   const [review, setReview] = useState(false); // #160: xong cả 40 câu → hiện báo cáo; bấm "Xem lại từng câu" mới về câu hỏi
+  const grp = useNhom();
+  useEffect(() => grp?.setCau?.(i), [i]); // eslint-disable-line react-hooks/exhaustive-deps
   const stageRef = useStageTop(i);
   const go = (n) => update({ pick: { ...pick, pos: Math.max(0, Math.min(qs.length - 1, n)) } });
   const nextOpen = (from = i, ok = pick.ok) => {
@@ -726,6 +729,59 @@ function KeyHint({ children }) {
   useEffect(() => setHover(canHover()), []);
   return hover ? <p className="kt-dkeys">{children}</p> : null;
 }
+// #229: tuỳ chọn hiện chữ khi luyện (dùng chung Nghe nói và True or false) — nhớ trên máy
+const SHOW_MODES = [
+  ["none", "Chỉ nghe"],
+  ["q", "Câu hỏi"],
+  ["a", "Đáp án"],
+  ["qa", "Cả hai"],
+];
+function useDrillShow() {
+  const [show, setShow] = useStoredState(KT_STORAGE.drillShow, "none");
+  const v = SHOW_MODES.some(([k]) => k === show) ? show : "none";
+  return { show: v, setShow, showQ: v === "q" || v === "qa", showA: v === "a" || v === "qa" };
+}
+function ShowSeg({ show, setShow }) {
+  return (
+    <div className="kt-dshow" role="group" aria-label="Hiện chữ">
+      {SHOW_MODES.map(([k, t]) => (
+        <button key={k} type="button" className={show === k ? "is-on" : ""} aria-pressed={show === k} onClick={() => setShow(k)}>
+          {k === "none" && <Headphones size={14} aria-hidden="true" />} {t}
+        </button>
+      ))}
+    </div>
+  );
+}
+// #231: Nghe nói trên điện thoại — nhắc chọn "Cả hai" (đọc câu hỏi + đáp án trên màn hình) và chỉ NÓI đáp án
+// (điện thoại, nhất là iPhone, chuyển qua lại giữa phát tiếng và micro dễ lỗi — #045).
+let phoneTipOff = false; // "Để sau": ẩn tới khi tải lại trang
+function PhoneTip({ show, setShow }) {
+  const [phone, setPhone] = useState(false);
+  const [off, setOff] = useState(phoneTipOff);
+  useEffect(() => setPhone(typeof window !== "undefined" && !!window.matchMedia?.("(pointer: coarse)").matches), []);
+  if (!phone || off || show === "qa") return null;
+  return (
+    <div className="kt-phonetip" role="note">
+      <span>
+        📱 Trên điện thoại nên chọn <b>Cả hai</b>: đọc câu hỏi và đáp án trên màn hình, rồi chỉ bấm <b>Nói</b> đáp án đúng.
+      </span>
+      <span className="kt-phonetip-b">
+        <button type="button" className="is-pri" onClick={() => setShow("qa")}>
+          Chọn Cả hai
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            phoneTipOff = true;
+            setOff(true);
+          }}
+        >
+          Để sau
+        </button>
+      </span>
+    </div>
+  );
+}
 function Status({ fb }) {
   return (
     <div className={`kt-dstatus ${fb ? `is-${fb.tone}` : ""}`} role="status" aria-live="polite">
@@ -751,6 +807,9 @@ export function SayPart({ unit, prog, update, player, openExplain, refButton, on
   const opts = shownOptions(q);
   const [fb, setFb] = useState(null);
   const [review, setReview] = useState(false); // #160
+  const { show, setShow, showQ, showA } = useDrillShow(); // #229
+  const grp = useNhom(); // #230
+  useEffect(() => grp?.setCau?.(i), [i]); // eslint-disable-line react-hooks/exhaustive-deps
   const stageRef = useStageTop(i);
   useEffect(() => {
     setFb(null);
@@ -867,16 +926,18 @@ export function SayPart({ unit, prog, update, player, openExplain, refButton, on
         <Listen player={player} id={`sy-q-${i}`} text={q.q} className="hkt-listen--lg">
           Nghe câu hỏi
         </Listen>
-        {solved ? (
+        <ShowSeg show={show} setShow={setShow} />
+        <PhoneTip show={show} setShow={setShow} />
+        {solved || showQ ? (
           <div className="hkt-u-reveal">
             <p className="hkt-u-qen" lang="en">{q.q}</p>
             <ViHint key={`sy-vi-${i}`} text={q.vi} />
           </div>
-        ) : (
+        ) : !showA ? (
           <p className="kt-dnote">
             <Headphones size={15} aria-hidden="true" /> Chỉ nghe — chữ hiện khi bạn nói đúng đáp án
           </p>
-        )}
+        ) : null}
         {solved ? (
           // #074: đã đúng → chỉ hiện chữ đáp án đúng; 3 đáp án vẫn nghe lại được bằng hàng nút
           <>
@@ -892,10 +953,16 @@ export function SayPart({ unit, prog, update, player, openExplain, refButton, on
             </p>
           </>
         ) : (
-          <div className="kt-dopts">
+          <div className={`kt-dopts ${showA ? "is-text" : ""}`}>
             {opts.map((o, k) => (
               <Listen key={k} player={player} id={`sy-o-${i}-${k}`} text={o.text} className="kt-dopt">
-                Đáp án {k + 1}
+                {showA ? (
+                  <span className="kt-dopt-t">
+                    <b>{k + 1}</b> <span lang="en">{o.text}</span>
+                  </span>
+                ) : (
+                  `Đáp án ${k + 1}`
+                )}
               </Listen>
             ))}
           </div>
@@ -941,6 +1008,9 @@ export function TrueFalsePart({ unit, prog, update, player, openExplain, refButt
   const pos = qa?.pos ?? 0;
   const it = qa?.items[pos];
   const [fb, setFb] = useState(null);
+  const { show, setShow, showQ, showA } = useDrillShow(); // #229
+  const grp = useNhom(); // #230
+  useEffect(() => grp?.setCau?.(it?.i ?? 0), [it?.i]); // eslint-disable-line react-hooks/exhaustive-deps
   const stageRef = useStageTop(`${pos}-${qa?.runs}`);
   useEffect(() => {
     setFb(null);
@@ -1017,11 +1087,12 @@ export function TrueFalsePart({ unit, prog, update, player, openExplain, refButt
             Nghe câu trả lời
           </Listen>
         </div>
-        {doneHere ? (
+        <ShowSeg show={show} setShow={setShow} />
+        {doneHere || showQ || showA ? (
           <div className="hkt-u-reveal">
-            <p className="hkt-u-qen" lang="en">{q.q}</p>
-            <ViHint key={`tf-vi-${pos}`} text={q.vi} />
-            <blockquote className="hkt-u-cand" lang="en">{cand}</blockquote>
+            {(doneHere || showQ) && <p className="hkt-u-qen" lang="en">{q.q}</p>}
+            {(doneHere || showQ) && <ViHint key={`tf-vi-${pos}`} text={q.vi} />}
+            {(doneHere || showA) && <blockquote className="hkt-u-cand" lang="en">{cand}</blockquote>}
           </div>
         ) : (
           <p className="kt-dnote">

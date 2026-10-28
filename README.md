@@ -4,14 +4,18 @@
 Bản CRA và máy chủ Express đã bỏ (#189); project cũ `SEO-PT-projectjs` chỉ còn dùng ở máy: soạn / dựng dữ liệu bài, tạo mp3 lời đọc cho video.
 Kế hoạch: `C:\Dienpham\App\SEO-PT-projectjs\DetPro\nextjs\KE-HOACH-NEXTJS.md`.
 
-## Chạy lần đầu (máy 01)
-1. `0-cai-dat.bat` — cài thư viện (Node ≥ 20.9).
-2. `1-dong-bo-du-lieu.bat` — chép bài học (`jsonData\units`), danh mục (`jsonData\knowledge`: index + topic.json), video cũ (`videos\dp`), logo, ảnh Đét từ `SEO-PT-projectjs\client\public`. Chỉ đọc project cũ.
-3. `3-lay-chuoi-mongodb.bat` — ghi `MONGODB_URI` + `DRIVE_API_KEY` vào `.env.local` (không in ra, không lên git).
-4. `2-chay-thu.bat` — http://localhost:3001 (chế độ sửa code). `5-build-thu.bat` — build giống Vercel rồi chạy.
-5. `4-day-len-github.bat` — đẩy lên https://github.com/pvkadien0209-debug/detpro-web (kiểm danh sách tệp **không có `.env.local`**).
+## Các tệp .bat — thư mục `bat\` (#233, xem `bat\DOC-TOI.txt`)
+| Thư mục | Tệp | Việc |
+|---|---|---|
+| `1-cai-dat-lan-dau\` | `1-cai-thu-vien.bat` · `2-lay-chuoi-mongodb.bat` | cài thư viện (Node ≥ 20.9) · ghi `MONGODB_URI` + `DRIVE_API_KEY` vào `.env.local` (không in ra, không lên git) |
+| `2-du-lieu\` | `1-dong-bo-du-lieu.bat` | chép bài học (`jsonData\units`), danh mục, video cũ, logo, ảnh Đét từ `SEO-PT-projectjs\client\public` (chỉ đọc project cũ) |
+| `3-chay-thu\` | `1-chay-thu.bat` · `2-build-thu.bat` | http://localhost:3001 (sửa code) · build giống Vercel rồi chạy |
+| `4-dua-len-web\` | `1-day-len-github.bat` | đẩy lên https://github.com/pvkadien0209-debug/detpro-web (kiểm danh sách **không có `.env.local`**) → Vercel tự build |
+| `9-don-dep\` | `1-don-tep-cu-n1.bat` · `2-xoa-bat-cu-o-goc.bat` | chạy một lần: xoá tệp thừa mốc N1 · xoá 7 tệp .bat cũ ở gốc |
 
-Sửa / thêm bài ở project cũ (`build_units.py`) → chạy lại `1-dong-bo-du-lieu.bat` → `4-day-len-github.bat` (Vercel tự build).
+- **Máy mới:** `1-cai-dat-lan-dau\1` → `1-cai-dat-lan-dau\2` → `2-du-lieu\1` → `3-chay-thu\1`.
+- **Sửa code:** `3-chay-thu\1` → (tuỳ chọn) `3-chay-thu\2` → `4-dua-len-web\1`.
+- **Thêm / sửa bài** ở project cũ (`build_units.py`): `2-du-lieu\1` → `4-dua-len-web\1`.
 
 ## Các trang
 | Đường dẫn | Component (chép từ CRA) | Dựng |
@@ -56,7 +60,7 @@ lib/helmet.js            thay react-helmet-async (không làm gì — tiêu đ�
 lib/data.server.js       đọc public/jsonData ở máy chủ
 lib/mongodb.js, lib/tts.js, lib/drive.server.js
 styles/                  bootstrap (như CRA) + KnowledgeLesson, KnowledgePages, UnitPage, kt, VongDet .css
-public/jsonData/         (sinh ra bằng 1-dong-bo-du-lieu.bat) dữ liệu bài — máy chủ và trình duyệt cùng đọc
+public/jsonData/         (sinh ra bằng bat\2-du-lieu\1-dong-bo-du-lieu.bat) dữ liệu bài — máy chủ và trình duyệt cùng đọc
 ```
 
 **Chép thêm một tệp từ CRA:** thêm `"use client";`, đổi `from "react-router-dom"` → `from "@/lib/router"`, bỏ `import "./x.css"` (nạp ở `app/layout.js`). Không đọc `window` / `localStorage` lúc dựng (chỉ trong `useEffect`), nếu không HTML máy chủ và trình duyệt sẽ lệch.

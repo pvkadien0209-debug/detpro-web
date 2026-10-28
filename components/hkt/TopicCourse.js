@@ -186,6 +186,11 @@ export default function TopicCourse({ topic, persona, active = "topics" }) {
                 Học lúc nào cũng được, máy nhớ chỗ dừng
               </li>
             </ul>
+            {/* #230 Học cùng: người hướng dẫn mở lớp cho chuỗi này */}
+            <Link className="kt-btn nh-open" to={`/nhom/tao?chu-de=${topic.branch}/${topic.slug}`}>
+              <Users size={18} aria-hidden="true" /> Mở lớp hướng dẫn
+            </Link>
+            <p className="kt-muted nh-open-t">Dạy một nhóm học chuỗi này: cả nhóm xong bài trước mới mở bài sau.</p>
           </div>
         </aside>
       </div>

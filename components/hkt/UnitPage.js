@@ -7,6 +7,11 @@
 // #079: đổi bài không dựng lại cả trang — giữ khung (thanh trên, mục lục, chỗ cuộn mục lục), chỉ vùng nội dung chờ bài mới;
 // mục lục: bấm tên bài là vào bài (học tiếp phần đang dở), nút mũi tên riêng để mở/gập 5 phần.
 // #098: video tóm tắt (UnitVideo) dưới tên bài ở phần Bài viết.
+import ListenAll from "./ListenAll";
+import PartGuide from "./PartGuide"; // #231 hướng dẫn riêng từng phần
+// #230 Học cùng: trong nhóm (/nhom/<mã>/<id>/…) tiến độ đọc/ghi trên máy chủ, đường dẫn giữ nhóm, ngưỡng nhóm, khoá chặng
+import { useNhom } from "@/components/nhom/nhomClient";
+import { partDoneNhom, unitGreenCount, baiMo } from "./nhomRules";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "@/lib/router"; // Next.js: thay react-router-dom
 import { Helmet } from "@/lib/helmet"; // Next.js: tiêu đề/mô tả đặt ở trang máy chủ (generateMetadata)
@@ -54,11 +59,17 @@ export default function UnitPage({ initialUnit = null }) {
   const mainRef = useRef(null);
   const sideRef = useRef(null);
   useBodyClass("kt-shell");
+  const grp = useNhom(); // null khi học riêng
+  const readProg = grp ? grp.readProg : readUnitProgress;
+  const writeProg = grp ? grp.writeProg : writeUnitProgress;
+  const P = grp ? grp.path : unitPath; // đường dẫn bài (giữ nhóm)
+  const pDone = grp ? (p, key) => partDoneNhom(p, key, grp.ng) : partDone;
+  const pCount = grp ? (p) => unitGreenCount(p, grp.ng) : unitDoneCount;
 
   useEffect(() => {
     let live = true;
     setError(false);
-    setProg(readUnitProgress(audience, slug) || {});
+    setProg(readProg(audience, slug) || {});
     loadUnit(audience, slug)
       .then((u) => live && setLoaded({ key: `${audience}/${slug}`, unit: u }))
       .catch(() =>
@@ -83,15 +94,15 @@ export default function UnitPage({ initialUnit = null }) {
   // B-Q11: vào bài không ghi phần (không phải bấm thanh phần) → phần đang dở
   useEffect(() => {
     if (part || location.state?.tab) return;
-    const p = readUnitProgress(audience, slug);
-    if (p?.lastPart && PARTS.some((x) => x.key === p.lastPart)) navigate(unitPath(audience, slug, p.lastPart), { replace: true });
+    const p = readProg(audience, slug);
+    if (p?.lastPart && PARTS.some((x) => x.key === p.lastPart)) navigate(P(audience, slug, p.lastPart), { replace: true });
   }, [audience, slug]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const update = useCallback(
     (patch) =>
       setProg((p) => {
         const n = { ...p, ...patch };
-        writeUnitProgress(audience, slug, n);
+        writeProg(audience, slug, n);
         return n;
       }),
     [audience, slug]
@@ -100,7 +111,7 @@ export default function UnitPage({ initialUnit = null }) {
   // Nhớ phần đang luyện (chỉ 3 phần luyện) + bài đang học (nút "Học tiếp")
   useEffect(() => {
     if (PRACTICE.includes(part) && prog.lastPart !== part) update({ lastPart: part });
-    writeLastUnit(audience, slug, part);
+    if (!grp) writeLastUnit(audience, slug, part);
     player.stop();
     mainRef.current?.scrollTo(0, 0);
     if (window.innerWidth <= 960) setSideOpen(false);
@@ -182,15 +193,16 @@ export default function UnitPage({ initialUnit = null }) {
   const startPart = PRACTICE.includes(prog.lastPart) ? prog.lastPart : "quiz";
 
   // Mục lục cả chuỗi + thứ tự đi: bài 0 phần 1…5, bài 1 phần 1…5, …
-  const list = place?.list || [{ audience, slug, title: m.title, kind: m.kind }];
-  const nextUnitStep = (st) => st && st.i !== (place ? place.k : 0);
-  const k = place ? place.k : 0;
-  const progOf = (u, i) => (i === k ? prog : readUnitProgress(u.audience, u.slug));
+  const list = grp ? grp.nhom.chuoi.bai : place?.list || [{ audience, slug, title: m.title, kind: m.kind }];
+  const k = grp ? Math.max(0, list.findIndex((u) => u.audience === audience && u.slug === slug)) : place ? place.k : 0;
+  const nextUnitStep = (st) => st && st.i !== k;
+  const progOf = (u, i) => (i === k ? prog : readProg(u.audience, u.slug));
+  const locked = grp && !baiMo(k, grp.nhom.changHienTai); // bài chưa mở trong nhóm
   const flat = list.flatMap((u, i) => PARTS.map((p) => ({ i, u, key: p.key })));
   const pos = flat.findIndex((x) => x.i === k && x.key === part);
   const prevStep = flat[pos - 1];
   const nextStep = flat[pos + 1];
-  const doneAll = list.reduce((n, u, i) => n + unitDoneCount(progOf(u, i)), 0);
+  const doneAll = list.reduce((n, u, i) => n + pCount(progOf(u, i)), 0);
   const totalAll = list.length * PARTS.length;
   const markSeen = () => {
     if (part === "" || part === "info") update({ seen: { ...(prog.seen || {}), [part === "" ? "article" : "info"]: 1 } });
@@ -198,7 +210,7 @@ export default function UnitPage({ initialUnit = null }) {
   const goStep = (st, mark) => {
     if (!st) return;
     if (mark) markSeen();
-    navigate(unitPath(st.u.audience, st.u.slug, st.key), { state: { tab: true } });
+    navigate(P(st.u.audience, st.u.slug, st.key), { state: { tab: true } });
   };
   const partInfo = PARTS.find((p) => p.key === part);
   const drill = DRILL.includes(part);
@@ -212,7 +224,7 @@ export default function UnitPage({ initialUnit = null }) {
     });
 
   return (
-    <div className={`kt-learn hkt-page ${drill ? "is-drill" : ""}`}>
+    <div className={`kt-learn hkt-page ${drill ? "is-drill" : ""} ${grp ? "has-nhbar" : ""}`}>
       <Helmet>
         <title>{`${m.title} — dành cho ${lowerFirst(m.audienceTitle)}`}</title>
         <meta name="description" content={m.description} />
@@ -230,17 +242,25 @@ export default function UnitPage({ initialUnit = null }) {
         </script>
       </Helmet>
       <header className="kt-ltop">
-        <Link className="kt-back" to={topicHref} aria-label="Về trang chủ đề">
+        <Link className="kt-back" to={grp ? grp.treePath : topicHref} aria-label={grp ? "Về cây nhóm" : "Về trang chủ đề"}>
           <ChevronLeft size={24} aria-hidden="true" />
         </Link>
-        <Link className="ttl" to={topicHref}>
-          {place?.t?.title.vi || m.series}
+        <Link className="ttl" to={grp ? grp.treePath : topicHref}>
+          {grp ? grp.nhom.ten : place?.t?.title.vi || m.series}
         </Link>
         {drill && (
           <button type="button" className="kt-ltoc" onClick={() => setSideOpen((v) => !v)} aria-label={sideOpen ? "Ẩn mục lục" : "Hiện mục lục"} aria-pressed={sideOpen}>
             <PanelRight size={20} aria-hidden="true" />
           </button>
         )}
+        <PartGuide
+          k={part}
+          extra={
+            grp
+              ? { quiz: `Trong nhóm: qua phần khi đúng ${grp.ng.quiz}/40.`, "listen-speak": `Trong nhóm: qua phần khi nói đúng ${grp.ng["listen-speak"]}/40.`, "true-or-false": grp.ng.tf === "xong" ? "Trong nhóm: qua phần khi làm xong lượt." : `Trong nhóm: qua phần khi đúng từ ${grp.ng.tf}%.` }[part]
+              : null
+          }
+        />
         <div className="kt-ring" title={`${doneAll}/${totalAll} phần đã xong`}>
           {/* NV-Q7 (#112): vòng "x/y phần" dùng đúng hình Vòng Đét (khe ở 1 giờ, khép khi xong cả chuỗi) */}
           <VongDet value={doneAll / totalAll} size={38} />
@@ -253,6 +273,7 @@ export default function UnitPage({ initialUnit = null }) {
         </div>
       </header>
 
+      {grp && grp.renderBar({ k, part, unit: list[k] })}
       <div className={`kt-lwrap ${sideOpen ? "is-sideopen" : "is-noside"}`}>
         <div className={`kt-lmain ${drill ? "is-drill" : ""}`} ref={mainRef}>
           {loading ? (
@@ -261,6 +282,8 @@ export default function UnitPage({ initialUnit = null }) {
                 Đang mở {list[k] ? `${unitLabel(list[k], k).toLowerCase()}: ${list[k].title}` : "bài"}…
               </p>
             </div>
+          ) : locked ? (
+            <div className="kt-lcontent">{grp.renderLocked(k)}</div>
           ) : (
           <div className="kt-lcontent" key={key}>
             {drill ? (
@@ -294,21 +317,21 @@ export default function UnitPage({ initialUnit = null }) {
                 started={summary?.started}
                 onStart={() => {
                   markSeen();
-                  navigate(unitPath(audience, slug, startPart), { state: { tab: true } });
+                  navigate(P(audience, slug, startPart), { state: { tab: true } });
                 }}
-                questionsLink={unitPath(audience, slug, "info")}
+                questionsLink={P(audience, slug, "info")}
               />
             )}
             {/* #086: bài nối bài — cuối bài viết có thẻ bài tiếp theo trong chuỗi */}
             {part === "" && place && (
               list[k + 1] ? (
-                <Link className="kt-nextu" to={unitPath(list[k + 1].audience, list[k + 1].slug)}>
+                <Link className="kt-nextu" to={P(list[k + 1].audience, list[k + 1].slug)}>
                   <small>Bài tiếp theo trong chuỗi “{m.series}” · {k + 2}/{list.length}</small>
                   <b>{list[k + 1].title}</b>
                   <span>{list[k + 1].description}</span>
                 </Link>
               ) : (
-                <Link className="kt-nextu is-last" to={topicHref}>
+                <Link className="kt-nextu is-last" to={grp ? grp.treePath : topicHref}>
                   <small>Bạn đã đến bài cuối của chuỗi “{m.series}”</small>
                   <b>Xem lại cả chuỗi và phần còn chưa luyện</b>
                   {place.t?.promise && <span>{place.t.promise}</span>}
@@ -320,6 +343,11 @@ export default function UnitPage({ initialUnit = null }) {
                 <p className="kt-muted">
                   Bảng thông tin (bảng câu hỏi) cũng là bảng tham khảo: 40 câu, mỗi câu 3 đáp án, <b>không đánh dấu đáp án đúng</b> — đọc bài viết để tự tìm.
                 </p>
+                {/* #228: nghe lần lượt cả 40 câu, chọn hiện câu hỏi / đáp án / cả hai / nghe chay */}
+                <details className="kt-la-wrap">
+                  <summary>🎧 Nghe cả {qs.length} câu (câu hỏi + đáp án đúng) — chọn hiện câu hỏi, đáp án, cả hai hoặc nghe chay</summary>
+                  <ListenAll questions={qs} />
+                </details>
                 <QuestionTable questions={qs} player={player} />
               </>
             )}
@@ -350,16 +378,17 @@ export default function UnitPage({ initialUnit = null }) {
             return (
               <div key={u.audience + u.slug} className={`kt-lunit ${i === k ? "is-curunit" : ""} ${open ? "is-open" : ""}`}>
                 <div className="kt-lhead">
-                  <Link to={unitPath(u.audience, u.slug)} aria-current={i === k ? "page" : undefined} title={i === k ? "Bài đang học" : "Vào bài này (mở phần đang dở)"}>
+                  <Link to={P(u.audience, u.slug)} aria-current={i === k ? "page" : undefined} title={i === k ? "Bài đang học" : "Vào bài này (mở phần đang dở)"}>
                     <span className="tt">
                       {unitLabel(u, i)}. {u.title}
                       <small>
                         <span className="kt-dots" aria-hidden="true">
                           {PARTS.map((pt) => (
-                            <i key={pt.key} className={partDone(p, pt.key) ? "is-done" : ""} />
+                            <i key={pt.key} className={pDone(p, pt.key) ? "is-done" : ""} />
                           ))}
                         </span>
-                        {unitDoneCount(p)}/5 phần{i === k ? " · đang học" : ""}
+                        {pCount(p)}/5 phần{i === k ? " · đang học" : ""}
+                        {grp && !baiMo(i, grp.nhom.changHienTai) ? " · 🔒" : ""}
                       </small>
                     </span>
                   </Link>
@@ -370,11 +399,11 @@ export default function UnitPage({ initialUnit = null }) {
                 {open && (
                   <ol>
                     {PARTS.map((pt) => {
-                      const d = partDone(p, pt.key);
+                      const d = pDone(p, pt.key);
                       const cur = i === k && pt.key === part;
                       return (
                         <li key={pt.key}>
-                          <Link className={cur ? "is-cur" : ""} to={unitPath(u.audience, u.slug, pt.key)} state={{ tab: true }} aria-current={cur ? "step" : undefined}>
+                          <Link className={cur ? "is-cur" : ""} to={P(u.audience, u.slug, pt.key)} state={{ tab: true }} aria-current={cur ? "step" : undefined}>
                             <span className={`kt-st ${d ? "is-done" : ""}`}>{d && <Check size={12} aria-hidden="true" />}</span>
                             {pt.label}
                             <span className="r">{partMeta(pt.key, u)}</span>
@@ -405,6 +434,7 @@ export default function UnitPage({ initialUnit = null }) {
         </div>
       </footer>
 
+      {grp && grp.renderChat()}
       <Modal open={explainI !== null} onClose={closeExplain} title={explainI !== null ? `Câu ${explainI + 1} · Giải thích` : ""}>
         {explainI !== null && <ExplainBody q={qs[explainI]} i={explainI} para={para} player={player} />}
       </Modal>

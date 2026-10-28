@@ -6,6 +6,7 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   Play, Pause, ChevronLeft, ChevronRight, Volume2, VolumeX, RotateCcw, LayoutGrid, FileText, ListChecks, Gift, Footprints, Home, Table, BarChart3,
   ThumbsUp, Mic, ShieldCheck, AudioLines, MessageSquareText, Percent, Keyboard, BookOpen, TrendingUp, Split, Timer, DoorOpen, Users, Search,
+  Headphones, Repeat, CalendarDays, CircleCheck, Eye, Zap, Brain, Route, BedDouble,
 } from "lucide-react";
 import VongDet, { SIGN } from "./VongDet";
 import { HOME_VIDEOS, videoSeconds, fmtSec } from "./trangChuVideoData";
@@ -16,6 +17,7 @@ const ICON = {
   cards: LayoutGrid, article: FileText, abc: ListChecks, free: Gift, steps: Footprints, "screen-home": Home, table: Table, report: BarChart3,
   thumb: ThumbsUp, mic: Mic, allow: ShieldCheck, wave: AudioLines, text: MessageSquareText, half: Percent, keyboard: Keyboard, book: BookOpen,
   curve: TrendingUp, split: Split, clock: Timer, doors: DoorOpen, people: Users, search: Search,
+  headphones: Headphones, repeat: Repeat, calendar: CalendarDays, check: CircleCheck, eye: Eye, zap: Zap, brain: Brain, route: Route, bed: BedDouble, // #228
 };
 
 /** "**tô vàng**" và "~~gạch~~" trong chữ trên slide. */
@@ -128,7 +130,8 @@ function SlidePlayer({ v, onNext }) {
   );
 }
 
-export default function HomeVideos() {
+// #228: dùng chung cho trang chủ (HOME_VIDEOS) và trang /huong-dan (GUIDE_VIDEOS)
+export default function HomeVideos({ list = HOME_VIDEOS, title = "Bắt đầu với DetPro", sub, id = "kt-hv-h" }) {
   const [drive, setDrive] = useState({});
   const [open, setOpen] = useState(null);
   const track = useRef(null);
@@ -146,11 +149,11 @@ export default function HomeVideos() {
   };
 
   return (
-    <section className="kt-hv" aria-labelledby="kt-hv-h">
+    <section className="kt-hv" aria-labelledby={id}>
       <div className="kt-row-head">
         <div>
-          <h2 id="kt-hv-h">Bắt đầu với DetPro</h2>
-          <p className="kt-muted">{HOME_VIDEOS.length} video ngắn · tiếng Anh, phụ đề Việt · quẹt để xem tiếp</p>
+          <h2 id={id}>{title}</h2>
+          <p className="kt-muted">{sub || `${list.length} video ngắn · tiếng Anh, phụ đề Việt · quẹt để xem tiếp`}</p>
         </div>
         <div className="kt-hv-arrows">
           <button type="button" onClick={() => scroll(-1)} aria-label="Video trước">
@@ -162,9 +165,10 @@ export default function HomeVideos() {
         </div>
       </div>
       <div className="kt-hv-track" ref={track}>
-        {HOME_VIDEOS.map((v, k) => {
-          const mp4 = drive[`trang-chu-${v.id}--w01.mp4`];
-          const jpg = drive[`trang-chu-${v.id}--w01.jpg`];
+        {list.map((v, k) => {
+          const base = v.file || `trang-chu-${v.id}`;
+          const mp4 = drive[`${base}--w01.mp4`];
+          const jpg = drive[`${base}--w01.jpg`];
           const sec = videoSeconds(v);
           return (
             <article key={v.id} className={`kt-hv-card ${open === k ? "is-open" : ""}`} style={{ "--hv": v.color }}>
@@ -172,7 +176,7 @@ export default function HomeVideos() {
                 {open === k && mp4 ? (
                   <iframe src={`https://drive.google.com/file/d/${mp4}/preview`} title={v.title} allow="autoplay; fullscreen" allowFullScreen />
                 ) : open === k ? (
-                  <SlidePlayer v={v} onNext={k + 1 < HOME_VIDEOS.length ? () => openAt(k + 1) : null} />
+                  <SlidePlayer v={v} onNext={k + 1 < list.length ? () => openAt(k + 1) : null} />
                 ) : (
                   <button type="button" className="kt-hv-cover" onClick={() => openAt(k)} aria-label={`Xem video: ${v.title} (${fmtSec(sec)})`}>
                     {jpg ? (

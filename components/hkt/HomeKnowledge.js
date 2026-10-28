@@ -138,6 +138,9 @@ export default function HomeKnowledge() {
       </section>
 
       <HomeVideos />
+      <p className="kt-guide-link">
+        <Link to="/huong-dan">🎬 Xem thêm 7 video hướng dẫn: vì sao và làm thế nào cho hiệu quả →</Link>
+      </p>
 
       <ol className="kt-4steps" aria-label="Học một bài trong 4 bước">
         {STEPS4.map(([b, t], k) => (

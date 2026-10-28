@@ -5,6 +5,7 @@ export const KT_STORAGE = {
   showAnswers: "hkt.showAnswers", // R2 (cũ, không dùng nữa từ #044)
   listenOnly: "hkt.listenOnly", // UXC-Q3 (#044): mặc định HIỆN chữ; bật "Chỉ nghe" để thử thách
   answerMode: "hkt.answerMode", // "speak" | "type" — dùng từ M2/M3
+  drillShow: "hkt.drillShow", // #229: Nghe nói / True or false — "none" chỉ nghe · "q" câu hỏi · "a" đáp án · "qa" cả hai
   lang: "hkt.lang", // "both" | "vi" | "en" — công tắc song ngữ dùng chung (X5)
 };
 

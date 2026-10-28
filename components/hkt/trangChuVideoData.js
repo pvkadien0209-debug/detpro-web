@@ -8,8 +8,9 @@
 export const HOME_VIDEOS = [
   {
     id: "tc1",
+    dur: 33, // giây — video đã render (#208)
     title: "DetPro là gì?",
-    blurb: "Hiểu trang làm gì trong 45 giây",
+    blurb: "Hiểu trang làm gì trong nửa phút",
     color: "#0f6e5a",
     slides: [
       { art: "ring", sec: 7, show: "**Mỗi ngày biết thêm** một điều hay", en: "Hi, I'm Det. Every day, I help you learn one more useful thing.", vi: "Xin chào, mình là Đét. Mỗi ngày, mình giúp bạn biết thêm một điều hay." },
@@ -22,6 +23,7 @@ export const HOME_VIDEOS = [
   },
   {
     id: "tc2",
+    dur: 46, // giây — video đã render (#208)
     title: "Học một bài trong 4 bước",
     blurb: "Từ chọn bài đến xem kết quả",
     color: "#2456a6",
@@ -38,6 +40,7 @@ export const HOME_VIDEOS = [
   },
   {
     id: "tc3",
+    dur: 41, // giây — video đã render (#208)
     title: "Nói vào micro thế nào?",
     blurb: "Không còn ngại phần Nghe nói",
     color: "#b4472e",
@@ -54,6 +57,7 @@ export const HOME_VIDEOS = [
   },
   {
     id: "tc4",
+    dur: 62, // giây — video đã render (#208)
     title: "20 giờ đầu tiên",
     blurb: "Vì sao học ngắn, đều mỗi ngày lại hiệu quả",
     color: "#7a3fa0",
@@ -73,6 +77,7 @@ export const HOME_VIDEOS = [
   },
   {
     id: "tc5",
+    dur: 58, // giây — video đã render (#208)
     title: "10 mẹo học nhanh",
     blurb: "Nguyên tắc trong sách → việc làm ngay trên DetPro",
     color: "#c07a00",
@@ -94,6 +99,7 @@ export const HOME_VIDEOS = [
   },
   {
     id: "tc6",
+    dur: 28, // giây — video đã render (#208)
     title: "Tìm đúng bài cho bạn",
     blurb: "Hoàn cảnh · chủ đề · tìm kiếm",
     color: "#1f7a8c",
@@ -107,5 +113,93 @@ export const HOME_VIDEOS = [
   },
 ];
 
-export const videoSeconds = (v) => v.slides.reduce((n, s) => n + s.sec, 0);
+export const videoSeconds = (v) => v.dur || v.slides.reduce((n, s) => n + s.sec, 0);
 export const fmtSec = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+
+// #228 — Bộ video HƯỚNG DẪN CHUNG "Học hiệu quả trên DetPro" (HD1–HD7): vì sao, làm thế nào, từng phần chi tiết.
+// Cùng khuôn slide-show + giọng Kokoro tiếng Anh + phụ đề Việt như video trang chủ. Tệp: huong-dan-<id>--w01.mp4.
+export const GUIDE_VIDEOS = [
+  {
+    id: "hd1", file: "huong-dan-hd1", dur: 50, title: "Tổng quan: một bài trên DetPro", blurb: "Bài viết, Bảng, 3 phần luyện, Nghe 40 câu, Học tiếp", color: "#0f6e5a",
+    slides: [
+      { art: "ring", sec: 7, show: "Một bài có **5 phần**", en: "Every DetPro lesson has five parts. Here is the whole map.", vi: "Mỗi bài DetPro có năm phần. Đây là toàn bộ bản đồ." },
+      { art: "article", sec: 8, show: "① **Bài viết** · ~6 phút", en: "Part one: the article. A short read, in Vietnamese, about one real situation.", vi: "Phần một: bài viết. Đọc ngắn, bằng tiếng Việt, về một tình huống thật." },
+      { art: "table", sec: 8, show: "② **Bảng thông tin** · 40 câu", en: "Part two: the Info Table. All forty questions and their answer choices in one place.", vi: "Phần hai: Bảng thông tin. Cả bốn mươi câu hỏi và các lựa chọn ở một chỗ." },
+      { art: "headphones", sec: 9, show: "**Nghe cả 40 câu**", en: "In the Info Table, tap Listen to all. Choose to show the question, the answer, both, or nothing.", vi: "Trong Bảng thông tin, bấm Nghe cả 40 câu. Chọn hiện câu hỏi, đáp án, cả hai, hoặc nghe chay." },
+      { art: "abc", sec: 8, show: "③ **Trắc nghiệm**", en: "Part three: the quiz. Pick an answer, read why, and fix every mistake.", vi: "Phần ba: trắc nghiệm. Chọn đáp án, đọc vì sao, sửa hết câu sai." },
+      { art: "mic", sec: 8, show: "④ **Nghe nói**", en: "Part four: listen and speak. Hear the question, then say the answer out loud.", vi: "Phần bốn: nghe nói. Nghe câu hỏi, rồi nói to câu trả lời." },
+      { art: "zap", sec: 7, show: "⑤ **True or false**", en: "Part five: true or false. Fast answers to make it stick.", vi: "Phần năm: đúng hay sai. Trả lời nhanh để nhớ chắc." },
+      { art: "report", sec: 7, show: "**Kết quả** sau mỗi phần", en: "After each part, check your results and retry the wrong answers.", vi: "Sau mỗi phần, xem kết quả và làm lại câu sai." },
+      { art: "ring", sec: 7, show: "Vòng Đét **khép** = xong bài", en: "Finish all five parts and your Det ring closes. Tap Continue next time.", vi: "Xong cả năm phần, Vòng Đét khép lại. Lần sau bấm Học tiếp." },
+    ],
+  },
+  {
+    id: "hd2", file: "huong-dan-hd2", dur: 35, title: "Vì sao nên học theo cách này?", blurb: "Biết thêm kiến thức và tiến bộ tiếng Anh cùng lúc", color: "#2456a6",
+    slides: [
+      { art: "brain", sec: 7, show: "Vì sao **câu hỏi** hơn đọc lại?", en: "Why answer questions instead of reading again?", vi: "Vì sao nên trả lời câu hỏi thay vì đọc lại?" },
+      { art: "eye", sec: 9, show: "Đọc lại = **quen mắt**", en: "Reading again feels easy, but it only makes the page look familiar.", vi: "Đọc lại thấy dễ, nhưng chỉ làm trang giấy trông quen mắt." },
+      { art: "brain", sec: 9, show: "Tự nhớ ra = **nhớ lâu**", en: "Pulling the answer out of your own memory is what makes it last.", vi: "Tự lôi câu trả lời ra từ trí nhớ mới giúp nhớ lâu." },
+      { art: "check", sec: 8, show: "Sai → giải thích → **sửa ngay**", en: "A wrong answer with a quick explanation is one of the fastest ways to learn.", vi: "Trả lời sai rồi đọc giải thích ngay là một trong những cách học nhanh nhất." },
+      { art: "mic", sec: 9, show: "Nói to = **dùng được**", en: "Saying it out loud turns knowledge you recognise into words you can use.", vi: "Nói to biến điều bạn nhận ra thành lời bạn dùng được." },
+      { art: "cards", sec: 9, show: "**Hai trong một**", en: "So each lesson gives you two things: useful knowledge, and real English practice.", vi: "Vậy mỗi bài cho bạn hai thứ: kiến thức hữu ích, và luyện tiếng Anh thật." },
+      { art: "thumb", sec: 6, show: "Học ít · **nhớ nhiều**", en: "Less time, more that stays. That's the DetPro way.", vi: "Học ít thời gian, nhớ được nhiều. Đó là cách DetPro." },
+    ],
+  },
+  {
+    id: "hd3", file: "huong-dan-hd3", dur: 35, title: "Đọc bài và Bảng thông tin", blurb: "Đọc thế nào, dùng Bảng và Nghe 40 câu thế nào", color: "#1f7a8c",
+    slides: [
+      { art: "article", sec: 8, show: "Đọc **lướt** trước", en: "First, skim the article. Look at the headings and the story.", vi: "Trước hết, đọc lướt bài viết. Xem các tiêu đề và câu chuyện." },
+      { art: "search", sec: 8, show: "Tìm **ý chính** mỗi đoạn", en: "Then read again and find the main point of each section.", vi: "Rồi đọc lại và tìm ý chính của từng đoạn." },
+      { art: "table", sec: 9, show: "Bảng = **40 câu** sẽ hỏi", en: "The Info Table shows the forty questions you will answer. No answers are marked.", vi: "Bảng thông tin cho thấy bốn mươi câu bạn sẽ trả lời. Không đánh dấu đáp án đúng." },
+      { art: "search", sec: 8, show: "Tự **đoán** trước khi luyện", en: "Try to guess the answers from the article before you start the quiz.", vi: "Thử tự đoán đáp án từ bài viết trước khi vào trắc nghiệm." },
+      { art: "headphones", sec: 9, show: "**Nghe 40 câu** khi rảnh tay", en: "Tap Listen to all forty. It reads each question, then the right answer.", vi: "Bấm Nghe cả 40 câu. Máy đọc từng câu hỏi, rồi đáp án đúng." },
+      { art: "eye", sec: 10, show: "Hiện **câu hỏi / đáp án / cả hai**", en: "Show the question, the answer, both, or nothing at all, to test your ears.", vi: "Hiện câu hỏi, đáp án, cả hai, hoặc không hiện gì để thử tai mình." },
+      { art: "repeat", sec: 8, show: "Bật **lặp lại** khi đi đường", en: "Turn on repeat and listen on the bus or while you walk.", vi: "Bật lặp lại và nghe trên xe buýt hay lúc đi bộ." },
+    ],
+  },
+  {
+    id: "hd4", file: "huong-dan-hd4", dur: 30, title: "Trắc nghiệm: làm sao cho hiệu quả", blurb: "Đoán, đọc giải thích, làm lại câu sai", color: "#7a3fa0",
+    slides: [
+      { art: "abc", sec: 7, show: "40 câu · **3 lựa chọn**", en: "The quiz has forty questions, each with three choices.", vi: "Trắc nghiệm có bốn mươi câu, mỗi câu ba lựa chọn." },
+      { art: "brain", sec: 8, show: "**Nghĩ trước**, rồi mới chọn", en: "Answer in your head first, then pick. Don't just click.", vi: "Trả lời trong đầu trước, rồi mới chọn. Đừng bấm bừa." },
+      { art: "text", sec: 9, show: "Sai? Đọc **giải thích**", en: "Wrong? Read the explanation. It shows where the answer is in the article.", vi: "Sai? Đọc giải thích. Nó chỉ chỗ đáp án nằm trong bài." },
+      { art: "repeat", sec: 8, show: "**Làm lại câu sai**", en: "At the end, tap Retry wrong answers until all forty are right.", vi: "Cuối phần, bấm Làm lại câu sai tới khi đúng đủ bốn mươi câu." },
+      { art: "split", sec: 8, show: "Ngại dài? Làm **20 câu** một lần", en: "Too long? Do twenty now and twenty later. Your progress is saved.", vi: "Thấy dài? Làm hai mươi câu bây giờ, hai mươi câu sau. Tiến độ đã lưu." },
+      { art: "calendar", sec: 8, show: "Hôm sau: **ôn câu sai**", en: "Come back the next day and retry the ones you missed. That's spaced review.", vi: "Hôm sau quay lại làm lại câu đã sai. Đó là ôn cách quãng." },
+    ],
+  },
+  {
+    id: "hd5", file: "huong-dan-hd5", dur: 34, title: "Nghe nói: luyện nói cho trôi", blurb: "Nghe kỹ, nói to, không sợ sai", color: "#b4472e",
+    slides: [
+      { art: "headphones", sec: 8, show: "**Nghe** trước, đừng vội nói", en: "Listen to the question and the three answers first. Replay if you need.", vi: "Nghe câu hỏi và ba đáp án trước. Cần thì nghe lại." },
+      { art: "mic", sec: 8, show: "Nói **to và rõ**", en: "Tap Speak and say your answer clearly, at a normal speed.", vi: "Bấm Nói và nói rõ câu trả lời, tốc độ bình thường." },
+      { art: "repeat", sec: 9, show: "Bắt chước **giọng mẫu**", en: "Copy the voice you just heard. Same rhythm, same stress. This is shadowing.", vi: "Bắt chước giọng vừa nghe. Cùng nhịp, cùng trọng âm. Đó là nói đuổi." },
+      { art: "half", sec: 8, show: "Khớp ≥ 50% là **đạt**", en: "Half of the words right counts. You don't need to be perfect.", vi: "Khớp một nửa số từ là tính đạt. Không cần hoàn hảo." },
+      { art: "text", sec: 8, show: "Xem **chữ máy nghe**", en: "Look at what the computer heard. It shows which words to say more clearly.", vi: "Xem chữ máy nghe được. Nó cho thấy từ nào cần nói rõ hơn." },
+      { art: "keyboard", sec: 7, show: "Chỗ đông người → **Gõ**", en: "In a noisy place, switch to Type for now and speak later.", vi: "Ở chỗ ồn, tạm chuyển sang Gõ và nói sau." },
+      { art: "thumb", sec: 6, show: "Mỗi lần nói = **tiến bộ**", en: "Every answer you say out loud makes the next one easier.", vi: "Mỗi câu bạn nói to làm câu sau dễ hơn." },
+    ],
+  },
+  {
+    id: "hd6", file: "huong-dan-hd6", dur: 21, title: "True or false: phản xạ nhanh", blurb: "Trả lời nhanh để nhớ chắc", color: "#c07a00",
+    slides: [
+      { art: "zap", sec: 7, show: "Câu nói **đúng hay sai**?", en: "You hear a statement. Is it true or false?", vi: "Bạn nghe một câu. Đúng hay sai?" },
+      { art: "clock", sec: 8, show: "Trả lời **nhanh**", en: "Answer fast. Speed shows what you really remember.", vi: "Trả lời nhanh. Tốc độ cho thấy điều bạn thật sự nhớ." },
+      { art: "text", sec: 8, show: "Sai → đọc **vì sao**", en: "If you miss one, read why, then keep going.", vi: "Sai câu nào, đọc vì sao, rồi đi tiếp." },
+      { art: "check", sec: 8, show: "Làm **cuối cùng**", en: "Do it last, after the quiz and speaking. It checks the whole lesson.", vi: "Làm sau cùng, sau trắc nghiệm và nghe nói. Nó kiểm cả bài." },
+      { art: "ring", sec: 7, show: "Xong là **khép vòng**", en: "Finish it and your Det ring for this lesson closes.", vi: "Làm xong là Vòng Đét của bài khép lại." },
+    ],
+  },
+  {
+    id: "hd7", file: "huong-dan-hd7", dur: 33, title: "Học thế nào cho hiệu quả nhất?", blurb: "Lịch học, thứ tự, ôn, nghỉ", color: "#3f6f3a",
+    slides: [
+      { art: "calendar", sec: 8, show: "**20–30 phút** mỗi ngày", en: "Twenty to thirty minutes a day beats three hours once a week.", vi: "Hai mươi đến ba mươi phút mỗi ngày tốt hơn ba tiếng một lần mỗi tuần." },
+      { art: "route", sec: 9, show: "Đi đúng **thứ tự** 5 phần", en: "Follow the order: read, table, quiz, speak, true or false.", vi: "Đi đúng thứ tự: đọc, bảng, trắc nghiệm, nói, đúng sai." },
+      { art: "split", sec: 8, show: "Một lần **một phần**", en: "One part per session is enough. Small steps add up.", vi: "Mỗi lần một phần là đủ. Bước nhỏ cộng lại thành lớn." },
+      { art: "headphones", sec: 8, show: "Rảnh tay → **Nghe 40 câu**", en: "Commuting or cooking? Play all forty questions and answers.", vi: "Đi đường hay nấu ăn? Bật nghe cả bốn mươi câu và đáp án." },
+      { art: "repeat", sec: 8, show: "Hôm sau **ôn lại**", en: "Next day, retry wrong answers before starting something new.", vi: "Hôm sau, làm lại câu sai trước khi học cái mới." },
+      { art: "mic", sec: 9, show: "**Nói lại** bằng lời của bạn", en: "After a lesson, tell someone what you learned, in English. Even one minute.", vi: "Học xong, kể lại cho ai đó điều bạn học bằng tiếng Anh. Một phút cũng được." },
+      { art: "bed", sec: 7, show: "Mệt thì **nghỉ**", en: "Tired? Stop. Sleep helps you remember. Continue tomorrow.", vi: "Mệt thì dừng. Ngủ giúp nhớ. Mai học tiếp." },
+    ],
+  },
+];
