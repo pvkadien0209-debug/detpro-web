@@ -15,7 +15,7 @@ import NhatKyList from "./NhomNhatKy"; // #260
 import { PartPopup, QaPopup } from "./NhomPopup"; // #250 (NHA A3, D, E); bỏ "Hướng dẫn riêng" (NHA H)
 import { useNhomView, useNow, changInfo, baiLabel, Countdown, NhacBell, CopyBtn, origin, errText, NhomChat } from "./NhomShared";
 import { api, setPin, setMyId } from "./nhomClient";
-import { PART_KEYS, PART_SHORT, baiKey, baiMo, nhomPath, nhomUnitPath, unitGreen, dangDo, mocNho, phanDangLam } from "@/components/hkt/nhomRules";
+import { PART_KEYS, PART_SHORT, baiKey, baiMo, baiMoCua, nhomPath, nhomUnitPath, unitGreen, dangDo, mocNho, phanDangLam } from "@/components/hkt/nhomRules";
 
 const ago = (d, now) => {
   const s = Math.max(0, (now - new Date(d).getTime()) / 1000);
@@ -55,7 +55,7 @@ export function NhomTable({ nhom, members, onCell, onNoi }) {
                 return (
                   <React.Fragment key={key}>
                     {PART_KEYS.map((pk, j) => (
-                      <td key={pk} className={`nh-cell ${!baiMo(k, ch) ? "is-off" : t?.g?.[j] ? "is-on" : ""}`} title={`${baiLabel(u, k)} · ${PART_SHORT[pk]}`} onClick={() => onCell?.(m, u, k, pk)}>
+                      <td key={pk} className={`nh-cell ${!baiMoCua(k, nhom, m) ? "is-off" : t?.g?.[j] ? "is-on" : ""}`} title={`${baiLabel(u, k)} · ${PART_SHORT[pk]}`} onClick={() => onCell?.(m, u, k, pk)}>
                         {t?.g?.[j] ? "●" : "○"}
                       </td>
                     ))}
@@ -315,10 +315,11 @@ function Inner({ ma, id }) {
             <NhomTree
               nhom={nhom}
               members={data.members}
+              meId={id}
               view={view}
               tinBai={data.tinBai}
               onQa={setQa}
-              onLeaf={(x) => (baiMo(x.k, nhom.changHienTai) && (view === id || view === "nhom") ? openPart(x.u, x.k, x.pk) : setLeaf(x))}
+              onLeaf={(x) => (baiMoCua(x.k, nhom, me) && (view === id || view === "nhom") ? openPart(x.u, x.k, x.pk) : setLeaf(x))}
               onFlower={setFlower}
             />
             <aside className="nh-side">
@@ -408,12 +409,12 @@ function Inner({ ma, id }) {
               );
             })}
           </ul>
-          {baiMo(leaf.k, nhom.changHienTai) ? (
+          {baiMoCua(leaf.k, nhom, me) ? (
             <button type="button" className="kt-btn kt-btn--pri" onClick={() => { setLeaf(null); openPart(leaf.u, leaf.k, leaf.pk); }}>
               Làm phần này
             </button>
           ) : (
-            <p>🔒 Mở khi cả nhóm xong {baiLabel(nhom.chuoi.bai[leaf.k - 1], leaf.k - 1)}.</p>
+            <p>🔒 {leaf.k === (nhom.changHienTai || 0) + 1 ? `Xong cả 5 phần ${baiLabel(nhom.chuoi.bai[leaf.k - 1], leaf.k - 1)} thì được làm trước bài này.` : `Mở khi cả nhóm xong ${baiLabel(nhom.chuoi.bai[leaf.k - 1], leaf.k - 1)}.`}</p>
           )}
         </Sheet>
       )}
@@ -438,7 +439,7 @@ function Inner({ ma, id }) {
                   ) : (
                     <span className="kt-muted">Người hướng dẫn chưa dán kênh gửi bài — hỏi trong Hỏi đáp.</span>
                   )}
-                  {baiMo(flower.k, nhom.changHienTai) && (
+                  {baiMoCua(flower.k, nhom, me) && (
                     <button type="button" className="kt-btn kt-btn--pri" onClick={() => baoGui(flower.u)}>
                       <Check size={16} aria-hidden="true" /> {noi?.baoGui ? "Tôi gửi thêm bài" : "Đã gửi bài nói"}
                     </button>

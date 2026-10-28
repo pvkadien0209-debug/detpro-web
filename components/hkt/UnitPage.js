@@ -11,7 +11,7 @@ import ListenAll from "./ListenAll";
 import PartGuide from "./PartGuide"; // #231 hướng dẫn riêng từng phần
 // #230 Học cùng: trong nhóm (/nhom/<mã>/<id>/…) tiến độ đọc/ghi trên máy chủ, đường dẫn giữ nhóm, ngưỡng nhóm, khoá chặng
 import { useNhom } from "@/components/nhom/nhomClient";
-import { partDoneNhom, unitGreenCount, baiMo, dieuKien } from "./nhomRules";
+import { partDoneNhom, unitGreenCount, unitGreen, baiMo, dieuKien } from "./nhomRules";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import HomeVideos from "./HomeVideos"; // #253
 import { GUIDE_VIDEOS } from "./trangChuVideoData";
@@ -215,7 +215,9 @@ export default function UnitPage({ initialUnit = null }) {
   const k = grp ? Math.max(0, list.findIndex((u) => u.audience === audience && u.slug === slug)) : place ? place.k : 0;
   const nextUnitStep = (st) => st && st.i !== k;
   const progOf = (u, i) => (i === k ? prog : readProg(u.audience, u.slug));
-  const isLocked = (i) => !!grp && !baiMo(i, grp.nhom.changHienTai); // #258 bài chưa mở trong nhóm → không bấm vào được
+  const chG = grp?.nhom.changHienTai || 0; // #263 làm trước 1 chặng chỉ khi chính mình xong chặng hiện tại
+  const xongChG = !!grp && !!list[chG] && unitGreen(progOf(list[chG], chG), grp.ng);
+  const isLocked = (i) => !!grp && !baiMo(i, chG, xongChG); // #258 bài chưa mở trong nhóm → không bấm vào được
   const locked = isLocked(k);
   const flat = list.flatMap((u, i) => PARTS.map((p) => ({ i, u, key: p.key })));
   const pos = flat.findIndex((x) => x.i === k && x.key === part);
@@ -438,7 +440,7 @@ export default function UnitPage({ initialUnit = null }) {
                           ))}
                         </span>
                         {pCount(p)}/5 phần{i === k ? " · đang học" : ""}
-                        {grp && !baiMo(i, grp.nhom.changHienTai) ? " · 🔒" : ""}
+                        {isLocked(i) ? " · 🔒" : ""}
                       </small>
                     </span>
                   )}

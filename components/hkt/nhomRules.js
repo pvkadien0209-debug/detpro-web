@@ -118,8 +118,17 @@ export function fmtHan(ms) {
   return `còn ${fmtCon(ms)}`;
 }
 
-/** Học viên được mở bài thứ k khi k ≤ chặng nhóm + 1 (cho làm trước tối đa 1 chặng — NH-Q3). */
-export const baiMo = (k, changHienTai) => k <= (changHienTai || 0) + 1;
+/** Học viên được mở bài thứ k khi k ≤ chặng nhóm, hoặc bài kế tiếp (làm trước tối đa 1 chặng — NH-Q3)
+ *  #263: chỉ khi CHÍNH MÌNH đã xong cả 5 phần của chặng hiện tại (xongChang). */
+export const baiMo = (k, changHienTai, xongChang = true) => k <= (changHienTai || 0) || (k === (changHienTai || 0) + 1 && !!xongChang);
+/** #263 Người m (có tom từ API nhóm) đã xanh cả 5 phần của bài thứ k chưa. */
+export const xongBaiTom = (m, nhom, k) => {
+  const u = nhom?.chuoi?.bai?.[k];
+  const g = u && m?.tom?.[`${u.audience}/${u.slug}`]?.g;
+  return !!g && g.length === 5 && g.every(Boolean);
+};
+/** #263 Bài thứ k đã mở cho người m chưa (m rỗng = xem chung, giữ luật cũ). */
+export const baiMoCua = (k, nhom, m) => baiMo(k, nhom.changHienTai, m ? xongBaiTom(m, nhom, nhom.changHienTai || 0) : true);
 
 /** Đường dẫn trong nhóm. */
 export const nhomPath = (ma, id) => `/nhom/${ma}${id ? `/${id}` : ""}`;

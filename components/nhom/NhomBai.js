@@ -95,7 +95,11 @@ function Inner({ ma, id, initialProg, initialUnit }) {
         <div className="nh-locked">
           <Lock size={40} aria-hidden="true" />
           <h1 className="kt-h1">{baiLabel(nhom.chuoi.bai[k], k)} chưa mở</h1>
-          <p>Bài này mở khi cả nhóm xong 5 phần của {baiLabel(nhom.chuoi.bai[k - 1], k - 1)} (bạn được làm trước tối đa 1 chặng).</p>
+          <p>
+            {k === (nhom.changHienTai || 0) + 1
+              ? <>Bạn được làm trước bài này khi <b>chính bạn</b> đã xong cả 5 phần của {baiLabel(nhom.chuoi.bai[k - 1], k - 1)} (bấm "Đã xong mốc này" ở từng phần).</>
+              : <>Bài này mở khi cả nhóm xong 5 phần của {baiLabel(nhom.chuoi.bai[k - 1], k - 1)}.</>}
+          </p>
           <Link className="kt-btn kt-btn--pri" to={nhomPath(ma, id)}>
             Về cây nhóm
           </Link>

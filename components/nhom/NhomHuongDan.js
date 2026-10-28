@@ -15,7 +15,7 @@ import NhatKyList from "./NhomNhatKy"; // #260
 import { PartPopup, QaPopup } from "./NhomPopup"; // #250 (NHA A3, E); bỏ tab "Hướng dẫn riêng" (NHA H)
 import { api, saveK, loadK, tepUrl, rememberGroup } from "./nhomClient";
 import { useNhomView, useNow, changInfo, baiLabel, Countdown, CopyBtn, origin, errText, NhomChat } from "./NhomShared";
-import { PART_KEYS, PART_SHORT, baiKey, baiMo, nhomPath, nhomUnitPath, fmtHan, mocNho, phanDangLam } from "@/components/hkt/nhomRules";
+import { PART_KEYS, PART_SHORT, baiKey, baiMo, baiMoCua, nhomPath, nhomUnitPath, fmtHan, mocNho, phanDangLam } from "@/components/hkt/nhomRules";
 
 const TABS = [
   ["tq", TreeDeciduous, "Tổng quan"],
@@ -339,11 +339,12 @@ function Inner({ ma, k }) {
               <NhomTree
                 nhom={nhom}
                 members={members}
+                meId={myId || undefined}
                 view={view}
                 dots={dots}
                 tinBai={data.tinBai}
                 onQa={setQa}
-                onLeaf={myId && (view === "nhom" || view === myId) ? (x) => baiMo(x.k, nhom.changHienTai) && openPart(x.u, x.k, x.pk) : undefined}
+                onLeaf={myId && (view === "nhom" || view === myId) ? (x) => baiMoCua(x.k, nhom, members.find((m) => m.id === myId)) && openPart(x.u, x.k, x.pk) : undefined}
                 onFlower={() => setTab("noi")}
               />
               <aside className="nh-side">

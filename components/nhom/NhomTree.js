@@ -4,7 +4,7 @@
 // view = "nhom" (cả nhóm: lá xanh nhạt + "2/4", xanh đậm phát sáng khi cả nhóm xong) hoặc id một người (cây riêng).
 import React, { useEffect, useRef } from "react";
 import VongDet from "@/components/hkt/VongDet";
-import { PART_KEYS, PART_SHORT, PART_TIP, baiKey, baiMo } from "@/components/hkt/nhomRules";
+import { PART_KEYS, PART_SHORT, PART_TIP, baiKey, baiMo, baiMoCua } from "@/components/hkt/nhomRules";
 
 const W = 400;
 const STEP = 132;
@@ -26,7 +26,7 @@ export function flowerState(members, key, view) {
 }
 
 // #250: lá đánh số 1–5 + rê chuột thấy mô tả ngắn (NHA D); nút 💬 nhỏ trên thân mỗi chặng = Hỏi đáp của bài đó (NHA E)
-export default function NhomTree({ nhom, members, view = "nhom", onLeaf, onFlower, dots, onQa, tinBai }) {
+export default function NhomTree({ nhom, members, meId, view = "nhom", onLeaf, onFlower, dots, onQa, tinBai }) {
   const bai = nhom.chuoi.bai;
   const n = bai.length;
   const ch = nhom.changHienTai || 0;
@@ -81,7 +81,7 @@ export default function NhomTree({ nhom, members, view = "nhom", onLeaf, onFlowe
           const y0 = yOf(k);
           const x1 = trunkX + side * 150;
           const y1 = y0 - 36;
-          const open = baiMo(k, ch);
+          const open = meId ? baiMoCua(k, nhom, members.find((m) => m.id === meId)) : baiMo(k, ch); // #263
           const cur = k === ch && !nhom.veDichLuc;
           const started = k <= ch;
           const groupDone = PART_KEYS.every((_, j) => leafState(members, key, j, view).all);
@@ -97,7 +97,7 @@ export default function NhomTree({ nhom, members, view = "nhom", onLeaf, onFlowe
                 <tspan> · {cut(u.title, 20)}</tspan>
               </text>
               <text x={trunkX + side * 14} y={y0 + 38} textAnchor={side > 0 ? "start" : "end"} className="nh-bsub">
-                {groupDone ? (view === "nhom" ? "✓ cả nhóm" : "✓ xong") : !open ? "🔒 chờ cả nhóm" : cur ? "đang học" : k === ch + 1 ? "làm trước được" : ""}
+                {groupDone ? (view === "nhom" ? "✓ cả nhóm" : "✓ xong") : !open ? (k === ch + 1 ? "🔒 xong bài trước đã" : "🔒 chờ cả nhóm") : cur ? "đang học" : k === ch + 1 ? "làm trước được" : ""}
               </text>
               {PART_KEYS.map((pk, j) => {
                 const [lx, ly] = pt(0.42 + j * 0.13);
