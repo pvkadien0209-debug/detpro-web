@@ -34,6 +34,29 @@ export const loadDriveList = () => {
     .catch(() => ({})));
 };
 
+// #241: tập hợp bài ĐÃ CÓ VIDEO (Drive <slug>--w01.mp4 hoặc dòng manifest) → tick xanh ở thẻ chủ đề, trang chủ đề, mục lục
+let videoSetP = null;
+export const loadVideoSet = () =>
+  (videoSetP ||= Promise.all([loadManifest(), loadDriveList()]).then(([m, list]) => {
+    const s = new Set();
+    Object.keys(list).forEach((f) => f.endsWith("--w01.mp4") && s.add(f.slice(0, -9)));
+    Object.entries(m).forEach(([k, row]) => (row?.drive || row?.file) && s.add(k));
+    return s;
+  }));
+export const hasVideo = (set, u) => !!set && (set.has(u.slug) || set.has(`${u.audience}/${u.slug}`));
+/** Hook: Set bài có video (null khi chưa tải). */
+export function useVideoSet() {
+  const [s, setS] = useState(null);
+  useEffect(() => {
+    let live = true;
+    loadVideoSet().then((x) => live && setS(x));
+    return () => {
+      live = false;
+    };
+  }, []);
+  return s;
+}
+
 /** Lấy mã tệp Drive từ mã trần hoặc đường dẫn /file/d/<mã>/… hoặc ?id=<mã>. */
 export const driveId = (x) => {
   if (!x) return null;

@@ -7,8 +7,9 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "@/lib/router"; // Next.js: thay react-router-dom
 import { Helmet } from "@/lib/helmet"; // Next.js: tiêu đề/mô tả đặt ở trang máy chủ (generateMetadata)
-import { Check, ChevronDown, Layers, Clock, BookOpen, Mic, Users, Table2, MousePointerClick, ListChecks } from "lucide-react";
+import { Check, ChevronDown, Layers, Clock, BookOpen, Mic, Users, Table2, MousePointerClick, ListChecks, CircleCheck } from "lucide-react";
 import KtShell, { TopicThumb } from "./KtShell";
+import { useVideoSet, hasVideo } from "./UnitVideo"; // #241 tick xanh bài có video
 import { loadUnitsIndex, unitPath, audiencePath, readUnitProgress, partDone, unitDoneCount, PARTS, learnTypePath, lowerFirst } from "./unitData";
 
 export const PART_ICONS = { "": BookOpen, info: Table2, quiz: MousePointerClick, "listen-speak": Mic, "true-or-false": ListChecks };
@@ -26,6 +27,7 @@ export default function TopicCourse({ topic, persona, active = "topics" }) {
   const nuNo = units.indexOf(nu);
   const started = units.some((u) => readUnitProgress(u.audience, u.slug));
   const [open, setOpen] = useState(() => new Set([nuNo]));
+  const vset = useVideoSet();
   useEffect(() => {
     loadUnitsIndex().then(setIdx).catch(() => {});
   }, []);
@@ -98,6 +100,7 @@ export default function TopicCourse({ topic, persona, active = "topics" }) {
               <li key={u.slug}>
                 <Check size={20} aria-hidden="true" />
                 <Link to={unitPath(u.audience, u.slug)}>{u.title.replace(/\?$/, "")}</Link>
+                {vset && <CircleCheck size={16} className={`kt-vtick-ic ${hasVideo(vset, u) ? "is-full" : "is-none"}`} aria-label={hasVideo(vset, u) ? "đã có video" : "chưa có video"} />}
               </li>
             ))}
           </ul>
@@ -124,6 +127,11 @@ export default function TopicCourse({ topic, persona, active = "topics" }) {
                     <span className={`kt-n ${n === 5 ? "is-done" : ""}`}>{n === 5 ? <Check size={16} aria-hidden="true" /> : u.kind === "tong" ? "T" : k}</span>
                     <span className="tt">
                       {u.title}
+                      {vset && (
+                        <span className={`kt-vtick is-inline ${hasVideo(vset, u) ? "is-full" : "is-none"}`} title={hasVideo(vset, u) ? "Bài đã có video" : "Bài chưa có video"}>
+                          <CircleCheck size={14} aria-hidden="true" /> {hasVideo(vset, u) ? "video" : "chưa video"}
+                        </span>
+                      )}
                       <small>
                         <span className="kt-dots" aria-hidden="true">
                           {PARTS.map((pt) => (

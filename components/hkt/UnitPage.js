@@ -15,7 +15,7 @@ import { partDoneNhom, unitGreenCount, baiMo } from "./nhomRules";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "@/lib/router"; // Next.js: thay react-router-dom
 import { Helmet } from "@/lib/helmet"; // Next.js: tiêu đề/mô tả đặt ở trang máy chủ (generateMetadata)
-import { ChevronLeft, ChevronDown, Check, PanelRight, X } from "lucide-react";
+import { ChevronLeft, ChevronDown, Check, PanelRight, X, CircleCheck } from "lucide-react";
 import {
   loadUnit, loadUnitsIndex, primeUnit, PARTS, unitPath, readUnitProgress, writeUnitProgress, unitSummary,
   writeLastUnit, partDone, unitDoneCount, lowerFirst } from "./unitData";
@@ -24,7 +24,7 @@ import { PART_ICONS, partMeta } from "./TopicCourse";
 import {
   usePlayer, Modal, ExplainBody, ArticleView, QuestionTable, PickPart, SayPart, TrueFalsePart, UnitResults, RefButton,
 } from "./UnitParts";
-import UnitVideo from "./UnitVideo";
+import UnitVideo, { useVideoSet, hasVideo } from "./UnitVideo";
 import VongDet, { SIGN, VongDetLoading } from "./VongDet";
 // Next.js: KnowledgeLesson.css nạp toàn cục ở app/layout.js
 // Next.js: KnowledgePages.css nạp toàn cục ở app/layout.js
@@ -60,6 +60,7 @@ export default function UnitPage({ initialUnit = null }) {
   const sideRef = useRef(null);
   useBodyClass("kt-shell");
   const grp = useNhom(); // null khi học riêng
+  const vset = useVideoSet(); // #241 tick xanh bài có video trong mục lục
   const readProg = grp ? grp.readProg : readUnitProgress;
   const writeProg = grp ? grp.writeProg : writeUnitProgress;
   const P = grp ? grp.path : unitPath; // đường dẫn bài (giữ nhóm)
@@ -338,6 +339,11 @@ export default function UnitPage({ initialUnit = null }) {
                 </Link>
               )
             )}
+            {part === "" && (
+              <p className="kt-guide-link">
+                <Link to="/huong-dan">🎬 Xem thêm 7 video hướng dẫn: vì sao và làm thế nào cho hiệu quả →</Link>
+              </p>
+            )}
             {part === "info" && (
               <>
                 <p className="kt-muted">
@@ -381,6 +387,7 @@ export default function UnitPage({ initialUnit = null }) {
                   <Link to={P(u.audience, u.slug)} aria-current={i === k ? "page" : undefined} title={i === k ? "Bài đang học" : "Vào bài này (mở phần đang dở)"}>
                     <span className="tt">
                       {unitLabel(u, i)}. {u.title}
+                      {vset && <CircleCheck size={13} className={`kt-vtick-ic ${hasVideo(vset, u) ? "is-full" : "is-none"}`} aria-label={hasVideo(vset, u) ? "đã có video" : "chưa có video"} />}
                       <small>
                         <span className="kt-dots" aria-hidden="true">
                           {PARTS.map((pt) => (
@@ -416,6 +423,10 @@ export default function UnitPage({ initialUnit = null }) {
               </div>
             );
           })}
+          {/* #237: link 7 video hướng dẫn chung — có cả ở trang chủ và trong bài */}
+          <p className="kt-guide-link kt-lside-guide">
+            <Link to="/huong-dan">🎬 Xem thêm 7 video hướng dẫn: vì sao và làm thế nào cho hiệu quả →</Link>
+          </p>
         </aside>
       </div>
 

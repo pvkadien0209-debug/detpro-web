@@ -1191,3 +1191,16 @@ tr.is-pause { opacity: .55; }
 .nh-hdrwrap .nh-hdr { align-self: stretch; }
 @media (max-width: 640px) { .nh-bar .nh-hdrbtn .t { display: none; } .nh-bar .nh-cd { font-size: 12px; } }
 .kt .hkt-u-modal, .nh-wrap .hkt-u-modal { z-index: 1100; } /* #232: modal trên thanh tab + nút Hỏi đáp */
+.kt-lside-guide { padding: 14px 18px; margin: 0; font-size: 14px; } /* #237 */
+.kt-lcontent > .kt-guide-link { margin-top: 14px; }
+/* #241 tick video: xanh = đủ / đã có · vàng = có một ít (thẻ chủ đề) · xám = chưa có */
+.kt-vtick { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; }
+.kt-vtick.is-full { color: #12936b !important; }
+.kt-vtick.is-some { color: #b58300 !important; }
+.kt-vtick.is-none { color: #9aa3b0 !important; font-weight: 600; }
+.kt-vtick.is-inline { margin-left: 8px; font-size: 12.5px; padding: 1px 8px; border-radius: 999px; vertical-align: 2px; }
+.kt-vtick.is-inline.is-full { background: #e2f5ec; }
+.kt-vtick.is-inline.is-none { background: #eef0f3; }
+.kt-vtick-ic { flex: none; margin-left: 6px; vertical-align: -2px; }
+.kt-vtick-ic.is-full { color: #12936b; }
+.kt-vtick-ic.is-none { color: #c3c9d2; }

@@ -5,6 +5,7 @@
 // Dùng ở: 5 phần của bài (UnitPage), cây nhóm (Học cùng), trang người hướng dẫn. Đã hỏi phần nào → nhớ trên máy (localStorage).
 import React, { useEffect, useState } from "react";
 import { HelpCircle } from "lucide-react";
+import { Link } from "@/lib/router";
 import { Modal } from "./UnitParts";
 import HomeVideos from "./HomeVideos";
 import { GUIDE_VIDEOS } from "./trangChuVideoData";
@@ -144,6 +145,9 @@ export default function PartGuide({ k, extra, className = "kt-guidebtn", label }
           {extra && <li className="is-extra">{extra}</li>}
         </ol>
         {g.video && <HomeVideos list={vid(g.video)} title="Video ngắn" sub="Hướng dẫn chung — tiếng Anh, phụ đề Việt" id={`kt-pg-${g.video}`} />}
+        <p className="kt-guide-link">
+          <Link to="/huong-dan">🎬 Xem thêm 7 video hướng dẫn: vì sao và làm thế nào cho hiệu quả →</Link>
+        </p>
       </Modal>
     </>
   );

@@ -6,7 +6,8 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "@/lib/router"; // Next.js: thay react-router-dom
 import { Helmet } from "@/lib/helmet"; // Next.js: tiêu đề/mô tả đặt ở trang máy chủ (generateMetadata)
-import { Layers, Clock } from "lucide-react";
+import { Layers, Clock, CircleCheck } from "lucide-react";
+import { useVideoSet, hasVideo } from "./UnitVideo"; // #241
 import KtShell, { TopicThumb } from "./KtShell";
 import { VongDetLoading } from "./VongDet";
 import HomeVideos from "./HomeVideos";
@@ -36,6 +37,8 @@ const FAQ = [
 /** Thẻ chủ đề dùng chung (trang chủ, trang Chủ đề, Của tôi). */
 export function TopicCard({ idx, topic }) {
   const prog = seriesProgress(topic.units);
+  const vset = useVideoSet(); // #241
+  const nVid = vset ? topic.units.filter((u) => hasVideo(vset, u)).length : 0;
   const minutes = topic.units.reduce((n, u) => n + (u.readMin || 6) + 30, 0);
   return (
     <Link className="kt-card" to={`/knowledge/${topic.branch}/${topic.slug}`}>
@@ -51,6 +54,13 @@ export function TopicCard({ idx, topic }) {
             <Clock size={15} aria-hidden="true" />
             khoảng {Math.round(minutes / 60)} giờ
           </span>
+          {vset && (
+            // #241: xanh = mọi bài đã có video · vàng = có một ít · xám = chưa có
+            <span className={`kt-vtick ${nVid === topic.units.length ? "is-full" : nVid > 0 ? "is-some" : "is-none"}`} title={`${nVid}/${topic.units.length} bài đã có video`}>
+              <CircleCheck size={15} aria-hidden="true" />
+              {nVid === topic.units.length ? "Đủ video" : nVid > 0 ? `${nVid}/${topic.units.length} video` : "Chưa có video"}
+            </span>
+          )}
         </div>
         {prog.done > 0 && (
           <div className="kt-bar" title={`${prog.done}/${prog.total} phần đã xong`}>
