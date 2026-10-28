@@ -1,0 +1,7 @@
+VIEC #257 - Sua loi "This page couldn't load" o phan True or false trong nhom
+
+Claude da chep san 2 tep da sua vao DetPro:
+  components\hkt\UnitParts.js, components\nhom\NhomBai.js
+
+Bam: 1-day-len-web.bat  (day len GitHub -> Vercel tu cap nhat)
+Thu lai: mo trang True/False trong nhom, lam vai cau, chuyen sang phan khac.

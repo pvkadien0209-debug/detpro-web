@@ -1,0 +1,11 @@
+VIEC #260 - Hoc cung: Bang thong tin mo la xong + nhat ky hoc tung nguoi tren Mongo
+
+Bam theo thu tu:
+  00-giai-nen-goi-truoc-tien.bat : chep 9 tep web vao DetPro
+  1-day-len-web.bat              : day len GitHub -> Vercel tu cap nhat
+
+Thu sau khi web cap nhat:
+  - Trong nhom, mo Bang thong tin -> tu xong (khong can bam nut).
+  - Tab "Cua toi" -> "Nhat ky hoc cua toi" (vao nhom, mo phan, dat dieu kien, da xong moc, xong bai, bai noi, hoi dap).
+  - Nguoi lap nhom: tab Hoc vien -> nut "Nhat ky" ben canh moi nguoi.
+  - Tu hoc rieng (ngoai nhom): khong co khoa, khong co nut, nhu cu.

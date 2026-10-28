@@ -1249,3 +1249,14 @@ body.nh-in .kt-page { padding-left: 32px; max-width: 1240px; }
 @media (max-width: 640px) { body.nh-in .kt-page { padding: calc(var(--kt-top) + 18px) 16px 40px; } }
 body.nh-inpop .kt-page { padding: 12px !important; }
 .nh-spin { animation: nhspin 1s linear infinite; } @keyframes nhspin { to { transform: rotate(360deg); } }
+
+/* #258 Học cùng: bài chưa mở không bấm được; nút "Đã xong mốc này" */
+.kt-lhead > .kt-lock { flex: 1; min-width: 0; display: flex; gap: 10px; align-items: flex-start; padding: 12px 6px 12px 18px; color: var(--kt-ink); opacity: .5; cursor: not-allowed; }
+.kt-nextu.is-locked { opacity: .6; cursor: not-allowed; }
+.nh-xong { margin: 28px 0 8px; padding: 16px 18px; border: 2px dashed #cbd5e1; border-radius: 14px; background: #f8fafc; display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; }
+.nh-xong.is-ready { border-color: #0f6e56; background: #ecfdf5; }
+.nh-xong.is-done { border-style: solid; border-color: #0f6e56; background: #ecfdf5; }
+.nh-xong-dk { flex: 1 1 100%; margin: 0; }
+.nh-xong-ok { margin: 0; display: flex; gap: 6px; align-items: center; color: #0f6e56; font-weight: 600; }
+.nh-xong .kt-btn[disabled] { opacity: .5; cursor: not-allowed; }
+body.nh-in .kt-learn.is-drill .nh-xong { margin-top: 18px; }

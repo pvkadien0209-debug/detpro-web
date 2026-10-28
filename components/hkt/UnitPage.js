@@ -11,7 +11,7 @@ import ListenAll from "./ListenAll";
 import PartGuide from "./PartGuide"; // #231 hướng dẫn riêng từng phần
 // #230 Học cùng: trong nhóm (/nhom/<mã>/<id>/…) tiến độ đọc/ghi trên máy chủ, đường dẫn giữ nhóm, ngưỡng nhóm, khoá chặng
 import { useNhom } from "@/components/nhom/nhomClient";
-import { partDoneNhom, unitGreenCount, baiMo } from "./nhomRules";
+import { partDoneNhom, unitGreenCount, baiMo, dieuKien } from "./nhomRules";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import HomeVideos from "./HomeVideos"; // #253
 import { GUIDE_VIDEOS } from "./trangChuVideoData";
@@ -201,19 +201,20 @@ export default function UnitPage({ initialUnit = null }) {
   const k = grp ? Math.max(0, list.findIndex((u) => u.audience === audience && u.slug === slug)) : place ? place.k : 0;
   const nextUnitStep = (st) => st && st.i !== k;
   const progOf = (u, i) => (i === k ? prog : readProg(u.audience, u.slug));
-  const locked = grp && !baiMo(k, grp.nhom.changHienTai); // bài chưa mở trong nhóm
+  const isLocked = (i) => !!grp && !baiMo(i, grp.nhom.changHienTai); // #258 bài chưa mở trong nhóm → không bấm vào được
+  const locked = isLocked(k);
   const flat = list.flatMap((u, i) => PARTS.map((p) => ({ i, u, key: p.key })));
   const pos = flat.findIndex((x) => x.i === k && x.key === part);
   const prevStep = flat[pos - 1];
-  const nextStep = flat[pos + 1];
+  const nextStep = flat[pos + 1] && !isLocked(flat[pos + 1].i) ? flat[pos + 1] : null;
   const doneAll = list.reduce((n, u, i) => n + pCount(progOf(u, i)), 0);
   const totalAll = list.length * PARTS.length;
   const markSeen = () => {
     if (part === "" || part === "info") update({ seen: { ...(prog.seen || {}), [part === "" ? "article" : "info"]: 1 } });
   };
   const goStep = (st, mark) => {
-    if (!st) return;
-    if (mark) markSeen();
+    if (!st || isLocked(st.i)) return;
+    if (mark && !grp) markSeen(); // #258 trong nhóm: xong phần bằng nút "Đã xong mốc này"
     navigate(P(st.u.audience, st.u.slug, st.key), { state: { tab: true } });
   };
   const partInfo = PARTS.find((p) => p.key === part);
@@ -328,7 +329,12 @@ export default function UnitPage({ initialUnit = null }) {
             )}
             {/* #086: bài nối bài — cuối bài viết có thẻ bài tiếp theo trong chuỗi */}
             {part === "" && place && (
-              list[k + 1] ? (
+              list[k + 1] && isLocked(k + 1) ? (
+                <div className="kt-nextu is-locked" aria-disabled="true">
+                  <small>🔒 Bài tiếp theo · mở khi cả nhóm xong chặng này</small>
+                  <b>{list[k + 1].title}</b>
+                </div>
+              ) : list[k + 1] ? (
                 <Link className="kt-nextu" to={P(list[k + 1].audience, list[k + 1].slug)}>
                   <small>Bài tiếp theo trong chuỗi “{m.series}” · {k + 2}/{list.length}</small>
                   <b>{list[k + 1].title}</b>
@@ -372,6 +378,10 @@ export default function UnitPage({ initialUnit = null }) {
             {part === "quiz" && <PickPart {...common} onNextPart={nextStep ? onNextPart : null} />}
             {part === "listen-speak" && <SayPart {...common} onNextPart={nextStep ? onNextPart : null} />}
             {part === "true-or-false" && <TrueFalsePart {...common} results={<UnitResults s={summary} />} onNextPart={nextStep ? onNextPart : null} />}
+            {grp && <XongMoc prog={prog} part={part} ng={grp.ng} label={partInfo?.label} onXong={() => {
+              update({ xong: { ...(prog.xong || {}), [part]: Date.now() }, ...(part === "" || part === "info" ? { seen: { ...(prog.seen || {}), [part === "" ? "article" : "info"]: 1 } } : {}) });
+              grp.flushNow?.();
+            }} onNext={nextStep ? () => goStep(nextStep) : null} />}
             {summary?.started && !drill && part !== "" && (
               <details className="hkt-u-summary">
                 <summary>Kết quả của bạn ở bài này</summary>
@@ -396,7 +406,7 @@ export default function UnitPage({ initialUnit = null }) {
             return (
               <div key={u.audience + u.slug} className={`kt-lunit ${i === k ? "is-curunit" : ""} ${open ? "is-open" : ""}`}>
                 <div className="kt-lhead">
-                  <Link to={P(u.audience, u.slug)} aria-current={i === k ? "page" : undefined} title={i === k ? "Bài đang học" : "Vào bài này (mở phần đang dở)"}>
+                  {React.createElement(isLocked(i) ? "span" : Link, isLocked(i) ? { className: "kt-lock", "aria-disabled": "true", title: "Chưa mở — chờ cả nhóm xong chặng trước" } : { to: P(u.audience, u.slug), "aria-current": i === k ? "page" : undefined, title: i === k ? "Bài đang học" : "Vào bài này (mở phần đang dở)" },
                     <span className="tt">
                       {unitLabel(u, i)}. {u.title}
                       {vset && <CircleCheck size={13} className={`kt-vtick-ic ${hasVideo(vset, u) ? "is-full" : "is-none"}`} aria-label={hasVideo(vset, u) ? "đã có video" : "chưa có video"} />}
@@ -410,12 +420,12 @@ export default function UnitPage({ initialUnit = null }) {
                         {grp && !baiMo(i, grp.nhom.changHienTai) ? " · 🔒" : ""}
                       </small>
                     </span>
-                  </Link>
+                  )}
                   <button type="button" className="kt-lexp" onClick={() => toggleUnit(i)} aria-expanded={open} aria-label={open ? "Thu gọn các phần" : "Xem 5 phần của bài"}>
                     <ChevronDown size={18} aria-hidden="true" />
                   </button>
                 </div>
-                {open && (
+                {open && !isLocked(i) && (
                   <ol>
                     {PARTS.map((pt) => {
                       const d = pDone(p, pt.key);
@@ -469,6 +479,33 @@ export default function UnitPage({ initialUnit = null }) {
       <Modal open={refOpen} onClose={closeRef} title="Bảng thông tin" wide>
         <QuestionTable questions={qs} player={player} idPrefix="rf" />
       </Modal>
+    </div>
+  );
+}
+
+/** #258 Nút "Đã xong mốc này" cuối mỗi phần trong nhóm: chỉ bấm được khi đạt điều kiện; bấm → lưu prog.xong[phần] lên máy chủ. */
+function XongMoc({ prog, part, ng, label, onXong, onNext }) {
+  const dk = dieuKien(prog, part, ng);
+  const at = prog?.xong?.[part];
+  return (
+    <div className={`nh-xong ${at ? "is-done" : dk.dat ? "is-ready" : ""}`} role="region" aria-label="Mốc của nhóm">
+      <p className="nh-xong-dk">
+        <b>Điều kiện xong {label}:</b> {dk.text} {dk.dat ? "✅" : "⏳"}
+      </p>
+      {at ? (
+        <p className="nh-xong-ok">
+          <Check size={16} aria-hidden="true" /> Đã xong mốc này lúc {new Date(at).toLocaleString("vi-VN", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" })} — đã lưu cho nhóm.
+        </p>
+      ) : (
+        <button type="button" className="kt-btn kt-btn--pri" disabled={!dk.dat} onClick={onXong} title={dk.dat ? "Lưu: tôi đã xong phần này" : "Chưa đạt điều kiện"}>
+          <Check size={16} aria-hidden="true" /> Đã xong mốc này
+        </button>
+      )}
+      {at && onNext && (
+        <button type="button" className="kt-btn" onClick={onNext}>
+          Sang phần tiếp ›
+        </button>
+      )}
     </div>
   );
 }

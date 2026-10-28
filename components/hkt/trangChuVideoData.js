@@ -116,7 +116,7 @@ export const HOME_VIDEOS = [
 export const videoSeconds = (v) => v.dur || v.slides.reduce((n, s) => n + s.sec, 0);
 export const fmtSec = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
-// #228 — Bộ video HƯỚNG DẪN CHUNG "Học hiệu quả trên DetPro" (HD1–HD7): vì sao, làm thế nào, từng phần chi tiết.
+// #228 — Bộ video HƯỚNG DẪN CHUNG "Học hiệu quả trên DetPro" (HD1–HD10; HD8–HD10 thêm ở #255): vì sao, làm thế nào, từng phần chi tiết.
 // Cùng khuôn slide-show + giọng Kokoro tiếng Anh + phụ đề Việt như video trang chủ. Tệp: huong-dan-<id>--w01.mp4.
 export const GUIDE_VIDEOS = [
   {
@@ -200,6 +200,53 @@ export const GUIDE_VIDEOS = [
       { art: "repeat", sec: 8, show: "Hôm sau **ôn lại**", en: "Next day, retry wrong answers before starting something new.", vi: "Hôm sau, làm lại câu sai trước khi học cái mới." },
       { art: "mic", sec: 9, show: "**Nói lại** bằng lời của bạn", en: "After a lesson, tell someone what you learned, in English. Even one minute.", vi: "Học xong, kể lại cho ai đó điều bạn học bằng tiếng Anh. Một phút cũng được." },
       { art: "bed", sec: 7, show: "Mệt thì **nghỉ**", en: "Tired? Stop. Sleep helps you remember. Continue tomorrow.", vi: "Mệt thì dừng. Ngủ giúp nhớ. Mai học tiếp." },
+    ],
+  },
+  // #255 — video mới theo tính năng web (Học cùng nhóm / Mở lớp / Mức A·B·C). Chưa có dur: lấy tổng sec cho tới khi render xong.
+  {
+    id: "hd8", file: "huong-dan-hd8", title: "Học cùng nhóm: vào nhóm và đi trên cây", blurb: "Link nhóm, ID + PIN, cây 5 lá 1 bông, Hỏi đáp", color: "#0e8784",
+    slides: [
+      { art: "people", sec: 7, show: "**Học cùng** một nhóm", en: "Learning with friends? On DetPro, a whole group can study one series together.", vi: "Học cùng bạn bè? Trên DetPro, cả nhóm học chung một chuỗi bài." },
+      { art: "screen-home", sec: 7, show: "Mở **link nhóm**", en: "Your guide sends a group link. Open it. You don't need an account.", vi: "Người hướng dẫn gửi link nhóm. Bạn mở link ra, không cần tài khoản." },
+      { art: "keyboard", sec: 8, show: "Chọn tên · đặt **PIN 4 số**", en: "Choose your name, or create a new ID. A four-digit PIN keeps your ID yours.", vi: "Chọn tên của bạn, hoặc tạo ID mới. PIN 4 số giữ ID là của riêng bạn." },
+      { art: "route", sec: 8, show: "Cây = **đường đi** của nhóm", en: "The tree is the group's path. Each lesson has five leaves and one flower.", vi: "Cây là đường đi của cả nhóm. Mỗi bài có năm lá và một bông." },
+      { art: "split", sec: 8, show: "Lá **1–5** = 5 phần bài", en: "Tap a numbered leaf to do that part right away, in a pop-up window.", vi: "Bấm vào lá có số để làm ngay phần đó, trong một cửa sổ nổi." },
+      { art: "clock", sec: 9, show: "Bài sau mở khi **cả nhóm xong**", en: "The next lesson opens when everyone finishes. A countdown and reminders keep the pace.", vi: "Bài sau chỉ mở khi mọi người xong bài trước. Đồng hồ đếm ngược và chuông nhắc giữ nhịp cho nhóm." },
+      { art: "report", sec: 8, show: "Bấm **tên một bạn**", en: "Tap a friend's name to see their practice stats, or send them a cheer.", vi: "Bấm tên một bạn để xem thống kê luyện tập, hoặc gửi lời động viên." },
+      { art: "mic", sec: 9, show: "Bông = **bài nói tự do**", en: "The flower is a free talk. Say what you remember, send it, then tap I've sent it.", vi: "Bông là bài nói tự do. Nói những gì bạn nhớ, gửi đi, rồi bấm Đã gửi bài nói." },
+      { art: "check", sec: 7, show: "Được **duyệt** → bông xanh", en: "Your guide listens and approves. Then your flower turns green.", vi: "Người hướng dẫn nghe và duyệt. Khi đó bông của bạn chuyển xanh." },
+      { art: "text", sec: 8, show: "Nút tròn = **Hỏi đáp** của bài", en: "The round button on the trunk opens questions and answers for that lesson.", vi: "Nút tròn trên thân cây mở phần Hỏi đáp riêng của bài đó." },
+      { art: "thumb", sec: 6, show: "Cùng giữ nhịp · **cùng về đích**", en: "Keep the pace together, and reach the end together.", vi: "Cùng nhau giữ nhịp, cùng nhau về đích." },
+    ],
+  },
+  // #255 — video mới theo tính năng web (Học cùng nhóm / Mở lớp / Mức A·B·C). Chưa có dur: lấy tổng sec cho tới khi render xong.
+  {
+    id: "hd9", file: "huong-dan-hd9", title: "Mở lớp: dành cho người hướng dẫn", blurb: "Chọn chuỗi, ID + PIN, ngưỡng qua phần, đếm ngược, duyệt bài nói", color: "#6b3fa0",
+    slides: [
+      { art: "people", sec: 7, show: "**Mở lớp** hướng dẫn", en: "Want to guide a class? You can open a group on DetPro in a few steps.", vi: "Muốn hướng dẫn một lớp? Bạn mở được nhóm trên DetPro chỉ trong vài bước." },
+      { art: "search", sec: 7, show: "Chọn **một chuỗi bài**", en: "Choose one series of lessons and give your class a name.", vi: "Chọn một chuỗi bài và đặt tên cho lớp." },
+      { art: "keyboard", sec: 8, show: "Bạn cũng là **người học**", en: "You learn too. Create your own ID and a four-digit PIN.", vi: "Bạn cũng là người học. Tạo ID của riêng bạn kèm PIN 4 số." },
+      { art: "check", sec: 8, show: "Chỉ bạn **duyệt** và đổi cài đặt", en: "Only you approve free talks and change the settings. Learners can't use your ID.", vi: "Chỉ bạn duyệt bài nói tự do và đổi cài đặt. Học viên không vào thay ID của bạn được." },
+      { art: "half", sec: 8, show: "Qua phần khi **đúng ≥ 70%**…", en: "Decide when a part counts as passed, for example seventy or eighty percent correct.", vi: "Quyết định khi nào một phần được tính là qua, ví dụ đúng từ 70% hay 80%." },
+      { art: "clock", sec: 9, show: "Đếm ngược **mỗi chặng**", en: "Add a countdown for each stage, like twenty-four hours, and reminders for anyone behind.", vi: "Thêm đồng hồ đếm ngược cho mỗi chặng, ví dụ 24 giờ, và lời nhắc cho người chưa xong." },
+      { art: "screen-home", sec: 8, show: "Gửi **link nhóm** qua Zalo", en: "Send the group link by Zalo. Keep the link to your guide page private.", vi: "Gửi link nhóm qua Zalo. Link trang người hướng dẫn là của riêng bạn, đừng gửi ai." },
+      { art: "mic", sec: 8, show: "Nghe · nhận xét · **Duyệt**", en: "Learners send free talks through your channel. Listen, write a comment, and approve.", vi: "Học viên gửi bài nói qua kênh của bạn. Bạn nghe, ghi nhận xét và bấm Duyệt." },
+      { art: "repeat", sec: 9, show: "Ai bỏ dở → **Tạm nghỉ**", en: "If someone stops, set them to Paused so the group can move on. Reset forgotten PINs in Learners.", vi: "Ai bỏ dở thì chuyển Tạm nghỉ để nhóm đi tiếp. Ai quên PIN thì đặt lại ở tab Học viên." },
+      { art: "thumb", sec: 7, show: "Đổi cài đặt **lúc nào cũng được**", en: "You can change the settings at any time. They apply from the stage that is open.", vi: "Bạn đổi cài đặt lúc nào cũng được, áp dụng từ chặng đang mở." },
+    ],
+  },
+  // #255 — video mới theo tính năng web (Học cùng nhóm / Mở lớp / Mức A·B·C). Chưa có dur: lấy tổng sec cho tới khi render xong.
+  {
+    id: "hd10", file: "huong-dan-hd10", title: "Mức tiếng Anh A · B · C của một bài", blurb: "Bài cần tiếng Anh mức nào để làm xong 40 câu", color: "#c23d6a",
+    slides: [
+      { art: "abc", sec: 7, show: "Bài này cần **mức nào**?", en: "Each lesson shows the English level you need to finish its forty questions.", vi: "Mỗi bài ghi rõ cần tiếng Anh mức nào để làm xong 40 câu." },
+      { art: "steps", sec: 6, show: "Ba mức: **A · B · C**", en: "There are three levels: A, B and C.", vi: "Có ba mức: A, B và C." },
+      { art: "book", sec: 8, show: "**A** — cơ bản · A1–A2", en: "Level A: short sentences and everyday words. Beginners can do it.", vi: "Mức A: câu ngắn, từ thông dụng hằng ngày. Người mới học làm được." },
+      { art: "brain", sec: 8, show: "**B** — trung cấp · B1–B2", en: "Level B: longer sentences, words for life and work, and longer listening.", vi: "Mức B: câu ghép, từ vựng đời sống và công việc, nghe câu dài vừa." },
+      { art: "zap", sec: 8, show: "**C** — nâng cao · C1–C2", en: "Level C: long sentences and specialist terms, like law, finance or engineering.", vi: "Mức C: câu dài, thuật ngữ chuyên môn như luật, tài chính, kỹ thuật." },
+      { art: "table", sec: 9, show: "Đo bằng **độ dài đáp án**", en: "The level comes from the average length of the correct answers in the forty questions.", vi: "Mức được tính từ độ dài trung bình của đáp án đúng trong 40 câu." },
+      { art: "report", sec: 8, show: "Xem ở **thẻ chủ đề** và **Bảng thông tin**", en: "Look for the level on the topic card, under the lesson title, and in the Info Table.", vi: "Mức hiện ở thẻ chủ đề, dưới tên bài và trong Bảng thông tin." },
+      { art: "thumb", sec: 7, show: "Chọn bài **vừa sức**", en: "Start with lessons at your level, then move up when they feel easy.", vi: "Bắt đầu từ bài vừa sức, thấy dễ rồi thì lên mức cao hơn." },
     ],
   },
 ];

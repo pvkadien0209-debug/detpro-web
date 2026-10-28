@@ -32,8 +32,8 @@ export function idFromName(name = "") {
 
 const nOk = (o) => Object.keys(o || {}).length;
 
-/** Xanh của một phần trong nhóm — dùng ngưỡng nhóm thay cho "xong phần" mặc định (4a). p = tiến độ một bài (như localStorage). */
-export function partDoneNhom(p, key, ng = NGUONG_MAC_DINH, total = 40) {
+/** ĐẠT điều kiện của một phần trong nhóm — ngưỡng nhóm thay cho "xong phần" mặc định (4a). p = tiến độ một bài (như localStorage). */
+export function partDatNhom(p, key, ng = NGUONG_MAC_DINH, total = 40) {
   if (!p) return false;
   ng = { ...NGUONG_MAC_DINH, ...(ng || {}) };
   if (key === "") return !!p.seen?.article;
@@ -50,6 +50,23 @@ export function partDoneNhom(p, key, ng = NGUONG_MAC_DINH, total = 40) {
     return right >= Math.ceil((items * +ng.tf) / 100);
   }
   return false;
+}
+/** #258 Xanh (XONG) của một phần trong nhóm = đạt điều kiện VÀ đã bấm "Đã xong mốc này" (p.xong[key] = giờ bấm). */
+export const partDoneNhom = (p, key, ng, total) => !!p?.xong?.[key] && partDatNhom(p, key, ng, total);
+/** #258 Mô tả điều kiện của một phần + đã đạt chưa (cho nút "Đã xong mốc này"). Bài viết / Bảng: đạt khi đã mở tới cuối trang. */
+export function dieuKien(p, key, ng = NGUONG_MAC_DINH) {
+  ng = { ...NGUONG_MAC_DINH, ...(ng || {}) };
+  const pp = { ...(p || {}), seen: { ...(p?.seen || {}), article: 1, info: 1 } };
+  const dat = partDatNhom(pp, key, ng);
+  if (key === "") return { dat, text: "Đọc hết bài viết" };
+  if (key === "info") return { dat, text: "Xem Bảng thông tin 40 câu" };
+  if (key === "quiz") return { dat, text: `Trắc nghiệm đúng ${ng.quiz}/40 — đang ${partCount(p, "quiz")}/40` };
+  if (key === "listen-speak") return { dat, text: `Nghe nói đúng ${ng["listen-speak"]}/40 — đang ${partCount(p, "listen-speak")}/40` };
+  if (key === "true-or-false") {
+    const right = Object.values(p?.qa?.done || {}).filter((d) => d.right).length;
+    return { dat, text: ng.tf === "xong" || !ng.tf ? `Làm hết lượt True or false — đã làm ${partCount(p, key)}/${p?.qa?.items?.length || 80}` : `True or false đúng từ ${ng.tf}% — đang đúng ${right}/${p?.qa?.items?.length || 80}` };
+  }
+  return { dat, text: "" };
 }
 export const unitGreenCount = (p, ng) => PART_KEYS.filter((k) => partDoneNhom(p, k, ng)).length;
 export const unitGreen = (p, ng) => unitGreenCount(p, ng) === PART_KEYS.length;
@@ -69,6 +86,7 @@ export function dangDo(p, ng) {
   if (!p || !Object.keys(p).length) return "chưa bắt đầu";
   const k = PART_KEYS.find((x) => !partDoneNhom(p, x, ng));
   if (k === undefined) return "xong";
+  if (partDatNhom(p, k, ng)) return `${PART_SHORT[k]}: đạt, chưa bấm "Đã xong"`;
   if (k === "quiz" || k === "listen-speak") return `${PART_SHORT[k]} ${partCount(p, k)}/40`;
   if (k === "true-or-false") return `${PART_SHORT[k]} ${partCount(p, k)}/80`;
   return `chưa xem ${PART_SHORT[k]}`;

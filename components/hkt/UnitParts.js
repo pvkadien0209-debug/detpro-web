@@ -333,7 +333,7 @@ export function PickPart({ unit, prog, update, player, openExplain, refButton, o
   const [gridOpen, setGridOpen] = useState(false);
   const [review, setReview] = useState(false); // #160: xong cả 40 câu → hiện báo cáo; bấm "Xem lại từng câu" mới về câu hỏi
   const grp = useNhom();
-  useEffect(() => grp?.setCau?.(i), [i]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { grp?.setCau?.(i); }, [i]); // eslint-disable-line react-hooks/exhaustive-deps
   const stageRef = useStageTop(i);
   const go = (n) => update({ pick: { ...pick, pos: Math.max(0, Math.min(qs.length - 1, n)) } });
   const nextOpen = (from = i, ok = pick.ok) => {
@@ -809,7 +809,7 @@ export function SayPart({ unit, prog, update, player, openExplain, refButton, on
   const [review, setReview] = useState(false); // #160
   const { show, setShow, showQ, showA } = useDrillShow(); // #229
   const grp = useNhom(); // #230
-  useEffect(() => grp?.setCau?.(i), [i]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { grp?.setCau?.(i); }, [i]); // eslint-disable-line react-hooks/exhaustive-deps
   const stageRef = useStageTop(i);
   useEffect(() => {
     setFb(null);
@@ -1010,7 +1010,7 @@ export function TrueFalsePart({ unit, prog, update, player, openExplain, refButt
   const [fb, setFb] = useState(null);
   const { show, setShow, showQ, showA } = useDrillShow(); // #229
   const grp = useNhom(); // #230
-  useEffect(() => grp?.setCau?.(it?.i ?? 0), [it?.i]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { grp?.setCau?.(it?.i ?? 0); }, [it?.i]); // eslint-disable-line react-hooks/exhaustive-deps
   const stageRef = useStageTop(`${pos}-${qa?.runs}`);
   useEffect(() => {
     setFb(null);

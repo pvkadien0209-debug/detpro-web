@@ -85,7 +85,8 @@ function Inner({ ma, id, initialProg, initialUnit }) {
         clearTimeout(timer.current);
         timer.current = setTimeout(() => flushRef.current(), SAVE_MS);
       },
-      setCau: (i) => (cauRef.current = i),
+      flushNow: () => setTimeout(() => flushRef.current(), 60), // #258 ghi ngay (nút "Đã xong mốc này")
+      setCau: (i) => { cauRef.current = i; }, // #255 không trả giá trị (useEffect coi là hàm dọn)
       renderBar: () => <Bar ma={ma} id={id} nhom={nhom} me={me} skew={view.skew} />,
       renderLocked: (k) => (
         <div className="nh-locked">

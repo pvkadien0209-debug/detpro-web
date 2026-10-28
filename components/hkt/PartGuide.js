@@ -61,7 +61,7 @@ export const GUIDES = {
   },
   nhom: {
     ten: "Học cùng nhóm",
-    video: "hd7",
+    video: "hd8", // #255 (trước: hd7)
     buoc: [
       "Cây là đường đi của cả nhóm: mỗi bài 5 lá (5 phần) + 1 bông (bài nói tự do). Lá xanh đậm = cả nhóm xong.",
       "Bài sau chỉ mở khi mọi người xong bài trước — đồng hồ đếm ngược và chuông nhắc giúp cả nhóm giữ nhịp.",
@@ -73,7 +73,7 @@ export const GUIDES = {
   },
   "huong-dan": {
     ten: "Trang người hướng dẫn",
-    video: null,
+    video: "hd9", // #255
     buoc: [
       "Gửi link nhóm cho học viên (Zalo…). Link trang này là của riêng bạn — đừng gửi ai.",
       "Tổng quan: cây cả nhóm, bấm tên một người để xem thống kê và nhắn lên cây. “Chép lời nhắc” để dán vào Zalo.",
