@@ -11,6 +11,7 @@ import ListenAll from "./ListenAll";
 import PartGuide from "./PartGuide"; // #231 hướng dẫn riêng từng phần
 // #230 Học cùng: trong nhóm (/nhom/<mã>/<id>/…) tiến độ đọc/ghi trên máy chủ, đường dẫn giữ nhóm, ngưỡng nhóm, khoá chặng
 import { useNhom, inPopup } from "@/components/nhom/nhomClient";
+import { useBaoTroThu } from "./troThuCtx"; // #269
 import { partDoneNhom, unitGreenCount, unitGreen, baiMo, dieuKien, PHAN_TAP } from "./nhomRules";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import HomeVideos from "./HomeVideos"; // #253
@@ -242,6 +243,17 @@ export default function UnitPage({ initialUnit = null }) {
       grp.flushNow?.();
     }
   }, [grp, part, locked, loading, prog.seen?.info]); // eslint-disable-line react-hooks/exhaustive-deps
+  // #269 báo cho Đét trợ thủ: bài này đã làm tới đâu, đi tới phần nào
+  useBaoTroThu(() => {
+    const nOk = (o) => Object.keys(o || {}).length;
+    const dem = { quiz: [nOk(prog.pick?.ok), 40, grp?.ng.quiz], "listen-speak": [nOk(prog.say?.ok), 40, grp?.ng["listen-speak"]], "true-or-false": [nOk(prog.qa?.done), prog.qa?.items?.length || 80, null] };
+    return {
+      loai: "bai", nhom: !!grp, part,
+      parts: PARTS.map((p) => ({ key: p.key, done: pDone(prog, p.key), dat: !!grp && PHAN_TAP.includes(p.key) && dieuKien(prog, p.key, grp.ng).dat, count: dem[p.key]?.[0], of: dem[p.key]?.[1], can: dem[p.key]?.[2] })),
+      go: (k2) => navigate(P(audience, slug, k2), { state: { tab: true }, replace: inPop }),
+      next: list[k + 1] && !isLocked(k + 1) ? { label: unitLabel(list[k + 1], k + 1), go: () => navigate(P(list[k + 1].audience, list[k + 1].slug)) } : null,
+    };
+  }, [part, prog, audience, slug, grp?.nhom?.changHienTai, list.length]);
   const partInfo = PARTS.find((p) => p.key === part);
   const drill = DRILL.includes(part);
   const PartIcon = PART_ICONS[part];

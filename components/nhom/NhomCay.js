@@ -13,8 +13,9 @@ import { StatsCard, NhanCard, nhanMoi, markNhanSeen } from "./NhomExtra";
 import PartGuide from "@/components/hkt/PartGuide";
 import NhatKyList from "./NhomNhatKy"; // #260
 import { PartPopup, QaPopup } from "./NhomPopup"; // #250 (NHA A3, D, E); bỏ "Hướng dẫn riêng" (NHA H)
-import { useNhomView, useNow, changInfo, baiLabel, Countdown, NhacBell, CopyBtn, origin, errText, NhomChat } from "./NhomShared";
+import { useNhomView, useNow, changInfo, baiLabel, Countdown, NhacBell, CopyBtn, origin, errText, NhomChat, NhanXet } from "./NhomShared";
 import { api, setPin, setMyId, rememberGroup } from "./nhomClient";
+import { useBaoTroThu } from "@/components/hkt/troThuCtx";
 import { PART_KEYS, PART_SHORT, baiKey, baiMo, baiMoCua, nhomPath, nhomUnitPath, unitGreen, dangDo, mocNho, phanDangLam } from "@/components/hkt/nhomRules";
 
 const ago = (d, now) => {
@@ -61,7 +62,7 @@ export function NhomTable({ nhom, members, onCell, onNoi }) {
                     ))}
                     <td
                       className={`nh-cell is-noi ${noi?.xanh ? "is-on" : noi?.baoGui ? "is-yellow" : ""}`}
-                      title={`${baiLabel(u, k)} · Bài nói tự do${noi?.ghiChu ? ` — ${noi.ghiChu}` : ""}`}
+                      title={`${baiLabel(u, k)} · Bài nói tự do${noi?.ghiChu ? ` — có nhận xét` : ""}`}
                       onClick={() => onNoi?.(m, u, k)}
                     >
                       ✿
@@ -177,6 +178,30 @@ function Inner({ ma, id }) {
   useEffect(() => {
     if (nhom && me) rememberGroup(ma, nhom.ten, id);
   }, [nhom?.ten, me?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  // #269 báo cho Đét trợ thủ: bạn đang ở bài nào, đã làm tới đâu (chỉ đọc từ dữ liệu nhóm)
+  useBaoTroThu(() => {
+    const m0 = data?.members.find((m) => m.id === id);
+    const g0 = data?.nhom;
+    if (!m0 || !g0) return null;
+    const ch = g0.changHienTai || 0;
+    const u = g0.chuoi.bai[Math.min(ch, g0.chuoi.bai.length - 1)];
+    const key = baiKey(u);
+    const t = m0.tom?.[key];
+    const chu = g0.nguoiTaoId === id;
+    const act = data.members.filter((m) => m.trangThai === "hoc");
+    const sau = g0.chuoi.bai[ch + 1];
+    return {
+      loai: "nhom", laChu: chu, bai: baiLabel(u, ch), g: t?.g, a: t?.a, c: t?.c, chuaBatDau: !t || t.d === "chưa bắt đầu", noi: m0.noi?.[key],
+      xongCa: !!g0.veDichLuc, tamNghi: m0.trangThai === "tam-nghi",
+      choDuyet: chu ? data.members.reduce((n, m) => n + Object.values(m.noi || {}).filter((x) => x?.baoGui && !x.xanh).length, 0) : 0,
+      slow: act.filter((m) => !(m.tom?.[key]?.g || []).every(Boolean)).length,
+      lamTruoc: sau && (t?.g || []).every(Boolean) ? baiLabel(sau, ch + 1) : null,
+      openPart: (pk) => setPop({ title: `${baiLabel(u, ch)} · ${PART_SHORT[pk]}`, href: nhomUnitPath(ma, id, u.audience, u.slug, pk) }),
+      openFlower: () => setFlower({ u, k: ch }),
+      hocTiep: () => sau && setPop({ title: `${baiLabel(sau, ch + 1)} · Bài viết`, href: nhomUnitPath(ma, id, sau.audience, sau.slug, "") }),
+      mo: (tb) => setTab(tb),
+    };
+  }, [data, id]);
   if (err && !data) return <p className="nh-center hkt-u-err">{errText(err)}</p>;
   if (!data)
     return (
@@ -427,7 +452,12 @@ function Inner({ ma, id }) {
               <>
                 <p className={`nh-noistate ${noi?.xanh ? "is-green" : noi?.baoGui ? "is-yellow" : ""}`}>
                   {noi?.xanh ? "✓ Trưởng nhóm đã nhận" : noi?.baoGui ? `Đã báo gửi ${noi.soLan > 1 ? `${noi.soLan} lần` : ""} — chờ trưởng nhóm nhận` : "Chưa gửi"}
-                  {noi?.ghiChu && <span className="nh-note2">Ghi chú: {noi.ghiChu}</span>}
+                  {noi?.ghiChu && (
+                    <span className="nh-note2">
+                      <b>Nhận xét của trưởng nhóm:</b>
+                      <NhanXet text={noi.ghiChu} />
+                    </span>
+                  )}
                 </p>
                 <div className="nh-row">
                   {nhom.kenhGuiBai ? (

@@ -1313,3 +1313,56 @@ body.nh-in .kt-learn.is-drill .nh-xong { margin-top: 18px; }
 .nh-mygroup { justify-content: flex-start; text-align: left; gap: 10px; padding: 12px 14px; }
 .nh-mygroup small { display: block; font-weight: 500; color: var(--kt-muted); }
 @media (max-width: 700px) { .nh-pop-in.is-wide > header { display: none; } .nh-pop { padding: 0; } .nh-pop-in.is-wide { width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 0; } }
+/* #268 nhận xét bài nói: khung soạn lớn + hiển thị có định dạng */
+.nh-nxed { width: min(760px, 100%); height: min(88vh, 760px); }
+.nh-nxed-body { flex: 1; min-height: 0; overflow: auto; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+.nh-nxed-tools { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.nh-nxed-tools .kt-muted { margin-left: auto; font-size: 12.5px; }
+.nh-nxed-ta { width: 100%; min-height: 220px; flex: 1 0 220px; resize: vertical; font: inherit; font-size: 15.5px; line-height: 1.55; padding: 12px; border: 1px solid var(--kt-line); border-radius: 12px; }
+.nh-nxed-pre { border: 1px dashed var(--kt-line); border-radius: 12px; padding: 10px 12px; background: #fafbfc; }
+.nh-nxed-foot { padding: 10px 14px; border-top: 1px solid var(--kt-line); justify-content: flex-end; }
+.nh-nx p { margin: 0 0 4px; line-height: 1.55; }
+.nh-nx ul { margin: 2px 0 6px; padding-left: 20px; }
+.nh-nx li { margin: 2px 0; line-height: 1.5; }
+.nh-nx-gap { height: 6px; }
+.nh-noinote { display: block; width: 100%; margin-top: 4px; text-align: left; font-size: 12.5px; background: #fff; border: 1px dashed var(--kt-line); border-radius: 8px; padding: 4px 6px; cursor: pointer; color: var(--kt-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; }
+.nh-noinote.has-nx { border-style: solid; color: var(--kt-ink); }
+.nh-note2 .nh-nx { margin-top: 4px; font-weight: 400; }
+/* #269 Đét trợ thủ */
+.tt { position: fixed; left: 16px; bottom: 16px; z-index: 1120; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; pointer-events: none; }
+.tt > * { pointer-events: auto; }
+body.kt-shell .tt { left: calc(var(--kt-rail, 0px) + 16px); }
+.tt-btn { display: inline-flex; align-items: center; gap: 6px; padding: 4px 14px 4px 4px; border-radius: 999px; border: 1px solid #cfe3da; background: #fff; box-shadow: 0 6px 18px rgba(23,32,51,.15); font-weight: 700; font-size: 14px; color: #0f6e56; cursor: pointer; }
+.tt-btn img { width: 34px; height: 34px; border-radius: 50%; background: #eaf6f0; object-fit: contain; }
+.tt-btn.has-goiy img { box-shadow: 0 0 0 3px #fbbf24; }
+.tt-panel { width: min(360px, calc(100vw - 32px)); max-height: min(70vh, 560px); display: flex; flex-direction: column; background: #fff; border-radius: 16px; border: 1px solid var(--kt-line, #e6e8ee); box-shadow: 0 18px 50px rgba(23,32,51,.25); overflow: hidden; }
+.tt-panel header { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: #eaf6f0; }
+.tt-panel header img { width: 30px; height: 30px; }
+.tt-panel header b { flex: 1; }
+.tt-panel header button { background: none; border: 0; cursor: pointer; color: inherit; padding: 4px 6px; border-radius: 8px; }
+.tt-an { font-size: 12.5px; color: var(--kt-muted, #667) !important; }
+.tt-body { padding: 12px; overflow: auto; }
+.tt-say { white-space: pre-line; background: #f3faf7; border-radius: 4px 14px 14px 14px; padding: 10px 12px; margin: 0 0 10px; line-height: 1.5; }
+.tt-chon { display: flex; flex-direction: column; gap: 6px; }
+.tt-chon button { text-align: left; border: 1px solid #cfe3da; background: #fff; border-radius: 12px; padding: 8px 12px; cursor: pointer; font-weight: 600; color: #0f3d33; }
+.tt-chon button.is-pri { background: #0f6e56; color: #fff; border-color: #0f6e56; }
+.tt-lui { margin-top: 10px; background: none; border: 0; color: var(--kt-muted, #667); cursor: pointer; padding: 0; }
+@media (max-width: 960px) { body.kt-shell .tt { left: 12px; } .tt { bottom: 76px; left: 12px; } .tt-btn span { font-size: 13px; } }
+body.nh-noscroll .tt { display: none; }
+.nh-nx ol { margin: 2px 0 6px; padding-left: 22px; }
+.nh-nx ul ul { margin: 2px 0; list-style: circle; }
+.nh-nx code { background: #eef1f5; border-radius: 5px; padding: 1px 5px; font-size: .9em; word-break: break-all; }
+.nh-nx h4 { font-size: 1.02em; font-weight: 700; margin: 8px 0 4px; }
+/* #271 trang ẩn quản lý nhóm học */
+.ql-login { max-width: 420px; margin: 40px auto; display: flex; flex-direction: column; gap: 10px; }
+.ql-bar { gap: 8px; margin: 8px 0; flex-wrap: wrap; }
+.ql-search { display: flex; align-items: center; gap: 6px; flex: 1 1 260px; border: 1px solid var(--kt-line); border-radius: 10px; padding: 6px 10px; background: #fff; }
+.ql-search input { border: 0; outline: 0; flex: 1; }
+.ql-row { cursor: pointer; }
+.ql-row:hover td { background: #f3faf7; }
+.ql-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px 14px; margin-bottom: 10px; }
+.ql-wide { grid-column: 1 / -1; }
+.ql-ten { width: 140px; }
+.ql-warn { color: #b45309; }
+.ql-tv td, .ql-ds td { vertical-align: middle; }
+.ql .nh-nk-list li time { width: 128px; }

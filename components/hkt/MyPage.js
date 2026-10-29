@@ -6,6 +6,7 @@ import { Link } from "@/lib/router"; // Next.js: thay react-router-dom
 import { Helmet } from "@/lib/helmet"; // Next.js: tiêu đề/mô tả đặt ở trang máy chủ (generateMetadata)
 import { Check, Users } from "lucide-react";
 import { myGroups } from "@/components/nhom/nhomClient"; // #267 nhóm học trên máy này
+import { hienTroThu, daAnTroThu } from "./TroThu"; // #269
 import KtShell from "./KtShell";
 import { TopicCard } from "./HomeKnowledge";
 import { loadUnitsIndex, readUnitProgress, unitSummary, unitDoneCount, unitPath, PARTS, partDone, seriesProgress } from "./unitData";
@@ -13,9 +14,11 @@ import { loadUnitsIndex, readUnitProgress, unitSummary, unitDoneCount, unitPath,
 export default function MyPage() {
   const [idx, setIdx] = useState(null);
   const [nhoms, setNhoms] = useState([]);
+  const [ttAn, setTtAn] = useState(false);
   useEffect(() => {
     loadUnitsIndex().then(setIdx).catch(() => {});
     setNhoms(myGroups());
+    setTtAn(daAnTroThu());
   }, []);
   const topics = idx ? idx.branches.flatMap((b) => b.topics.map((t) => ({ ...t, branch: b.slug, branchTitle: b.title }))) : [];
   const learning = topics.filter((t) => t.units.some((u) => readUnitProgress(u.audience, u.slug)));
@@ -40,6 +43,13 @@ export default function MyPage() {
           </>
         )}
       </p>
+      {ttAn && (
+        <p className="kt-muted">
+          <button type="button" className="kt-linkbtn" onClick={() => { hienTroThu(); setTtAn(false); }}>
+            🙋 Bật lại Đét trợ thủ “Tôi cần làm gì?”
+          </button>
+        </p>
+      )}
       {nhoms.length > 0 && (
         <>
           <div className="kt-row-head">

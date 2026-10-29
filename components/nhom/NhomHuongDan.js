@@ -14,7 +14,7 @@ import PartGuide from "@/components/hkt/PartGuide";
 import NhatKyList from "./NhomNhatKy"; // #260
 import { PartPopup, QaPopup } from "./NhomPopup"; // #250 (NHA A3, E); bỏ tab "Hướng dẫn riêng" (NHA H)
 import { api, saveK, loadK, tepUrl, rememberGroup } from "./nhomClient";
-import { useNhomView, useNow, changInfo, baiLabel, Countdown, CopyBtn, origin, errText, NhomChat } from "./NhomShared";
+import { useNhomView, useNow, changInfo, baiLabel, Countdown, CopyBtn, origin, errText, NhomChat, NhanXet } from "./NhomShared";
 import { PART_KEYS, PART_SHORT, baiKey, baiMo, baiMoCua, nhomPath, nhomUnitPath, fmtHan, mocNho, phanDangLam } from "@/components/hkt/nhomRules";
 
 const TABS = [
@@ -47,9 +47,71 @@ function KeyForm({ ma, onKey }) {
 }
 
 // ---------- Bài nói tự do: học viên × bài ----------
+const MAU_NX = "**Điểm tốt:**\n- \n\n**Cần sửa:**\n- \n\n**Luyện thêm:**\n- ";
+/** #268 Khung nhận xét bài nói: ô chữ lớn (tự giãn), nút định dạng nhẹ, xem trước đúng như học viên thấy. */
+function NhanXetEditor({ ten, bai, value, onSave, onClose }) {
+  const [v, setV] = useState(value || "");
+  const [busy, setBusy] = useState(false);
+  const ref = React.useRef(null);
+  const chen = (truoc, sau = "") => {
+    const el = ref.current;
+    if (!el) return;
+    const a = el.selectionStart, b = el.selectionEnd;
+    const nv = v.slice(0, a) + truoc + v.slice(a, b) + sau + v.slice(b);
+    setV(nv);
+    setTimeout(() => {
+      el.focus();
+      el.selectionStart = el.selectionEnd = b + truoc.length + sau.length;
+    }, 0);
+  };
+  const save = async () => {
+    setBusy(true);
+    await onSave(v);
+    setBusy(false);
+  };
+  return (
+    <div className="nh-pop" role="dialog" aria-modal="true" aria-label="Nhận xét bài nói" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="nh-pop-in nh-nxed">
+        <header>
+          <b>Nhận xét · {ten} · {bai}</b>
+          <button type="button" onClick={onClose} aria-label="Đóng">✕</button>
+        </header>
+        <div className="nh-nxed-body">
+          <div className="nh-nxed-tools">
+            <button type="button" className="nh-mini" onClick={() => chen("**", "**")} title="Chữ đậm"><b>B</b> Đậm</button>
+            <button type="button" className="nh-mini" onClick={() => chen("\n- ")} title="Gạch đầu dòng">• Gạch đầu dòng</button>
+            {!v.trim() && <button type="button" className="nh-mini" onClick={() => setV(MAU_NX)}>Dùng mẫu: Điểm tốt / Cần sửa / Luyện thêm</button>}
+            <span className="kt-muted">{v.length}/3000</span>
+          </div>
+          <textarea
+            ref={ref}
+            className="nh-nxed-ta"
+            value={v}
+            maxLength={3000}
+            autoFocus
+            placeholder={"Gõ hoặc dán nhận xét (dán từ Word / Zalo / Claude vẫn giữ định dạng).\n- Dòng bắt đầu bằng - là gạch đầu dòng (thụt 2 dấu cách = ý con)\n1. Danh sách số · **chữ đậm** · `mã` · link https://… bấm được"}
+            onChange={(e) => setV(e.target.value)}
+            onKeyDown={(e) => (e.ctrlKey || e.metaKey) && e.key === "Enter" && save()}
+          />
+          {v.trim() && (
+            <div className="nh-nxed-pre">
+              <small className="kt-muted">Học viên sẽ thấy:</small>
+              <NhanXet text={v} />
+            </div>
+          )}
+        </div>
+        <footer className="nh-row nh-nxed-foot">
+          <button type="button" className="kt-btn" onClick={onClose}>Huỷ</button>
+          <button type="button" className="kt-btn kt-btn--pri" disabled={busy} onClick={save}>{busy ? "Đang lưu…" : "Lưu nhận xét (Ctrl+Enter)"}</button>
+        </footer>
+      </div>
+    </div>
+  );
+}
+
 export function NoiTab({ ma, k, uid, data, reload, now }) {
   const { nhom, members } = data;
-  const [note, setNote] = useState({});
+  const [sua, setSua] = useState(null); // #268 { m, u, key } đang viết nhận xét
   const [err, setErr] = useState("");
   const call = async (body) => {
     setErr("");
@@ -64,7 +126,7 @@ export function NoiTab({ ma, k, uid, data, reload, now }) {
     <div className="nh-card">
       <h2>Bài nói tự do — kiểm tra, nhận xét, duyệt đã nhận</h2>
       <p className="kt-muted">
-        Học viên gửi audio qua kênh nhóm{nhom.kenhGuiBai ? "" : " (bạn chưa dán kênh gửi bài — vào Cài đặt)"} rồi bấm “Đã gửi bài nói” → ô vàng. Bạn nghe bên đó, ghi nhận xét vào ô (học viên thấy trên bông của mình), rồi bấm <b>Duyệt đã nhận</b> → xanh, qua mốc. Vàng quá 2 ngày có dấu ⚠.
+        Học viên gửi audio qua kênh nhóm{nhom.kenhGuiBai ? "" : " (bạn chưa dán kênh gửi bài — vào Cài đặt)"} rồi bấm “Đã gửi bài nói” → ô vàng. Bạn nghe bên đó, bấm <b>✎ Nhận xét</b> để viết nhận xét (học viên thấy trên bông của mình), rồi bấm <b>Duyệt</b> → bông xanh. Vàng quá 2 ngày có dấu ⚠.
       </p>
       <div className="nh-table-wrap">
         <table className="nh-table nh-noi">
@@ -89,19 +151,14 @@ export function NoiTab({ ma, k, uid, data, reload, now }) {
                   const key = baiKey(u);
                   const n = m.noi?.[key];
                   const old = n?.baoGui && !n.xanh && now - new Date(n.baoGui).getTime() > 2 * 864e5;
-                  const nk = `${m.id}|${key}`;
                   return (
                     <td key={key} className={`nh-noicell ${n?.xanh ? "is-on" : n?.baoGui ? "is-yellow" : ""}`}>
-                      <button type="button" onClick={() => call({ viec: "tich-noi", id: m.id, bai: key, xanh: !n?.xanh, ghiChu: note[nk] ?? n?.ghiChu })}>
+                      <button type="button" onClick={() => call({ viec: "tich-noi", id: m.id, bai: key, xanh: !n?.xanh })}>
                         {n?.xanh ? "✓ Đã duyệt" : n?.baoGui ? `${old ? "⚠ " : ""}Đã gửi${n.soLan > 1 ? ` ×${n.soLan}` : ""} · Duyệt` : "— · Duyệt"}
                       </button>
-                      <input
-                        className="nh-noinote"
-                        placeholder="nhận xét"
-                        value={note[nk] ?? n?.ghiChu ?? ""}
-                        onChange={(e) => setNote((x) => ({ ...x, [nk]: e.target.value }))}
-                        onBlur={() => note[nk] !== undefined && note[nk] !== (n?.ghiChu || "") && call({ viec: "tich-noi", id: m.id, bai: key, xanh: !!n?.xanh, ghiChu: note[nk] })}
-                      />
+                      <button type="button" className={`nh-noinote ${n?.ghiChu ? "has-nx" : ""}`} onClick={() => setSua({ m, u, key })} title={n?.ghiChu || "Viết nhận xét"}>
+                        {n?.ghiChu ? `✎ ${n.ghiChu.replace(/\*\*/g, "").replace(/\s+/g, " ").slice(0, 28)}…` : "✎ Nhận xét"}
+                      </button>
                     </td>
                   );
                 })}
@@ -111,6 +168,18 @@ export function NoiTab({ ma, k, uid, data, reload, now }) {
         </table>
       </div>
       {err && <p className="hkt-u-err">{err}</p>}
+      {sua && (
+        <NhanXetEditor
+          ten={sua.m.ten}
+          bai={baiLabel(sua.u, nhom.chuoi.bai.indexOf(sua.u))}
+          value={sua.m.noi?.[sua.key]?.ghiChu || ""}
+          onClose={() => setSua(null)}
+          onSave={async (v) => {
+            await call({ viec: "tich-noi", id: sua.m.id, bai: sua.key, xanh: !!sua.m.noi?.[sua.key]?.xanh, ghiChu: v });
+            setSua(null);
+          }}
+        />
+      )}
     </div>
   );
 }

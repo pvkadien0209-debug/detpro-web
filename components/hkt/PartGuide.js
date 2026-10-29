@@ -9,6 +9,7 @@ import { Modal } from "./UnitParts";
 import HomeVideos from "./HomeVideos";
 import { GUIDE_VIDEOS } from "./trangChuVideoData";
 import { useAskTurn } from "./askQueue";
+import { hienTroThu, daAnTroThu } from "./TroThu";
 
 const vid = (id) => GUIDE_VIDEOS.filter((v) => v.id === id);
 
@@ -157,6 +158,14 @@ export default function PartGuide({ k, extra, className = "kt-guidebtn", label }
           <p className="kt-guide-link">
             <button type="button" className="kt-linkbtn" onClick={() => setAll(true)}>
               🎬 Xem thêm {GUIDE_VIDEOS.length} video hướng dẫn: vì sao và làm thế nào cho hiệu quả
+            </button>
+          </p>
+        )}
+        {/* #269: Đét trợ thủ đã ẩn → bật lại ở đây */}
+        {daAnTroThu() && (
+          <p className="kt-guide-link">
+            <button type="button" className="kt-linkbtn" onClick={() => { hienTroThu(); close(); }}>
+              🙋 Bật lại Đét trợ thủ “Tôi cần làm gì?”
             </button>
           </p>
         )}

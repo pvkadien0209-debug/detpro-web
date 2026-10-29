@@ -320,7 +320,7 @@ function Pill({ children, tone }) {
 // (bấm "Giải thích" thì dừng lại). Sai → tô đỏ, chọn lại. Ô "Câu x/40" mở lưới 40 câu để nhảy.
 export function PickPart({ unit, prog, update, player, openExplain, refButton, onNextPart }) {
   const qs = unit.questions;
-  const pick = prog.pick || { ok: {}, bad: {}, wrong: 0 };
+  const pick = { ok: {}, bad: {}, wrong: 0, ...(prog.pick || {}) }; // #269 dữ liệu thiếu khoá (bản cũ / máy chủ) không làm sập trang
   const okCount = Object.keys(pick.ok).length;
   const firstOpen = () => {
     for (let k = 0; k < qs.length; k++) if (!pick.ok[k]) return k;
@@ -798,7 +798,7 @@ function Status({ fb }) {
 // ---------- 4. Nghe nói — luyện nói: nghe câu hỏi, đọc / gõ câu trả lời (không hiện chữ — #050) ----------
 export function SayPart({ unit, prog, update, player, openExplain, refButton, onNextPart }) {
   const qs = unit.questions;
-  const say = prog.say || { pos: 0, ok: {}, wrong: 0 };
+  const say = { pos: 0, ok: {}, wrong: 0, bad: {}, ...(prog.say || {}) }; // #269 an toàn khi thiếu khoá
   const i = Math.min(say.pos || 0, qs.length - 1);
   const q = qs[i];
   // #073: thứ tự câu (mặc định 1→40; bấm "Đảo" để trộn). say.pos vẫn là số thứ tự câu hỏi gốc.

@@ -460,3 +460,77 @@ export function NhomChat({ ma, who, gan, floating = false, chatTat, linkFor, slo
     </>
   );
 }
+
+// ---------- #268 Nhận xét bài nói: chữ thường có định dạng nhẹ (an toàn, không HTML) ----------
+// Quy ước (giống chữ dán từ Claude / ChatGPT / Word): "- " hoặc "• " gạch đầu dòng · thụt 2 dấu cách = ý con · "1. " danh sách số ·
+// **đậm** · `mã / đường dẫn` · "# Tiêu đề" · dòng trống = đoạn mới · link https://… bấm được.
+const inlineFmt = (s, key) =>
+  s.split(/(\*\*[^*]+\*\*|`[^`]+`|https?:\/\/[^\s)]+)/g).map((x, i) =>
+    /^\*\*[^*]+\*\*$/.test(x) ? (
+      <b key={`${key}-${i}`}>{x.slice(2, -2)}</b>
+    ) : /^`[^`]+`$/.test(x) ? (
+      <code key={`${key}-${i}`}>{x.slice(1, -1)}</code>
+    ) : /^https?:\/\//.test(x) ? (
+      <a key={`${key}-${i}`} href={x} target="_blank" rel="noopener noreferrer">
+        {x}
+      </a>
+    ) : (
+      x
+    )
+  );
+export function NhanXet({ text, className = "" }) {
+  if (!text) return null;
+  const blocks = [];
+  let list = null; // { so: bool, li: [{ t, con: [] }] }
+  String(text)
+    .replace(/\r/g, "")
+    .split("\n")
+    .forEach((line, i) => {
+      const bul = line.match(/^(\s*)[-•*]\s+(.*)$/);
+      const num = line.match(/^(\s*)(\d+)[.)]\s+(.*)$/);
+      const m = bul ? { thut: bul[1].length, so: false, t: bul[2] } : num ? { thut: num[1].length, so: true, t: num[3] } : null;
+      if (m) {
+        if (!m.t.trim()) return; // gạch đầu dòng trống (mẫu chưa điền) → bỏ
+        if (m.thut >= 2 && list?.li.length) return void list.li[list.li.length - 1].con.push(inlineFmt(m.t, i)); // ý con
+        if (!list || list.so !== m.so) blocks.push((list = { so: m.so, li: [] }));
+        list.li.push({ t: inlineFmt(m.t, i), con: [] });
+        return;
+      }
+      list = null;
+      const h = line.match(/^#{1,4}\s+(.*)$/);
+      if (h) blocks.push({ h: inlineFmt(h[1], i) });
+      else if (line.trim()) blocks.push({ p: inlineFmt(line, i) });
+      else blocks.push({ gap: true });
+    });
+  const Li = ({ x }) => (
+    <li>
+      {x.t}
+      {x.con.length > 0 && (
+        <ul>
+          {x.con.map((c, j) => (
+            <li key={j}>{c}</li>
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+  return (
+    <div className={`nh-nx ${className}`}>
+      {blocks.map((b, i) =>
+        b.li ? (
+          b.so ? (
+            <ol key={i}>{b.li.map((x, j) => <Li key={j} x={x} />)}</ol>
+          ) : (
+            <ul key={i}>{b.li.map((x, j) => <Li key={j} x={x} />)}</ul>
+          )
+        ) : b.h ? (
+          <h4 key={i}>{b.h}</h4>
+        ) : b.p ? (
+          <p key={i}>{b.p}</p>
+        ) : (
+          <div key={i} className="nh-nx-gap" />
+        )
+      )}
+    </div>
+  );
+}

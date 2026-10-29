@@ -8,6 +8,7 @@ import "@/styles/kt.css";
 import "@/styles/VongDet.css";
 import "@/styles/globals.css";
 import { SITE_URL, SLOGAN, BIO } from "@/lib/seo";
+import TroThu from "@/components/hkt/TroThu"; // #269 Đét trợ thủ "Tôi cần làm gì?"
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
@@ -49,7 +50,10 @@ export default function RootLayout({ children }) {
           href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Literata:opsz,wght@7..72,400;7..72,500&display=swap"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <TroThu />
+      </body>
     </html>
   );
 }
