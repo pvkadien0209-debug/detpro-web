@@ -2,6 +2,7 @@
 // #206 — Trang chủ: băng video "Bắt đầu với DetPro" — quẹt ngang qua 6 video slide-show (TC1–TC6, TC-Q6).
 // Không tự phát (#160): bấm mới phát. Video đã render và có trên Drive (trang-chu-<id>--w01.mp4) → phát bằng khung Drive;
 // chưa có → phát bản xem trước ngay trên trang: từng slide + phụ đề Việt, giọng tiếng Anh qua /api/tts (TC-Q1).
+import DriveVideo from "./DriveVideo"; // #272
 import React, { useEffect, useRef, useState } from "react";
 import {
   Play, Pause, ChevronLeft, ChevronRight, Volume2, VolumeX, RotateCcw, LayoutGrid, FileText, ListChecks, Gift, Footprints, Home, Table, BarChart3,
@@ -174,7 +175,7 @@ export default function HomeVideos({ list = HOME_VIDEOS, title = "Bắt đầu v
             <article key={v.id} className={`kt-hv-card ${open === k ? "is-open" : ""}`} style={{ "--hv": v.color }}>
               <div className="kt-hv-frame">
                 {open === k && mp4 ? (
-                  <iframe src={`https://drive.google.com/file/d/${mp4}/preview`} title={v.title} allow="autoplay; fullscreen" allowFullScreen />
+                  <DriveVideo id={mp4} poster={jpg ? `https://drive.google.com/thumbnail?id=${jpg}&sz=w960` : undefined} title={v.title} />
                 ) : open === k ? (
                   <SlidePlayer v={v} onNext={k + 1 < list.length ? () => openAt(k + 1) : null} />
                 ) : (

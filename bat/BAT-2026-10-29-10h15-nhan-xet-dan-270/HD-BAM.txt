@@ -1,4 +1,0 @@
-VIEC #270 - Nhan xet: dan nguyen van ban (Claude / Word / Zalo) hien dung dinh dang
-
-CHI BAM 1 TEP: 1-cap-nhat-web.bat. Goi gom ca #268 #269 (khong can bam thu muc #269).
-Thu: tab Duyet bai noi > Nhan xet > dan mot doan co y con, danh sach so, `ma` -> xem truoc hien dung.

@@ -6,6 +6,7 @@
 //   "drive": "<mã tệp>" hoặc nguyên đường dẫn https://drive.google.com/file/d/<mã>/view → phát bằng khung xem của Drive.
 import React, { useEffect, useRef, useState } from "react";
 import { Play } from "lucide-react";
+import DriveVideo from "./DriveVideo"; // #272 phát bằng trình phát gốc (toàn màn hình được trên điện thoại)
 
 const base = () => `/videos/dp`;
 let manifest = null;
@@ -97,7 +98,7 @@ export default function UnitVideo({ audience, slug, title }) {
   return (
     <figure className="kt-uvideo">
       {open && drive ? (
-        <iframe src={src} title={`Video tóm tắt: ${title}`} allow="autoplay; fullscreen" allowFullScreen loading="lazy" />
+        <DriveVideo id={drive} poster={poster} title={`Video tóm tắt: ${title}`} />
       ) : open ? (
         <video ref={ref} src={src} poster={poster} controls playsInline preload="metadata" aria-label={`Video tóm tắt: ${title}`} />
       ) : (

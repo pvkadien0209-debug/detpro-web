@@ -5,13 +5,13 @@
 // Lịch sử xem / Xem sau lưu trên trình duyệt người xem (chưa cần đăng nhập — YT-Q6).
 import { useEffect, useState } from "react";
 import { loadUnitsIndex } from "./unitData";
-import { loadManifest, loadDriveList, driveId, getDriveInfo } from "./UnitVideo";
+import { loadManifest, loadDriveList, driveId, getDriveInfo, loadYoutube, ytReady, ytThumb } from "./UnitVideo";
 
 let cache = null;
 /** Danh sách video: [{ slug, drive, cover, u, t, b, order, rank, dur }] — order = thứ tự trong mục lục, rank = mới lên Drive (0 = mới nhất). */
 export const loadVideos = () => {
   if (cache) return cache;
-  cache = Promise.all([loadUnitsIndex().catch(() => null), loadDriveList(), loadManifest()]).then(([idx, drive, man]) => {
+  cache = Promise.all([loadUnitsIndex().catch(() => null), loadDriveList(), loadManifest(), loadYoutube()]).then(([idx, drive, man, ym]) => {
     const where = {};
     let order = 0;
     (idx?.branches || []).forEach((b) =>
@@ -37,6 +37,14 @@ export const loadVideos = () => {
       const id = driveId(row?.drive);
       const slug = k.split("/").pop();
       if (id && !out[slug]) out[slug] = { slug, drive: id, cover: drive?.[`${slug}--w01.jpg`], rank: rank++, dur: 0, ...(where[k] || where[slug] || {}) };
+    });
+    // #273: gắn mã YouTube (đã tới giờ công khai); video chỉ còn trên YouTube vẫn có trong danh sách
+    Object.entries(ym || {}).forEach(([name, row]) => {
+      const yt = ytReady(row);
+      const slug = name.replace(/--w01$/, "");
+      if (!yt) return;
+      if (out[slug]) out[slug].yt = yt;
+      else out[slug] = { slug, drive: null, yt, cover: drive?.[`${slug}--w01.jpg`], rank: rank++, dur: 0, ...(where[slug] || {}) };
     });
     const list = Object.values(out).sort((a, b) => (a.order ?? 1e9) - (b.order ?? 1e9) || a.slug.localeCompare(b.slug));
     return { idx, list, bySlug: out };
@@ -67,7 +75,8 @@ export const fmtDur = (ms) => {
   return h ? `${h}:${String(m).padStart(2, "0")}:${ss}` : `${m}:${ss}`;
 };
 
-export const coverUrl = (v, w = 640) => (v.cover || v.drive ? `https://drive.google.com/thumbnail?id=${v.cover || v.drive}&sz=w${w}` : null);
+export const coverUrl = (v, w = 640) =>
+  v.cover || v.drive ? `https://drive.google.com/thumbnail?id=${v.cover || v.drive}&sz=w${w}` : v.yt ? ytThumb(v.yt) : null; // #273
 
 // ---------- Lưu trên trình duyệt: lịch sử (video đã mở) và Xem sau ----------
 const K_HIS = "dp.video.history"; // [{ slug, at }] mới nhất trước, tối đa 50
