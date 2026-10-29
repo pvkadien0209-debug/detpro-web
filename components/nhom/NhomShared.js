@@ -175,7 +175,28 @@ const writeSeen = (ma, who, v) => {
  * Hỏi đáp: who = { id } (học viên) hoặc { k } (trưởng nhóm). gan = nhãn tự gắn khi hỏi từ trang bài.
  * floating: nút 💬 nổi + khung trượt; không thì hiện thẳng trong trang.
  */
-export function NhomChat({ ma, who, gan, floating = false, chatTat, linkFor, slotId, chiBai }) {
+// #298 dòng "ai đang làm gì" chen trong Hỏi đáp (chỉ hiển thị, không lưu thành tin)
+const HD_ICON = (v) => (/^Đang làm/.test(v) ? "✏️" : /^Đạt điều kiện/.test(v) ? "🌟" : /^Đã xong/.test(v) ? "✅" : /^Xong cả/.test(v) ? "🌸" : /^Báo đã gửi bài nói/.test(v) ? "🎤" : /^Vào nhóm/.test(v) ? "👋" : /^Nhận huy hiệu/.test(v) ? "🏅" : "🎉");
+const K_HD = "dp.nhom.chatHoatDong";
+
+export function NhomChat({ ma, who, gan, floating = false, chatTat, linkFor, slotId, chiBai, hd, members = [] }) {
+  const [hienHd, setHienHd] = useState(true);
+  useEffect(() => {
+    try {
+      if (window.localStorage.getItem(K_HD) === "0") setHienHd(false);
+    } catch {
+      /* mặc định bật */
+    }
+  }, []);
+  const doiHienHd = () =>
+    setHienHd((v) => {
+      try {
+        window.localStorage.setItem(K_HD, v ? "0" : "1");
+      } catch {
+        /* bỏ qua */
+      }
+      return !v;
+    });
   const [open, setOpen] = useState(!floating);
   const [all, setAll] = useState([]);
   // #250 (NHA E): chiBai = chỉ hiện tin gắn một bài (Hỏi đáp trên thân cây)
@@ -224,9 +245,29 @@ export function NhomChat({ ma, who, gan, floating = false, chatTat, linkFor, slo
 
   useEffect(() => {
     pull();
-    const t = setInterval(() => document.visibilityState === "visible" && pull(), open ? 5000 : 30000);
+    // #298 khung mở sẵn cạnh cây: 10 giây; bong bóng đóng: 15 giây (để tin mới hiện xem trước)
+    const t = setInterval(() => document.visibilityState === "visible" && pull(), open ? (floating ? 5000 : 10000) : 15000);
     return () => clearInterval(t);
-  }, [pull, open]);
+  }, [pull, open, floating]);
+
+  // #298 bong bóng Hỏi đáp mở → ẩn Đét trợ thủ (không che ô gõ trên điện thoại)
+  useEffect(() => {
+    if (!floating || !open) return;
+    document.body.classList.add("nh-chat-mo");
+    return () => document.body.classList.remove("nh-chat-mo");
+  }, [floating, open]);
+
+  // #298 tin mới của người khác khi bong bóng đang đóng → hiện xem trước vài giây cạnh nút
+  const moLuc = useRef(Date.now());
+  const [peek, setPeek] = useState(null);
+  useEffect(() => {
+    if (!floating || open || !list.length) return;
+    const t = list[list.length - 1];
+    if (t.xoa || t.tu === meKey || new Date(t.luc).getTime() < moLuc.current) return;
+    setPeek(t);
+    const h = setTimeout(() => setPeek(null), 7000);
+    return () => clearTimeout(h);
+  }, [list.length, open, floating]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!open || !list.length) return;
@@ -303,6 +344,11 @@ export function NhomChat({ ma, who, gan, floating = false, chatTat, linkFor, slo
         <b>
           <MessageCircle size={18} aria-hidden="true" /> Hỏi đáp nhóm
         </b>
+        {hd && !chiBai && (
+          <button type="button" className={`nh-hdtoggle ${hienHd ? "is-on" : ""}`} onClick={doiHienHd} title="Hiện / ẩn dòng ai đang làm gì trong Hỏi đáp">
+            {hienHd ? "✏️ Hoạt động: bật" : "✏️ Hoạt động: tắt"}
+          </button>
+        )}
         {floating && (
           <button type="button" onClick={() => setOpen(false)} aria-label="Đóng Hỏi đáp">
             <X size={20} />
@@ -311,7 +357,21 @@ export function NhomChat({ ma, who, gan, floating = false, chatTat, linkFor, slo
       </header>
       <div className="nh-msgs" ref={boxRef}>
         {!list.length && <p className="kt-muted nh-empty">Chưa có tin nào. Có gì chưa hiểu, hỏi ở đây — cả nhóm và trưởng nhóm cùng thấy.</p>}
-        {list.map((t) => {
+        {(() => {
+          // #298 trộn tin + dòng hoạt động theo thời gian
+          const hds = hd && hienHd && !chiBai ? hd.ds.slice(0, 30).map((x) => ({ _hd: true, ...x })) : [];
+          if (!hds.length) return list;
+          return [...list, ...hds].sort((a, b) => new Date(a.luc) - new Date(b.luc));
+        })().map((t) => {
+          if (t._hd) {
+            const ten = t.id === "*" ? "" : t.id === who.id ? "Bạn" : members.find((m) => m.id === t.id)?.ten || t.id;
+            const v = /^Cả nhóm/.test(t.viec) ? t.viec : t.viec.charAt(0).toLowerCase() + t.viec.slice(1);
+            return (
+              <p key={`hd-${t.k}`} className="nh-hdline">
+                <span aria-hidden="true">{HD_ICON(t.viec)}</span> {ten && <b>{ten}</b>} {v} <time>{fmtTime(t.luc)}</time>
+              </p>
+            );
+          }
           const mine = t.tu === meKey;
           const q = t.traLoi && byId.get(t.traLoi);
           const cls = t.tu === "huong-dan" ? "is-hd" : t.tu === "det" ? "is-det" : mine ? "is-me" : "";
@@ -450,6 +510,11 @@ export function NhomChat({ ma, who, gan, floating = false, chatTat, linkFor, slo
   return (
     <>
       {slot}
+      {!open && peek && (
+        <button type="button" className={`nh-chatpeek ${slotEl ? "is-top" : ""}`} onClick={() => { setPeek(null); setOpen(true); }}>
+          <b>{peek.tu === "det" ? "Đét" : peek.ten}:</b> {peek.loai === "giong" ? "🎤 tin giọng" : (peek.chu || "").slice(0, 90)}
+        </button>
+      )}
       {!open && !slotEl && (
         <button type="button" className="nh-chatfab" onClick={() => setOpen(true)} aria-label={`Hỏi đáp nhóm${unread ? ` (${unread} tin mới)` : ""}`}>
           <MessageCircle size={24} aria-hidden="true" />

@@ -12,7 +12,7 @@
 //  GET  /api/nhom/<mã>/huong-dan          (tiêu đề x-nhom-k) mọi thứ cho người hướng dẫn
 //  POST /api/nhom/<mã>/quan-ly            { k, viec, … } cài đặt, duyệt bài nói tự do (+ nhận xét), Tạm nghỉ, PIN, xoá ID
 import {
-  HttpErr, xemNhom, vao, docTienDo, ghiTienDo, baoGuiNoi, docTin, guiTin, suaTin, docTep, guiNhan, xoaNhan, themHdr, xoaHdr, xemHuongDan, quanLy, docNhatKy,
+  HttpErr, xemNhom, vao, docTienDo, ghiTienDo, baoGuiNoi, docTin, guiTin, suaTin, docTep, guiNhan, xoaNhan, themHdr, xoaHdr, xemHuongDan, quanLy, docNhatKy, hoatDong,
 } from "@/lib/nhom.server";
 
 export const runtime = "nodejs";
@@ -52,6 +52,8 @@ export async function GET(req, { params }) {
         return ok(await xemHuongDan(ma, w.k || u.searchParams.get("k"), w.id, w.pin)); // #253: người lập nhóm = id + PIN
       case "nhat-ky": // #260 nhật ký người học: của tôi, hoặc người lập nhóm xem ?ai=
         return ok(await docNhatKy(ma, { id: w.id, pin: w.pin, k: w.k, ai: u.searchParams.get("ai") }));
+      case "hoat-dong": // #298 nhóm đang học
+        return ok(await hoatDong(ma, { id: w.id, pin: w.pin }));
       case "tep": {
         const t = await docTep(ma, act[1]);
         return new Response(t.data, { headers: { "Content-Type": t.mime, "Cache-Control": "private, max-age=86400" } });

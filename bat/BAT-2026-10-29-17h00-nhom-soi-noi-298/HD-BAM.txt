@@ -1,0 +1,11 @@
+VIEC #298 - Nhom dang hoc (tam ly tich cuc) + TD-Q1 + TD-Q3
+
+CHI BAM 1 TEP: 1-cap-nhat-web.bat  (gom ca #285, #290, #291 - khong can bam cac goi do)
+
+Thu:
+  - Trang cay nhom (may tinh): cot phai co the "Nhom dang hoc" (cham xanh nguoi dang hoc, viec moi nhat, nut Khen)
+    va khung Hoi dap mo san; trong Hoi dap co dong "Lan Anh dang lam Bai 1 - Trac nghiem 12/40" chen giua tin.
+    Nut "Hoat dong: bat/tat" o dau khung Hoi dap.
+  - Dien thoai: dai chay tren dau cay "2 nguoi dang hoc - ..."; tin moi hien xem truoc canh bong bong chat.
+  - Mat mang khi dang lam bai nhom: hien bao, cau van giu trong may; co mang tu luu (ke ca dong trang roi mo lai).
+  - Hoc rieng: trang Cua toi -> "Chuyen tien do sang may khac": Chep ma / Tai tep o may cu, dan ma / Mo tep o may moi.

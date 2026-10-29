@@ -8,6 +8,7 @@ import { Check, Users } from "lucide-react";
 import { myGroups } from "@/components/nhom/nhomClient"; // #267 nhóm học trên máy này
 import { hienTroThu, daAnTroThu } from "./TroThu"; // #269
 import KtShell from "./KtShell";
+import ChuyenTienDo from "./ChuyenTienDo"; // #298 TD-Q3
 import { TopicCard } from "./HomeKnowledge";
 import { loadUnitsIndex, readUnitProgress, unitSummary, unitDoneCount, unitPath, PARTS, partDone, seriesProgress } from "./unitData";
 
@@ -50,6 +51,7 @@ export default function MyPage() {
           </button>
         </p>
       )}
+      <ChuyenTienDo />
       {nhoms.length > 0 && (
         <>
           <div className="kt-row-head">

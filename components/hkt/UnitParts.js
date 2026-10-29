@@ -321,6 +321,8 @@ function Pill({ children, tone }) {
 export function PickPart({ unit, prog, update, player, openExplain, refButton, onNextPart }) {
   const qs = unit.questions;
   const pick = { ok: {}, bad: {}, wrong: 0, ...(prog.pick || {}) }; // #269 dữ liệu thiếu khoá (bản cũ / máy chủ) không làm sập trang
+  const [tuSang, setTuSang] = useTuSang(); // #285
+  const [dung, setDung] = useState(false);
   const okCount = Object.keys(pick.ok).length;
   const firstOpen = () => {
     for (let k = 0; k < qs.length; k++) if (!pick.ok[k]) return k;
@@ -362,7 +364,11 @@ export function PickPart({ unit, prog, update, player, openExplain, refButton, o
       update({ pick: { ...pick, bad: { ...pick.bad, [`${i}-${k}`]: 1 }, wrong: pick.wrong + 1, pos: i } });
     }
   };
-  const explain = () => openExplain(i);
+  const explain = () => {
+    setDung(true); // #285 đang đọc giải thích → không tự sang câu
+    openExplain(i);
+  };
+  useEffect(() => setDung(false), [i]);
   const keys = {
     1: () => onPick(0),
     2: () => onPick(1),
@@ -387,11 +393,11 @@ export function PickPart({ unit, prog, update, player, openExplain, refButton, o
           w.forEach((k) => delete ok[k]);
           Object.keys(bad).forEach((key) => w.includes(+key.split("-")[0]) && delete bad[key]);
           setReview(true);
-          update({ pick: { ok, bad, wrong: 0, pos: w[0] ?? 0 } });
+          update({ pick: { ok, bad, wrong: 0, pos: w[0] ?? 0, lu: Date.now() } }); // #290 lượt mới
         }}
         onRestart={() => {
           setReview(true);
-          update({ pick: { ok: {}, bad: {}, wrong: 0, pos: 0 } });
+          update({ pick: { ok: {}, bad: {}, wrong: 0, pos: 0, lu: Date.now() } });
         }}
         onNextPart={onNextPart} nextLabel="Sang Nghe nói"
       />
@@ -468,11 +474,8 @@ export function PickPart({ unit, prog, update, player, openExplain, refButton, o
             <button type="button" className="hkt-btn" onClick={explain}>
               Giải thích
             </button>
-            {n !== null && (
-              <button type="button" className="hkt-btn hkt-btn--primary kt-dnext" onClick={() => go(n)}>
-                Câu tiếp <ArrowRight size={16} aria-hidden="true" />
-              </button>
-            )}
+            {n !== null && <NextBtn onGo={() => go(n)} auto={tuSang} dung={dung} resetKey={i} />}
+            <TuSangChip on={tuSang} setOn={setTuSang} />
           </div>
         ) : (
           <Status fb={badHere ? { tone: "bad", text: "Chưa đúng — chọn lại." } : null} />
@@ -502,7 +505,7 @@ export function PickPart({ unit, prog, update, player, openExplain, refButton, o
               type="button"
               className="hkt-link"
               onClick={() => {
-                update({ pick: { ok: {}, bad: {}, wrong: 0, pos: 0 } });
+                update({ pick: { ok: {}, bad: {}, wrong: 0, pos: 0, lu: Date.now() } });
                 setGridOpen(false);
               }}
             >
@@ -738,6 +741,14 @@ const SHOW_MODES = [
 ];
 function useDrillShow() {
   const [show, setShow] = useStoredState(KT_STORAGE.drillShow, "none");
+  // #285 (LB-Q2): điện thoại chưa chọn lần nào → mặc định "Cả hai" (đọc trên màn hình); ai đổi thì máy nhớ
+  useEffect(() => {
+    try {
+      if (window.localStorage.getItem(KT_STORAGE.drillShow) === null && window.matchMedia?.("(pointer: coarse)").matches) setShow("qa");
+    } catch {
+      /* bỏ qua */
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const v = SHOW_MODES.some(([k]) => k === show) ? show : "none";
   return { show: v, setShow, showQ: v === "q" || v === "qa", showA: v === "a" || v === "qa" };
 }
@@ -782,6 +793,40 @@ function PhoneTip({ show, setShow }) {
     </div>
   );
 }
+// #285 (LB-Q1): trả lời ĐÚNG → tự sang câu sau 3 giây (thấy đếm ngược, bấm là sang ngay); sai thì dừng để đọc giải thích.
+// Công tắc "Tự sang câu" nhớ trên máy; bấm "Giải thích" thì dừng đếm.
+function useTuSang() {
+  const [on, setOn] = useStoredState("hkt.tuSangCau", true);
+  return [on !== false, (v) => setOn(v)];
+}
+function NextBtn({ onGo, auto, dung, label = "Câu tiếp", resetKey }) {
+  const [n, setN] = useState(3);
+  const goRef = useRef(onGo);
+  goRef.current = onGo;
+  const chay = auto && !dung;
+  useEffect(() => {
+    setN(3);
+    if (!chay) return undefined;
+    const t = setInterval(() => setN((x) => x - 1), 1000);
+    return () => clearInterval(t);
+  }, [chay, resetKey]);
+  useEffect(() => {
+    if (chay && n <= 0) goRef.current();
+  }, [n, chay]);
+  return (
+    <button type="button" className="hkt-btn hkt-btn--primary kt-dnext" onClick={onGo}>
+      {label}
+      {chay && n > 0 ? <b className="kt-dem"> {n}</b> : null} <ArrowRight size={16} aria-hidden="true" />
+    </button>
+  );
+}
+function TuSangChip({ on, setOn }) {
+  return (
+    <button type="button" className={`kt-tusang ${on ? "is-on" : ""}`} onClick={() => setOn(!on)} aria-pressed={on} title="Trả lời đúng thì tự sang câu sau 3 giây">
+      Tự sang câu: {on ? "Bật" : "Tắt"}
+    </button>
+  );
+}
 function Status({ fb }) {
   return (
     <div className={`kt-dstatus ${fb ? `is-${fb.tone}` : ""}`} role="status" aria-live="polite">
@@ -799,6 +844,8 @@ function Status({ fb }) {
 export function SayPart({ unit, prog, update, player, openExplain, refButton, onNextPart }) {
   const qs = unit.questions;
   const say = { pos: 0, ok: {}, wrong: 0, bad: {}, ...(prog.say || {}) }; // #269 an toàn khi thiếu khoá
+  const [tuSang, setTuSang] = useTuSang(); // #285
+  const [dung, setDung] = useState(false);
   const i = Math.min(say.pos || 0, qs.length - 1);
   const q = qs[i];
   // #073: thứ tự câu (mặc định 1→40; bấm "Đảo" để trộn). say.pos vẫn là số thứ tự câu hỏi gốc.
@@ -853,6 +900,7 @@ export function SayPart({ unit, prog, update, player, openExplain, refButton, on
     }
   };
   const solvedKey = solved ? say.ok[i] - 1 : null;
+  useEffect(() => setDung(false), [i]); // #285
   const n = nextOpen();
   const keys = {
     q: () => player.play(`sy-q-${i}`, q.q),
@@ -881,11 +929,11 @@ export function SayPart({ unit, prog, update, player, openExplain, refButton, on
             delete miss[k];
           });
           setReview(true);
-          update({ say: { ...say, ok, bad, miss, wrong: 0, unclear: 0, pos: w[0] ?? 0 } });
+          update({ say: { ...say, ok, bad, miss, wrong: 0, unclear: 0, pos: w[0] ?? 0, lu: Date.now() } }); // #290
         }}
         onRestart={() => {
           setReview(true);
-          update({ say: { pos: 0, ok: {}, wrong: 0, order: say.order } }); // làm lại: xoá cả lượt nói (reads)
+          update({ say: { pos: 0, ok: {}, wrong: 0, order: say.order, lu: Date.now() } }); // làm lại: xoá cả lượt nói (reads)
         }}
         onNextPart={onNextPart} nextLabel="Sang True or false"
       />
@@ -927,7 +975,6 @@ export function SayPart({ unit, prog, update, player, openExplain, refButton, on
           Nghe câu hỏi
         </Listen>
         <ShowSeg show={show} setShow={setShow} />
-        <PhoneTip show={show} setShow={setShow} />
         {solved || showQ ? (
           <div className="hkt-u-reveal">
             <p className="hkt-u-qen" lang="en">{q.q}</p>
@@ -974,14 +1021,11 @@ export function SayPart({ unit, prog, update, player, openExplain, refButton, on
             <span className="kt-dmsg">
               <Check size={18} aria-hidden="true" /> Đúng — đáp án {solvedKey + 1}.
             </span>
-            <button type="button" className="hkt-btn" onClick={() => openExplain(i)}>
+            <button type="button" className="hkt-btn" onClick={() => { setDung(true); openExplain(i); }}>
               Giải thích
             </button>
-            {n !== null && (
-              <button type="button" className="hkt-btn hkt-btn--primary kt-dnext" onClick={() => go(n)}>
-                Câu tiếp <ArrowRight size={16} aria-hidden="true" />
-              </button>
-            )}
+            {n !== null && <NextBtn onGo={() => go(n)} auto={tuSang} dung={dung} resetKey={i} />}
+            <TuSangChip on={tuSang} setOn={setTuSang} />
           </div>
         ) : (
           <>
@@ -1011,6 +1055,9 @@ export function TrueFalsePart({ unit, prog, update, player, openExplain, refButt
   const [fb, setFb] = useState(null);
   const { show, setShow, showQ, showA } = useDrillShow(); // #229
   const grp = useNhom(); // #230
+  const [tuSang, setTuSang] = useTuSang(); // #285
+  const [dung, setDung] = useState(false);
+  useEffect(() => setDung(false), [pos]);
   useEffect(() => { grp?.setCau?.(it?.i ?? 0); }, [it?.i]); // eslint-disable-line react-hooks/exhaustive-deps
   const stageRef = useStageTop(`${pos}-${qa?.runs}`);
   useEffect(() => {
@@ -1043,7 +1090,7 @@ export function TrueFalsePart({ unit, prog, update, player, openExplain, refButt
       // #160: báo cáo cuối phần (thay cho bảng kết quả ngắn)
       <PartReport
         kind="tf" unit={unit} prog={prog} player={player} openExplain={openExplain}
-        onRestart={() => update({ qa: { ...newQaRun(qs.length), runs: (qa.runs || 1) + 1 } })}
+        onRestart={() => update({ qa: { ...newQaRun(qs.length), runs: (qa.runs || 1) + 1, lu: Date.now() } })}
         restartLabel="Làm lại (trộn mới)"
         overall={results}
         onNextPart={onNextPart} nextLabel="Sang bài tiếp"
@@ -1117,18 +1164,16 @@ export function TrueFalsePart({ unit, prog, update, player, openExplain, refButt
             <span className="kt-dmsg">
               {doneHere.right ? "Chính xác! +1" : "Chưa đúng −1"} · Câu này là <b>{it.truth ? "TRUE" : "FALSE"}</b>
             </span>
-            <button type="button" className="hkt-btn" onClick={() => openExplain(it.i)}>
+            <button type="button" className="hkt-btn" onClick={() => { setDung(true); openExplain(it.i); }}>
               Giải thích
             </button>
-            <button type="button" className="hkt-btn hkt-btn--primary kt-dnext" onClick={next}>
-              Tiếp <ArrowRight size={16} aria-hidden="true" />
-            </button>
+            {/* #285: đúng → tự sang câu sau 3 giây; sai → dừng để xem đáp án đúng */}
+            <NextBtn onGo={next} auto={tuSang && doneHere.right} dung={dung} label="Tiếp" resetKey={pos} />
+            <TuSangChip on={tuSang} setOn={setTuSang} />
           </div>
         ) : (
-          <>
-            <Status fb={fb} />
-            <AnswerBox onSubmit={onSubmit} placeholder="Gõ true hoặc false…" hint="Bấm nút, hoặc nói “true” / “false”." compact />
-          </>
+          // #285 (LB-Q2): True or false chỉ chọn bằng tay (bỏ ô Nói / Gõ)
+          <Status fb={fb} />
         )}
         <KeyHint>Phím tắt: Q nghe câu hỏi · A nghe câu trả lời · T true · F false · V tiếng Việt (khi đã chọn) · Enter tiếp</KeyHint>
       </div>

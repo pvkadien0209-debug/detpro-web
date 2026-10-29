@@ -1,6 +1,7 @@
 // SP08 · U3 — Dữ liệu "bài theo người nghe" (bài viết + 40 câu). JSON tĩnh trong public/jsonData/units,
 // dựng bằng DetPro/noi-dung/soan/build_units.py. Có cache trong phiên.
 import { loadCatalog } from "./knowledgeData";
+import { gopTienDo } from "./nhomRules"; // #291 học riêng: gộp theo từng câu giữa các thẻ
 
 const base = () => `/jsonData/units`;
 const cache = new Map();
@@ -113,7 +114,9 @@ export function readUnitProgress(audience, slug) {
 }
 export function writeUnitProgress(audience, slug, p) {
   try {
-    window.localStorage.setItem(unitKey(audience, slug), JSON.stringify({ ...p, updatedAt: Date.now() }));
+    // #291 hai thẻ cùng mở một bài: gộp với bản đang lưu (thẻ kia vừa ghi) thay vì ghi đè
+    const n = gopTienDo(readUnitProgress(audience, slug), p);
+    window.localStorage.setItem(unitKey(audience, slug), JSON.stringify({ ...n, updatedAt: Date.now() }));
   } catch {
     /* bỏ qua */
   }

@@ -42,7 +42,7 @@ export default function NhomTao() {
   const [myId, setMyId] = useState("");
   const [myPin, setMyPin] = useState("");
   const [quiz, setQuiz] = useState(40);
-  const [say, setSay] = useState(40);
+  const [say, setSay] = useState(30); // #285 LB-Q3
   const [tf, setTf] = useState("xong");
   const [han, setHan] = useState(HAN_MAC_DINH);
   const [nhac, setNhac] = useState(NHAC_MAC_DINH);

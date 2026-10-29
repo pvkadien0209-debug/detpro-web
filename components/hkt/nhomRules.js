@@ -5,8 +5,8 @@
 export const PART_KEYS = ["", "info", "quiz", "listen-speak", "true-or-false"];
 export const PART_SHORT = { "": "Bài viết", info: "Bảng", quiz: "Trắc nghiệm", "listen-speak": "Nghe nói", "true-or-false": "True/False" };
 
-/** Ngưỡng mặc định (4a): Trắc nghiệm 40/40, Nghe nói 40/40, True or false làm xong lượt. */
-export const NGUONG_MAC_DINH = { quiz: 40, "listen-speak": 40, tf: "xong" };
+/** Ngưỡng mặc định (4a): Trắc nghiệm 40/40, Nghe nói 30/40 (#285), True or false làm xong lượt. */
+export const NGUONG_MAC_DINH = { quiz: 40, "listen-speak": 30, tf: "xong" }; // #285 (LB-Q3): Nghe nói 30/40 cho nhóm mới (gõ vẫn tính); nhóm cũ giữ ngưỡng đã lưu
 export const HAN_MAC_DINH = 48; // giờ, 0 = tắt
 export const NHAC_MAC_DINH = 8; // giờ, 0 = tắt
 export const TOI_DA = 8; // học viên mỗi nhóm (NH-Q2: 2–8)
@@ -196,3 +196,78 @@ export const PART_TIP = {
   "listen-speak": "Nghe câu hỏi, nói lại đáp án đúng",
   "true-or-false": "80 câu đúng / sai, luyện phản xạ",
 };
+
+// ---------- #290 Đợt 3: gộp tiến độ theo TỪNG CÂU (hai máy / hai tab cùng làm một bài không ghi đè nhau) ----------
+// Mỗi phần luyện có "lượt" lu (0 = lượt đầu; bấm Làm lại / Làm lại câu sai → lu = thời điểm bấm).
+// Cùng lượt → cộng dồn các câu đã làm của cả hai bản; khác lượt → lượt mới hơn thắng (xoá có chủ ý vẫn giữ).
+const luOf = (x) => +x?.lu || 0;
+const nKey = (o) => Object.keys(o || {}).length;
+const gopMax = (a = {}, b = {}) => {
+  const o = { ...a };
+  for (const k in b) o[k] = Math.max(+o[k] || 0, +b[k] || 0);
+  return o;
+};
+const sameIt = (x, y) => !!x && !!y && x.i === y.i && x.truth === y.truth && x.cand === y.cand;
+
+function gopQa(cu, moi) {
+  // bản chính = bản mới gửi lên; trừ khi hai bản khác dãy câu mà bản cũ làm được nhiều hơn (máy kia lỡ tạo lượt mới)
+  const lech = Object.keys(cu.done || {}).some((k) => !sameIt(cu.items?.[k], moi.items?.[k]));
+  const [base, other] = lech && nKey(cu.done) > nKey(moi.done) ? [cu, moi] : [moi, cu];
+  const done = { ...(base.done || {}) };
+  let pt = 0;
+  let them = 0;
+  for (const k in other.done || {})
+    if (!(k in done) && sameIt(base.items?.[k], other.items?.[k])) {
+      done[k] = other.done[k];
+      pt += other.done[k]?.right ? 1 : -1;
+      them++;
+    }
+  if (!them) return base;
+  const o = { ...base, done };
+  if (typeof base.d2pt === "number") o.d2pt = base.d2pt + pt;
+  if (typeof base.d2n === "number") o.d2n = base.d2n + them;
+  if (base.items && nKey(done) >= base.items.length) o.finished = true;
+  return o;
+}
+
+function gopPhan(cu, moi, key) {
+  if (!cu || typeof cu !== "object") return moi;
+  if (!moi || typeof moi !== "object") return cu;
+  if (luOf(cu) !== luOf(moi)) return luOf(moi) > luOf(cu) ? moi : cu;
+  if (key === "qa") return gopQa(cu, moi);
+  const o = { ...cu, ...moi, ok: { ...(cu.ok || {}), ...(moi.ok || {}) }, wrong: Math.max(+cu.wrong || 0, +moi.wrong || 0) };
+  if (key === "pick") o.bad = { ...(cu.bad || {}), ...(moi.bad || {}) };
+  else {
+    o.bad = gopMax(cu.bad, moi.bad);
+    o.miss = gopMax(cu.miss, moi.miss);
+    o.said = { ...(cu.said || {}), ...(moi.said || {}) };
+    o.unclear = Math.max(+cu.unclear || 0, +moi.unclear || 0);
+    if (cu.reads || moi.reads) o.reads = (moi.reads?.length || 0) >= (cu.reads?.length || 0) ? moi.reads : cu.reads;
+  }
+  return o;
+}
+
+/** Gộp tiến độ một bài: cu = bản đang lưu, moi = bản vừa gửi. Mốc xong / đã xem không bao giờ mất (#263). */
+export function gopTienDo(cu, moi) {
+  if (!cu || typeof cu !== "object") return moi;
+  if (!moi || typeof moi !== "object") return cu;
+  const o = { ...cu, ...moi, xong: { ...(cu.xong || {}), ...(moi.xong || {}) }, seen: { ...(cu.seen || {}), ...(moi.seen || {}) } };
+  for (const k of ["pick", "say", "qa"]) if (cu[k] || moi[k]) o[k] = gopPhan(cu[k], moi[k], k);
+  return o;
+}
+
+// ---------- #300 Chuỗi ngày học + tổng kết tối (giờ Việt Nam) ----------
+export const ngayVN = (t = Date.now()) => new Date(+new Date(t) + 7 * 3600e3).toISOString().slice(0, 10);
+export const gioVN = (t = Date.now()) => new Date(+new Date(t) + 7 * 3600e3).getUTCHours();
+export const ngayTruoc = (d, n = 1) => new Date(Date.parse(`${d}T00:00:00Z`) - n * 864e5).toISOString().slice(0, 10);
+/** Số ngày học liên tục tính tới ngày d (hôm nay chưa học thì tính tới hôm qua — chuỗi vẫn còn giữ được). */
+export function chuoiNgay(hocNgay, d = ngayVN()) {
+  const h = hocNgay || {};
+  let x = h[d] !== undefined ? d : ngayTruoc(d);
+  let n = 0;
+  while (h[x] !== undefined && n < 400) {
+    n++;
+    x = ngayTruoc(x);
+  }
+  return n;
+}

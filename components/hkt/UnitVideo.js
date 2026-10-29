@@ -42,7 +42,13 @@ export const loadYoutube = () =>
   (ytP ||= fetch("/videos/dp/youtube.json", { cache: "no-store" })
     .then((r) => (r.ok ? r.json() : {}))
     .catch(() => ({})));
-export const ytReady = (row) => (row?.id && (!row.at || Date.parse(row.at) <= Date.now()) ? row.id : null);
+// #290 SO-Q12: video "Không công khai" (cheDo khong-cong-khai) và "Công khai" phát được ngay; "riêng tư" (hẹn giờ) chưa phát → dùng Drive.
+// Dòng cũ không có cheDo → giữ luật cũ: tới giờ `at` mới phát.
+export const ytReady = (row) => {
+  if (!row?.id || row.cheDo === "rieng-tu") return null;
+  if (row.cheDo === "khong-cong-khai" || row.cheDo === "cong-khai") return row.id;
+  return !row.at || Date.parse(row.at) <= Date.now() ? row.id : null;
+};
 export const ytThumb = (id) => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
 
 // #241: tập hợp bài ĐÃ CÓ VIDEO (Drive <slug>--w01.mp4 hoặc dòng manifest) → tick xanh ở thẻ chủ đề, trang chủ đề, mục lục

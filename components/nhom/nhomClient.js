@@ -117,3 +117,40 @@ export const tepUrl = (ma, tep) => `/api/nhom/${ma}/tep/${tep}`;
 /** Ngữ cảnh nhóm cho trang bài: null khi học riêng. */
 export const NhomCtx = createContext(null);
 export const useNhom = () => useContext(NhomCtx);
+
+// ---------- #298 (TD-Q1) Hàng chờ lưu tiến độ trong máy: mất mạng / đóng trang vẫn giữ, lần sau tự gửi lại ----------
+// Gửi lại bản cũ an toàn vì máy chủ gộp theo từng câu (#290).
+const choKey = (ma, id) => `dp.nhom.cho.${ma}/${id}`;
+export function docCho(ma, id) {
+  try {
+    const q = JSON.parse(window.localStorage.getItem(choKey(ma, id)) || "{}");
+    return q && typeof q === "object" ? q : {};
+  } catch {
+    return {};
+  }
+}
+export function ghiCho(ma, id, bai, prog) {
+  try {
+    const q = docCho(ma, id);
+    if (prog) q[bai] = prog;
+    else delete q[bai];
+    if (Object.keys(q).length) window.localStorage.setItem(choKey(ma, id), JSON.stringify(q));
+    else window.localStorage.removeItem(choKey(ma, id));
+  } catch {
+    /* máy đầy bộ nhớ → vẫn còn hàng chờ trong trang */
+  }
+}
+/** Gửi hết hàng chờ còn trong máy (trang cây gọi khi mở). Trả số bài đã gửi. */
+export async function guiCho(ma, id) {
+  let n = 0;
+  for (const [bai, prog] of Object.entries(docCho(ma, id))) {
+    try {
+      await api(`${ma}/tien-do`, { id, body: { bai, prog } });
+      ghiCho(ma, id, bai, null);
+      n++;
+    } catch (e) {
+      if (e.status && e.status < 500) ghiCho(ma, id, bai, null); // bài khoá / sai dữ liệu → bỏ, không gửi mãi
+    }
+  }
+  return n;
+}

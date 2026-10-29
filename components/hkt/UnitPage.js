@@ -12,7 +12,7 @@ import PartGuide from "./PartGuide"; // #231 hướng dẫn riêng từng phần
 // #230 Học cùng: trong nhóm (/nhom/<mã>/<id>/…) tiến độ đọc/ghi trên máy chủ, đường dẫn giữ nhóm, ngưỡng nhóm, khoá chặng
 import { useNhom, inPopup } from "@/components/nhom/nhomClient";
 import { useBaoTroThu } from "./troThuCtx"; // #269
-import { partDoneNhom, unitGreenCount, unitGreen, baiMo, dieuKien, PHAN_TAP } from "./nhomRules";
+import { partDoneNhom, unitGreenCount, unitGreen, baiMo, dieuKien, PHAN_TAP, gopTienDo } from "./nhomRules";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import HomeVideos from "./HomeVideos"; // #253
 import { GUIDE_VIDEOS } from "./trangChuVideoData";
@@ -20,7 +20,7 @@ import { Link, useLocation, useNavigate, useParams } from "@/lib/router"; // Nex
 import { Helmet } from "@/lib/helmet"; // Next.js: tiêu đề/mô tả đặt ở trang máy chủ (generateMetadata)
 import { ChevronLeft, ChevronDown, Check, PanelRight, X, CircleCheck } from "lucide-react";
 import {
-  loadUnit, loadUnitsIndex, primeUnit, PARTS, unitPath, readUnitProgress, writeUnitProgress, unitSummary,
+  loadUnit, loadUnitsIndex, primeUnit, PARTS, unitPath, readUnitProgress, writeUnitProgress, unitKey, unitSummary,
   writeLastUnit, partDone, unitDoneCount, lowerFirst, levelOfQuestions } from "./unitData";
 import { useBodyClass } from "./KtShell";
 import { PART_ICONS, partMeta } from "./TopicCourse";
@@ -114,6 +114,28 @@ export default function UnitPage({ initialUnit = null }) {
     const p = readProg(audience, slug);
     if (p?.lastPart && PARTS.some((x) => x.key === p.lastPart)) navigate(P(audience, slug, p.lastPart), { replace: true });
   }, [audience, slug]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // #290 học nhóm: máy chủ gộp câu từ máy khác → cập nhật bài đang mở (không mất câu vừa làm ở đây)
+  useEffect(() => grp?.onSync?.((bai, p) => {
+    if (bai === `${audience}/${slug}` && progKey.current === bai) setProg((cur) => gopTienDo(p, cur));
+  }), [grp, audience, slug]);
+
+  // #291 học riêng: thẻ khác (cùng máy) vừa lưu bài này → gộp vào bài đang mở
+  useEffect(() => {
+    if (grp) return;
+    const k = unitKey(audience, slug);
+    const on = (e) => {
+      if (e.key !== k || !e.newValue || progKey.current !== `${audience}/${slug}`) return;
+      try {
+        const p = JSON.parse(e.newValue);
+        setProg((cur) => gopTienDo(p, cur));
+      } catch {
+        /* bỏ qua */
+      }
+    };
+    window.addEventListener("storage", on);
+    return () => window.removeEventListener("storage", on);
+  }, [grp, audience, slug]);
 
   const update = useCallback(
     (patch) => {
@@ -537,29 +559,32 @@ export default function UnitPage({ initialUnit = null }) {
 function XongMoc({ prog, part, ng, label, onXong, onNext }) {
   const dk = dieuKien(prog, part, ng);
   const at = prog?.xong?.[part];
-  return (
-    <div className={`nh-xong ${at ? "is-done" : dk.dat ? "is-ready" : ""}`} role="region" aria-label="Phần của nhóm">
-      <p className="nh-xong-dk">
-        {dk.dat && !at ? <b>Đạt rồi! Bấm để lưu cho nhóm →</b> : <><b>Điều kiện xong {label}:</b> {dk.text} {dk.dat ? "✅" : "⏳"}</>}
+  // #285 (LB-Q4): chưa đạt → MỘT dòng nhỏ (không chiếm màn); đạt mà chưa bấm → thanh "Đã xong phần này" dính đáy
+  if (at)
+    return (
+      <p className="nh-xong-mini is-done">
+        <Check size={14} aria-hidden="true" /> Đã xong phần này ({new Date(at).toLocaleString("vi-VN", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" })}) — đã lưu cho nhóm
+        {onNext && (
+          <button type="button" className="kt-linkbtn" onClick={onNext}>
+            Sang phần tiếp ›
+          </button>
+        )}
       </p>
-      {dk.tuXong ? (
-        <p className="nh-xong-ok">
-          <Check size={16} aria-hidden="true" /> Đã xong — đã lưu cho nhóm.
-        </p>
-      ) : at ? (
-        <p className="nh-xong-ok">
-          <Check size={16} aria-hidden="true" /> Đã xong phần này lúc {new Date(at).toLocaleString("vi-VN", { hour: "2-digit", minute: "2-digit", day: "2-digit", month: "2-digit" })} — đã lưu cho nhóm.
-        </p>
-      ) : (
-        <button type="button" className="kt-btn kt-btn--pri" disabled={!dk.dat} onClick={onXong} title={dk.dat ? "Lưu: tôi đã xong phần này" : "Chưa đạt điều kiện"}>
-          <Check size={16} aria-hidden="true" /> Đã xong phần này
-        </button>
-      )}
-      {(at || dk.tuXong) && onNext && (
-        <button type="button" className="kt-btn" onClick={onNext}>
-          Sang phần tiếp ›
-        </button>
-      )}
+    );
+  if (!dk.dat)
+    return (
+      <p className="nh-xong-mini" title={`Điều kiện xong ${label}`}>
+        Nhóm cần: {dk.text} ⏳
+      </p>
+    );
+  return (
+    <div className="nh-xong is-ready" role="region" aria-label="Phần của nhóm">
+      <p className="nh-xong-dk">
+        <b>Đạt rồi! Bấm để lưu cho nhóm →</b>
+      </p>
+      <button type="button" className="kt-btn kt-btn--pri" onClick={onXong} title="Lưu: tôi đã xong phần này">
+        <Check size={16} aria-hidden="true" /> Đã xong phần này
+      </button>
     </div>
   );
 }

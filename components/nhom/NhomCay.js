@@ -14,9 +14,10 @@ import PartGuide from "@/components/hkt/PartGuide";
 import NhatKyList from "./NhomNhatKy"; // #260
 import { PartPopup, QaPopup } from "./NhomPopup"; // #250 (NHA A3, D, E); bỏ "Hướng dẫn riêng" (NHA H)
 import { useNhomView, useNow, changInfo, baiLabel, Countdown, NhacBell, CopyBtn, origin, errText, NhomChat, NhanXet } from "./NhomShared";
-import { api, setPin, setMyId, rememberGroup } from "./nhomClient";
+import { api, setPin, setMyId, rememberGroup, guiCho } from "./nhomClient";
 import { useBaoTroThu } from "@/components/hkt/troThuCtx";
-import { PART_KEYS, PART_SHORT, baiKey, baiMo, baiMoCua, nhomPath, nhomUnitPath, unitGreen, dangDo, mocNho, phanDangLam } from "@/components/hkt/nhomRules";
+import { SoiNoiCard, SoiNoiStrip, useHoatDong, HuyHieuRow } from "./NhomSoiNoi"; // #298
+import { PART_KEYS, PART_SHORT, baiKey, baiMo, baiMoCua, nhomPath, nhomUnitPath, unitGreen, dangDo, mocNho, phanDangLam, fmtHan } from "@/components/hkt/nhomRules";
 
 const ago = (d, now) => {
   const s = Math.max(0, (now - new Date(d).getTime()) / 1000);
@@ -170,6 +171,29 @@ function Inner({ ma, id }) {
   const [qa, setQa] = useState(null); // #250 { u, k } — Hỏi đáp riêng một bài
   const [msg, setMsg] = useState("");
   const [busyR, setBusyR] = useState(false);
+  const hd = useHoatDong(ma, id); // #298 dòng việc của nhóm
+  // #298 TD-Q1: còn câu chưa lưu từ lần trước (mất mạng) → gửi lên rồi cập nhật cây
+  useEffect(() => {
+    guiCho(ma, id).then((n) => n && reload());
+  }, [ma, id]); // eslint-disable-line react-hooks/exhaustive-deps
+  // #298 màn rộng: Hỏi đáp mở sẵn cạnh cây (không cần bấm bong bóng)
+  const [rong, setRong] = useState(false);
+  useEffect(() => {
+    const q = window.matchMedia("(min-width: 961px)");
+    const on = () => setRong(q.matches);
+    on();
+    q.addEventListener("change", on);
+    return () => q.removeEventListener("change", on);
+  }, []);
+  // #285 (LB-Q4): bài mới mở → trưởng nhóm thấy dải "chép thông báo gửi Zalo" (nhớ đã báo tới bài nào trên máy)
+  const [daBaoMo, setDaBaoMo] = useState(() => {
+    try {
+      const v = localStorage.getItem(`dp.nhom.baoMo.${ma}`);
+      return v === null ? 0 : +v;
+    } catch {
+      return 0;
+    }
+  });
 
   const me = data?.members.find((m) => m.id === id);
   const nhom = data?.nhom;
@@ -223,6 +247,7 @@ function Inner({ ma, id }) {
   const toDo = (m) => curKey && m.trangThai === "hoc" && !(m.tom?.[curKey]?.g || []).every(Boolean) || (curKey && !m.tom?.[curKey]);
   const meNotDone = ci.u && me.trangThai === "hoc" && !(me.tom?.[curKey]?.g?.length === 5 && me.tom[curKey].g.every(Boolean));
   const slow = ci.u ? active.filter((m) => !(m.tom?.[curKey]?.g?.length === 5 && m.tom[curKey].g.every(Boolean))) : [];
+  const share = `${origin()}/nhom/${ma}`;
   const unitLink = (u, pk) => nhomUnitPath(ma, id, u.audience, u.slug, pk);
   const firstOpenPart = (u) => {
     // #267: chưa làm gì ở bài này → mở Bài viết trước; đã làm → phần bài tập chưa xong đầu tiên
@@ -231,13 +256,40 @@ function Inner({ ma, id }) {
     const j = PART_KEYS.findIndex((_, x) => !t?.g?.[x]);
     return PART_KEYS[j < 0 ? 0 : j];
   };
+  const chep = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      ta.remove();
+    }
+  };
+  // #285 (LB-Q4): giục = chép sẵn câu kèm link nhóm để dán Zalo + vẫn đăng vào Hỏi đáp
   const giuc = async (m) => {
+    const cau = `⏰ ${m.ten} ơi, vào làm ${baiLabel(ci.u, ci.ch)}: ${ci.u.title} nhé (đang: ${m.tom?.[curKey]?.d || "chưa bắt đầu"})${ci.dh ? ` — ${fmtHan(ci.dh.con)}` : ""}. Vào học: ${share}`;
+    await chep(cau);
     try {
       await api(`${ma}/tin`, { id, body: { chu: `⏰ ${me.ten} giục ${m.ten}: vào làm ${baiLabel(ci.u, ci.ch)} nhé — ${m.tom?.[curKey]?.d || "chưa bắt đầu"}!` } });
-      setMsg(`Đã giục ${m.ten} trong Hỏi đáp.`);
+      setMsg(`Đã chép câu giục ${m.ten} — dán vào Zalo. (Cũng đã đăng trong Hỏi đáp.)`);
     } catch (e) {
-      setMsg(errText(e));
+      setMsg(`Đã chép câu giục ${m.ten} — dán vào Zalo.`);
     }
+  };
+  const loiNhac = ci.u
+    ? `⏰ ${nhom.ten} — ${baiLabel(ci.u, ci.ch)}: ${ci.u.title}${ci.dh ? ` (${fmtHan(ci.dh.con)})` : ""}\nChưa xong: ${slow.map((m) => `${m.ten} (${m.tom?.[curKey]?.d || "chưa bắt đầu"})`).join(", ") || "không ai"}\nVào học: ${share}`
+    : "";
+  const thongBaoMo = ci.u ? `📢 ${nhom.ten}: ${baiLabel(ci.u, ci.ch)} đã mở — ${ci.u.title}${ci.dh ? ` (hạn: ${fmtHan(ci.dh.con)})` : ""}. Vào học: ${share}` : "";
+  const anBaoMo = () => {
+    try {
+      localStorage.setItem(`dp.nhom.baoMo.${ma}`, String(ci.ch));
+    } catch {
+      /* bỏ qua */
+    }
+    setDaBaoMo(ci.ch);
   };
   const baoGui = async (u) => {
     try {
@@ -248,7 +300,6 @@ function Inner({ ma, id }) {
       setMsg(errText(e));
     }
   };
-  const share = `${origin()}/nhom/${ma}`;
   const laChu = nhom.nguoiTaoId === id; // #253 trưởng nhóm: có thêm các tab quản lý
   const capNhat = async () => {
     setBusyR(true);
@@ -313,6 +364,19 @@ function Inner({ ma, id }) {
         </CopyBtn>
       </div>
 
+      {laChu && ci.u && ci.ch > daBaoMo && !ci.xong && (
+        <div className="nh-baomo" role="status">
+          <span>
+            📢 <b>{baiLabel(ci.u, ci.ch)}</b> vừa mở cho cả nhóm — báo mọi người qua Zalo:
+          </span>
+          <CopyBtn text={thongBaoMo} className="kt-btn kt-btn--pri">
+            Chép thông báo
+          </CopyBtn>
+          <button type="button" className="kt-linkbtn" onClick={anBaoMo}>
+            Đã báo, ẩn
+          </button>
+        </div>
+      )}
       <div className="nh-tabs" role="tablist">
         {[
           ["cay", TreeDeciduous, "Cây"],
@@ -341,10 +405,14 @@ function Inner({ ma, id }) {
             {data.members.map((m) => (
               <button key={m.id} type="button" className={view === m.id ? "is-on" : ""} onClick={() => openView(m.id)}>
                 {m.id === id ? `${m.ten} (tôi)` : m.ten}
+                {m.chuoi > 0 && <small className={`nh-lua ${m.homNay === null ? "is-cho" : ""}`} title={m.homNay === null ? `Chuỗi ${m.chuoi} ngày — hôm nay chưa học` : `Chuỗi ${m.chuoi} ngày học liên tục`}>🔥{m.chuoi}</small>}
+                {m.huyHieu?.length > 0 && <small className="nh-hh-n" title={`${m.huyHieu.length} huy hiệu`}>🏅{m.huyHieu.length}</small>}
                 {nhanCount(m.id) > 0 && <small className="nh-who-n">❤ {nhanCount(m.id)}</small>}
               </button>
             ))}
           </div>
+          <SoiNoiStrip id={id} members={data.members} hd={hd} />
+          {viewM && <HuyHieuRow m={viewM} la={viewM.id === id} />}
           <div className="nh-cay-grid">
             <NhomTree
               nhom={nhom}
@@ -362,6 +430,11 @@ function Inner({ ma, id }) {
               {!viewM && ci.u && (
                 <section className="nh-card">
                   <h2>Ai chưa xong {baiLabel(ci.u, ci.ch)}</h2>
+                  {laChu && slow.length > 0 && (
+                    <CopyBtn text={loiNhac} className="kt-btn nh-nhaczalo">
+                      Chép lời nhắc gửi Zalo
+                    </CopyBtn>
+                  )}
                   {slow.length ? (
                     <ul className="nh-slow">
                       {slow.map((m) => (
@@ -369,8 +442,8 @@ function Inner({ ma, id }) {
                           <span>
                             <b>{m.ten}</b> · {m.tom?.[curKey]?.d || "chưa bắt đầu"}
                           </span>
-                          {m.id !== id && !meNotDone && (
-                            <button type="button" className="nh-mini" onClick={() => giuc(m)}>
+                          {m.id !== id && (!meNotDone || laChu) && (
+                            <button type="button" className="nh-mini" onClick={() => giuc(m)} title="Chép câu giục kèm link nhóm để dán vào Zalo">
                               Giục bạn
                             </button>
                           )}
@@ -383,24 +456,15 @@ function Inner({ ma, id }) {
                 </section>
               )}
               {!viewM && <p className="kt-muted nh-hint">Bấm tên một người để xem thống kê và gửi lời nhắn, chọc nhau trên cây của họ.</p>}
-              <section className="nh-card">
-                <h2>Ai đang làm gì</h2>
-                <ul className="nh-doing">
-                  {data.members
-                    .filter((m) => m.dangO)
-                    .sort((a, b) => new Date(b.dangO.luc) - new Date(a.dangO.luc))
-                    .map((m) => {
-                      const k = nhom.chuoi.bai.findIndex((u) => baiKey(u) === m.dangO.bai);
-                      return (
-                        <li key={m.id}>
-                          <b>{m.ten}</b> {now - new Date(m.dangO.luc).getTime() < 90e3 ? "đang làm" : "làm"} {k >= 0 ? baiLabel(nhom.chuoi.bai[k], k) : ""} · {PART_SHORT[m.dangO.phan] ?? m.dangO.phan}
-                          {["quiz", "listen-speak", "true-or-false"].includes(m.dangO.phan) && m.tom?.[m.dangO.bai]?.c ? ` ${m.tom[m.dangO.bai].c[m.dangO.phan]}/${m.dangO.phan === "true-or-false" ? 80 : 40}` : ""}{" "}
-                          <small>({ago(m.dangO.luc, now)})</small>
-                        </li>
-                      );
-                    })}
-                </ul>
-              </section>
+              <SoiNoiCard ma={ma} id={id} me={me} members={data.members} hd={hd} />
+              {rong && (
+                <div className="nh-chat-side">
+                  <NhomChat ma={ma} who={{ id }} hd={hd} members={data.members} chatTat={nhom.chatTat} linkFor={(gan) => {
+                    const [aud, slug] = gan.bai.split("/");
+                    return nhomUnitPath(ma, id, aud, slug, gan.phan);
+                  }} />
+                </div>
+              )}
             </aside>
           </div>
         </div>
@@ -492,10 +556,12 @@ function Inner({ ma, id }) {
           onClose={() => { setQa(null); reload(); }}
         />
       )}
-      <NhomChat ma={ma} who={{ id }} floating chatTat={nhom.chatTat} linkFor={(gan) => {
-        const [aud, slug] = gan.bai.split("/");
-        return nhomUnitPath(ma, id, aud, slug, gan.phan);
-      }} />
+      {!(rong && tab === "cay") && (
+        <NhomChat ma={ma} who={{ id }} hd={hd} members={data.members} floating chatTat={nhom.chatTat} linkFor={(gan) => {
+          const [aud, slug] = gan.bai.split("/");
+          return nhomUnitPath(ma, id, aud, slug, gan.phan);
+        }} />
+      )}
     </div>
   );
 }
