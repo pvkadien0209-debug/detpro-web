@@ -60,36 +60,38 @@ export const GUIDES = {
     ],
   },
   nhom: {
-    ten: "Học cùng nhóm",
+    ten: "Nhóm học",
     video: "hd8", // #255 (trước: hd7)
     buoc: [
-      "Cây là đường đi của cả nhóm: mỗi bài 5 lá (5 phần) + 1 bông (bài nói tự do). Lá xanh đậm = cả nhóm xong.",
-      "Bài sau chỉ mở khi mọi người xong bài trước — đồng hồ đếm ngược và chuông nhắc giúp cả nhóm giữ nhịp.",
-      "Bấm tên một bạn: xem thống kê luyện tập, gửi icon / câu động viên hoặc chọc nhau trên cây của bạn ấy.",
-      "Bài nói tự do: nói những gì bạn nghĩ và nhớ, gửi qua kênh của nhóm, rồi bấm “Đã gửi bài nói” — người hướng dẫn duyệt thì bông xanh.",
-      "Lá đánh số 1–5: rê chuột xem mô tả, bấm vào là làm phần đó ngay trong cửa sổ nổi.",
-      "Nút tròn trên thân cây = Hỏi đáp riêng của bài đó (người hướng dẫn dặn dò ở đây). Hỏi đáp chung vẫn ở nút 💬.",
+      "Bấm nút xanh “Học tiếp” là vào đúng phần cần làm. Bài làm mở trong cửa sổ lớn; bấm ‹ hoặc nút Back để về cây.",
+      "Mỗi bài 5 lá: 2 lá ĐỌC (Bài viết, Bảng thông tin) xanh sẵn; 3 lá BÀI TẬP (Trắc nghiệm, Nghe nói, True or false) xanh khi bạn đạt điều kiện và bấm “Đã xong phần này”. Lá vàng = đạt rồi nhưng chưa bấm.",
+      "Bạn xong 5 phần của bài hiện tại → được làm trước 1 bài. Bài xa hơn mở khi cả nhóm xong.",
+      "Đồng hồ trên đầu trang = thời hạn của bài hiện tại cho cả nhóm.",
+      "Bấm tên một bạn: xem thống kê, gửi icon / câu động viên. “Ai đang làm gì” cho biết bạn bè đang ở câu nào — bấm “Cập nhật” để xem mới nhất.",
+      "Bông cuối cành = bài nói tự do: nói điều bạn nhớ, gửi qua kênh Zalo của nhóm rồi bấm “Đã gửi bài nói”.",
+      "Nút tròn trên thân cây = Hỏi đáp của bài đó. Hỏi đáp chung ở nút 💬.",
     ],
   },
   "huong-dan": {
-    ten: "Trang người hướng dẫn",
+    ten: "Trưởng nhóm",
     video: "hd9", // #255
     buoc: [
-      "Gửi link nhóm cho học viên (Zalo…). Link trang này là của riêng bạn — đừng gửi ai.",
-      "Tổng quan: cây cả nhóm, bấm tên một người để xem thống kê và nhắn lên cây. “Chép lời nhắc” để dán vào Zalo.",
-      "Bài nói tự do: học viên gửi audio qua kênh của bạn rồi bấm “Đã gửi” (ô vàng) → bạn nghe, ghi nhận xét, bấm Duyệt → xanh.",
-      "Dặn dò riêng cho lớp: đăng vào Hỏi đáp của từng bài (nút tròn trên thân cây) — link video, ghi âm hoặc lời dặn.",
-      "Bạn cũng học: ID học của bạn (tạo lúc mở lớp, có PIN) nằm trên cây như mọi người; bấm lá để làm ngay.",
-      "Học viên bỏ dở: chuyển “Tạm nghỉ” để nhóm đi tiếp. Quên PIN: đặt lại ở tab Học viên.",
-      "Cài đặt: ngưỡng qua phần, đếm ngược, tần suất nhắc — đổi lúc nào cũng được, áp từ chặng đang mở.",
+      "Gửi link nhóm (nút “Chép link nhóm”) cho mọi người qua Zalo. Ai mở link cũng chọn tên mình và gõ PIN — kể cả bạn.",
+      "Bạn học cùng nhóm như mọi người; thêm 3 tab: Duyệt bài nói · Học viên · Cài đặt nhóm.",
+      "Học viên: xem nhật ký từng người, đổi tên, đặt lại PIN khi ai quên, Tạm nghỉ người bỏ dở để nhóm đi tiếp.",
+      "Bài nói tự do: học viên gửi qua Zalo rồi bấm “Đã gửi” (bông vàng) → bạn nghe, ghi nhận xét, bấm Nhận → bông xanh.",
+      "Dặn dò riêng từng bài: viết vào Hỏi đáp của bài đó (nút tròn trên thân cây).",
+      "Cài đặt: điều kiện qua phần, thời hạn mỗi bài, nhắc — đổi lúc nào cũng được.",
     ],
   },
 };
 
 const KEY = (k) => `dp.guide.seen.${k || "bai-viet"}`;
+// #267 (anh chốt): chỉ hỏi "xem hướng dẫn?" MỘT lần trên mỗi máy — các phần sau chỉ còn nút "?"
+const DA_HOI = "dp.guide.daHoi";
 const seen = (k) => {
   try {
-    return !!localStorage.getItem(KEY(k));
+    return !!localStorage.getItem(DA_HOI) || !!localStorage.getItem(KEY(k));
   } catch {
     return true; // không đọc được bộ nhớ → không làm phiền
   }
@@ -97,6 +99,7 @@ const seen = (k) => {
 const markSeen = (k) => {
   try {
     localStorage.setItem(KEY(k), "1");
+    localStorage.setItem(DA_HOI, "1");
   } catch {
     /* bỏ qua */
   }
@@ -108,7 +111,8 @@ export default function PartGuide({ k, extra, className = "kt-guidebtn", label }
   const [mode, setMode] = useState(null); // null | "ask" | "open"
   const [all, setAll] = useState(false); // #250 (NHA A2): xem cả danh sách video ngay trong cửa sổ, không chuyển trang
   useEffect(() => {
-    setMode(g && !seen(k) ? "ask" : null);
+    const trongCuaSo = typeof window !== "undefined" && window.parent !== window; // #267 bài mở trong cửa sổ trên cây → cây đã hỏi rồi
+    setMode(g && !seen(k) && !trongCuaSo ? "ask" : null);
   }, [k]); // eslint-disable-line react-hooks/exhaustive-deps
   const turn = useAskTurn(`pg-${k}`, mode === "ask" || mode === "open", 5);
   if (!g) return null;
@@ -123,7 +127,7 @@ export default function PartGuide({ k, extra, className = "kt-guidebtn", label }
         <HelpCircle size={18} aria-hidden="true" />
         {label && <span>{label}</span>}
       </button>
-      {mode === "ask" && turn && (
+      {mode === "ask" && turn && !seen("__") && (
         <div className="kt-guideask" role="dialog" aria-label={`Hướng dẫn ${g.ten}`}>
           <p>
             Lần đầu vào <b>{g.ten}</b> — xem hướng dẫn chung (cách làm phần này)?

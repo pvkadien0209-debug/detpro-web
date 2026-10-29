@@ -1,11 +1,12 @@
 "use client";
-// #230 Học cùng — /nhom/tao?chu-de=<nhánh>/<chủ đề>: người hướng dẫn mở lớp (thiết kế mục 4a).
+// #230 Học cùng — /nhom/tao?chu-de=<nhánh>/<chủ đề>: trưởng nhóm mở lớp (thiết kế mục 4a).
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "@/lib/router";
 import { Users, Link2 } from "lucide-react";
 import KtShell from "@/components/hkt/KtShell";
 import { loadUnitsIndex, allTopics } from "@/components/hkt/unitData";
-import { api, saveK, rememberGroup, myGroups, loadK, setPin, setMyId } from "./nhomClient";
+// #267 (A1): đổi tên khi nhập — trước đây trùng tên biến trạng thái nên máy KHÔNG lưu PIN / ID người lập
+import { api, saveK, rememberGroup, myGroups, setPin as luuPin, setMyId as luuMyId } from "./nhomClient";
 import { CopyBtn, origin, errText } from "./NhomShared";
 import { HAN_MAC_DINH, NHAC_MAC_DINH, TOI_DA, nhomPath, idFromName } from "@/components/hkt/nhomRules";
 
@@ -37,7 +38,7 @@ export default function NhomTao() {
   const [topicKey, setTopicKey] = useState("");
   const [ten, setTen] = useState("");
   const [tenHD, setTenHD] = useState("");
-  // #250 (NHA A1): người lập nhóm cũng học → tên + ID + PIN bắt buộc
+  // #250 (NHA A1): trưởng nhóm cũng học → tên + ID + PIN bắt buộc
   const [myId, setMyId] = useState("");
   const [myPin, setMyPin] = useState("");
   const [quiz, setQuiz] = useState(40);
@@ -46,7 +47,7 @@ export default function NhomTao() {
   const [han, setHan] = useState(HAN_MAC_DINH);
   const [nhac, setNhac] = useState(NHAC_MAC_DINH);
   const [kenh, setKenh] = useState("");
-  const [pin, setPin] = useState(false);
+  const [suaId, setSuaId] = useState(false);
   const [toiDa, setToiDa] = useState(TOI_DA);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
@@ -55,7 +56,7 @@ export default function NhomTao() {
 
   useEffect(() => {
     setTopicKey(new URLSearchParams(window.location.search).get("chu-de") || "");
-    setMine(myGroups().filter((g) => loadK(g.ma)));
+    setMine(myGroups());
     loadUnitsIndex().then(setIdx).catch(() => setErr("Không tải được danh sách chủ đề"));
   }, []);
   const topics = useMemo(() => allTopics(idx).filter((t) => t.units?.length), [idx]);
@@ -73,14 +74,14 @@ export default function NhomTao() {
       const r = await api("", {
         body: {
           topic: topicKey, ten: ten || topic.title.vi, tenHuongDan: tenHD,
-          nguong: { quiz, "listen-speak": say, tf }, hanChangGio: han, nhacGio: nhac, kenhGuiBai: kenh, batBuocPin: pin, toiDa,
+          nguong: { quiz, "listen-speak": say, tf }, hanChangGio: han, nhacGio: nhac, kenhGuiBai: kenh, batBuocPin: true, toiDa,
           nguoiTao: { id: myId, ten: tenHD.trim(), pin: myPin },
         },
       });
       saveK(r.ma, r.k);
-      setPin(r.ma, r.id, myPin);
-      setMyId(r.ma, r.id);
-      rememberGroup(r.ma, ten || topic.title.vi);
+      luuPin(r.ma, r.id, myPin);
+      luuMyId(r.ma, r.id);
+      rememberGroup(r.ma, ten || topic.title.vi, r.id);
       setDone(r);
     } catch (x) {
       setErr(errText(x));
@@ -94,24 +95,24 @@ export default function NhomTao() {
     return (
       <KtShell active="topics">
         <div className="nh-wrap">
-          <h1 className="kt-h1">Đã mở lớp {done.ma}</h1>
+          <h1 className="kt-h1">Đã mở nhóm học {done.ma}</h1>
           <div className="nh-card">
             <h2>
-              <Link2 size={18} aria-hidden="true" /> Link nhóm — gửi cho học viên (Zalo…)
+              <Link2 size={18} aria-hidden="true" /> 1. Gửi link nhóm cho mọi người (Zalo…)
             </h2>
             <p className="nh-link">{hv}</p>
             <CopyBtn text={`Vào nhóm học "${ten || topic.title.vi}" trên DetPro: ${hv}`} className="kt-btn kt-btn--pri">
               Chép lời mời + link
             </CopyBtn>
           </div>
+          <p className="kt-muted">Người nhận mở link → bấm “Tôi là người mới” → gõ tên + đặt PIN 4 số là vào học. Lần sau máy tự nhớ.</p>
           <div className="nh-card">
-            <h2>Bạn cũng là người học</h2>
+            <h2>2. Vào nhóm của bạn</h2>
             <p className="kt-muted">
-              {/* #253: người lập nhóm cũng vào bằng link chung, chọn tên + PIN; máy này đã nhớ nên vào thẳng */}
-              ID của bạn: <b className="nh-code">{done.id}</b> — vào bằng link nhóm như mọi người, chọn tên mình và gõ PIN (máy này đã nhớ, không cần gõ lại). Trong nhóm bạn có thêm các tab Duyệt bài nói · Học viên · Cài đặt nhóm.
+              Bạn là <b>trưởng nhóm</b> và cũng học cùng (ID <b className="nh-code">{done.id}</b>). Máy này đã nhớ bạn. Sang máy khác: mở link nhóm, bấm tên bạn, gõ PIN.
             </p>
             <Link className="kt-btn kt-btn--pri" to={nhomPath(done.ma, done.id)}>
-              Vào học với ID {done.id}
+              Vào nhóm
             </Link>
           </div>
         </div>
@@ -123,12 +124,12 @@ export default function NhomTao() {
     <KtShell active="topics">
       <form className="nh-wrap" onSubmit={submit}>
         <p className="kt-kicker">
-          <Users size={16} aria-hidden="true" /> Học cùng · có người hướng dẫn
+          <Users size={16} aria-hidden="true" /> Nhóm học
         </p>
-        <h1 className="kt-h1">Mở lớp hướng dẫn</h1>
+        <h1 className="kt-h1">Mở nhóm học</h1>
         {mine.length > 0 && (
           <p className="nh-mine">
-            Lớp bạn đã mở trên máy này:{" "}
+            Nhóm của bạn trên máy này:{" "}
             {mine.map((g, i) => (
               <React.Fragment key={g.ma}>
                 {i > 0 && " · "}
@@ -140,7 +141,7 @@ export default function NhomTao() {
           </p>
         )}
         <p className="kt-lead">
-          Một lớp học <b>một chuỗi bài</b>. Học viên mở link bạn gửi, chọn ID của mình (không cần tài khoản). <b>Bài sau chỉ mở khi cả lớp xong 5 phần của bài trước.</b>
+          Một nhóm học <b>một chuỗi bài</b>, không cần tài khoản: bạn gửi link, mỗi người chọn tên + PIN. Ai xong bài hiện tại được làm trước 1 bài; bài xa hơn mở khi cả nhóm xong.
         </p>
 
         <div className="nh-card">
@@ -165,13 +166,13 @@ export default function NhomTao() {
             </ol>
           )}
           <label className="nh-field">
-            <span className="nh-flabel">Tên lớp</span>
-            <input value={ten} maxLength={80} placeholder={topic?.title.vi || "Ví dụ: Lớp phỏng vấn 12A"} onChange={(e) => setTen(e.target.value)} />
+            <span className="nh-flabel">Tên nhóm (không bắt buộc)</span>
+            <input value={ten} maxLength={80} placeholder={topic?.title.vi || "Ví dụ: Nhóm phỏng vấn 12A"} onChange={(e) => setTen(e.target.value)} />
           </label>
         </div>
 
         <div className="nh-card">
-          <h2>Bạn — người lập nhóm (vừa hướng dẫn, vừa học)</h2>
+          <h2>Bạn — trưởng nhóm (vừa dẫn dắt, vừa học)</h2>
           <label className="nh-field">
             <span className="nh-flabel">Tên của bạn (hiện trên cây và trong Hỏi đáp) *</span>
             <input
@@ -185,18 +186,36 @@ export default function NhomTao() {
               }}
             />
           </label>
-          <div className="nh-row">
+          {suaId ? (
             <label className="nh-field">
-              <span className="nh-flabel">ID học của bạn *</span>
+              <span className="nh-flabel">ID của bạn</span>
               <input value={myId} maxLength={20} required placeholder="co-ha" onChange={(e) => setMyId(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))} />
             </label>
-            <label className="nh-field">
-              <span className="nh-flabel">PIN 4 số *</span>
-              <input inputMode="numeric" maxLength={4} required value={myPin} placeholder="••••" onChange={(e) => setMyPin(e.target.value.replace(/\D/g, ""))} />
-            </label>
-          </div>
-          <p className="kt-muted">Chỉ người lập nhóm duyệt bài nói tự do và đổi cài đặt. PIN giữ ID học của bạn — học viên không vào thay được.</p>
+          ) : (
+            myId && (
+              <p className="kt-muted nh-idline">
+                ID: <b>{myId}</b>{" "}
+                <button type="button" className="kt-linkbtn" onClick={() => setSuaId(true)}>
+                  đổi
+                </button>
+              </p>
+            )
+          )}
+          <label className="nh-field">
+            <span className="nh-flabel">PIN 4 số * (hiện ••••, an toàn khi chia sẻ màn hình)</span>
+            <input type="password" inputMode="numeric" autoComplete="new-password" maxLength={4} required value={myPin} placeholder="••••" onChange={(e) => setMyPin(e.target.value.replace(/\D/g, ""))} />
+          </label>
+          <label className="nh-field">
+            <span className="nh-flabel">Kênh nhận bài nói tự do (link nhóm Zalo…) — không bắt buộc</span>
+            <input type="url" value={kenh} placeholder="https://zalo.me/g/…" onChange={(e) => setKenh(e.target.value)} />
+          </label>
         </div>
+
+        {/* #267: cài đặt khác thu vào "Tuỳ chỉnh" — đa số dùng mặc định */}
+        <details className="nh-card nh-tuy">
+          <summary>
+            <b>Tuỳ chỉnh (không bắt buộc)</b> — điều kiện qua phần, thời hạn mỗi bài, nhắc, số người
+          </summary>
 
         <div className="nh-card">
           <h2>Qua phần khi…</h2>
@@ -207,26 +226,19 @@ export default function NhomTao() {
 
         <div className="nh-card">
           <h2>Giữ nhịp</h2>
-          <Choice label="Đếm ngược mỗi chặng (tính từ lúc chặng mở)" value={han} onChange={setHan} options={[[12, "12 giờ"], [24, "24 giờ"], [48, "48 giờ"], [72, "72 giờ"], [0, "Tắt"]]} custom={{ label: "Số khác", min: 1, max: 720, unit: "giờ", ph: "36" }} />
+          <Choice label="Thời hạn mỗi bài cho cả nhóm (tính từ lúc bài mở)" value={han} onChange={setHan} options={[[12, "12 giờ"], [24, "24 giờ"], [48, "48 giờ"], [72, "72 giờ"], [0, "Tắt"]]} custom={{ label: "Số khác", min: 1, max: 720, unit: "giờ", ph: "36" }} />
           <Choice label="Nhắc hối thúc người chưa xong" value={nhac} onChange={setNhac} options={[[2, "Mỗi 2 giờ"], [4, "4 giờ"], [8, "8 giờ"], [12, "12 giờ"], [24, "24 giờ"], [0, "Tắt"]]} custom={{ label: "Mỗi", min: 1, max: 168, unit: "giờ", ph: "6" }} />
         </div>
 
-        <div className="nh-card">
-          <h2>Bài nói tự do & vào lớp</h2>
-          <label className="nh-field">
-            <span className="nh-flabel">Kênh gửi bài nói tự do (link nhóm Zalo, Messenger, Drive…)</span>
-            <input type="url" value={kenh} placeholder="https://zalo.me/g/…" onChange={(e) => setKenh(e.target.value)} />
-          </label>
-          <Choice label="PIN" value={pin} onChange={setPin} options={[[false, "Không bắt buộc"], [true, "Bắt buộc mọi ID"]]} />
-          <Choice label="Số học viên tối đa" value={toiDa} onChange={setToiDa} options={[[4, "4"], [8, "8"], [15, "15"], [30, "30"]]} />
-        </div>
+          <Choice label="Số người tối đa" value={toiDa} onChange={setToiDa} options={[[4, "4"], [8, "8"], [15, "15"], [30, "30"]]} />
+        </details>
 
         {err && <p className="hkt-u-err">{err}</p>}
         <button type="submit" className="kt-btn kt-btn--pri kt-btn--big" disabled={busy || !topic}>
-          {busy ? "Đang mở lớp…" : "Mở lớp"}
+          {busy ? "Đang mở nhóm…" : "Mở nhóm học"}
         </button>
         <p className="kt-muted nh-note">
-          Lớp lưu: ID tự đặt, tiến độ, lời nhắn trên cây, tin Hỏi đáp. Không ghi giọng phần luyện; bài nói tự do gửi qua kênh của bạn. Không lưu email, số điện thoại. Dữ liệu tự xoá 30 ngày sau khi cả lớp về đích, hoặc sau 180 ngày không ai học.
+          Nhóm lưu: tên + ID tự đặt, tiến độ, lời nhắn trên cây, tin Hỏi đáp. Không ghi giọng phần luyện; bài nói tự do gửi qua kênh của bạn. Không lưu email, số điện thoại. Dữ liệu tự xoá 30 ngày sau khi cả nhóm về đích, hoặc sau 180 ngày không ai học.
         </p>
       </form>
     </KtShell>

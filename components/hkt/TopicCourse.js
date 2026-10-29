@@ -186,6 +186,14 @@ export default function TopicCourse({ topic, persona, active = "topics" }) {
           })}
         </div>
 
+        {/* #267 (A3): điện thoại ẩn cột phải → nút Mở nhóm học đặt dưới danh sách bài */}
+        <div className="nh-open-mob">
+          <Link className="kt-btn nh-open" to={`/nhom/tao?chu-de=${topic.branch}/${topic.slug}`}>
+            <Users size={18} aria-hidden="true" /> Mở nhóm học
+          </Link>
+          <p className="kt-muted nh-open-t">Rủ bạn học cùng chuỗi này, gửi link qua Zalo — không cần tài khoản.</p>
+        </div>
+
         <aside className="kt-side">
           <div className="kt-side-box">
             <TopicThumb idx={idx} topic={topic} branchTitle={topic.branchTitle.vi} />
@@ -211,11 +219,11 @@ export default function TopicCourse({ topic, persona, active = "topics" }) {
                 Học lúc nào cũng được, máy nhớ chỗ dừng
               </li>
             </ul>
-            {/* #230 Học cùng: người hướng dẫn mở lớp cho chuỗi này */}
+            {/* #230 Học cùng: mở nhóm học cho chuỗi này */}
             <Link className="kt-btn nh-open" to={`/nhom/tao?chu-de=${topic.branch}/${topic.slug}`}>
-              <Users size={18} aria-hidden="true" /> Mở lớp hướng dẫn
+              <Users size={18} aria-hidden="true" /> Mở nhóm học
             </Link>
-            <p className="kt-muted nh-open-t">Dạy một nhóm học chuỗi này: cả nhóm xong bài trước mới mở bài sau.</p>
+            <p className="kt-muted nh-open-t">Rủ bạn học cùng chuỗi này, gửi link qua Zalo — không cần tài khoản.</p>
           </div>
         </aside>
       </div>

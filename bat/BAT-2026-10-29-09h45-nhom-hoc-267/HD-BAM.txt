@@ -1,0 +1,17 @@
+VIEC #267 - Nhom hoc (Hoc cung): sua 5 loi + de dung hon
+
+CHI BAM 1 TEP: 1-cap-nhat-web.bat (tu giai nen + xoa tep cu + day len web).
+Goi da gom moi ban sua truoc (#258 #260 #262 #263).
+
+Thu sau khi web cap nhat:
+  1. Dien thoai: trang chu de -> nut "Mo nhom hoc" (duoi danh sach bai).
+  2. Mo nhom: chi 3 o (chuoi bai, ten ban, PIN ****); "Tuy chinh" de mac dinh.
+  3. Bam "Vao nhom" -> vao thang, khong hoi PIN (may da nho).
+  4. Nguoi moi mo link nhom: bam "Toi la nguoi moi" -> ten + PIN -> vao.
+     Ai mo nham link /nhom/MA/ten-nguoi-khac: hien canh bao + chon ten minh.
+  5. Trang cay: 1 nut xanh "Hoc tiep"; bai mo trong cua so gan kin man;
+     bam < hoac nut Back de ve cay.
+  6. La Bai viet + Bang xanh san; 3 la bai tap xanh khi dat dieu kien + bam "Da xong phan nay"
+     (nut tu dinh day man khi dat). La vang = dat nhung chua bam.
+  7. Tab "Cua toi" -> Nhat ky hoc; "Ai dang lam gi" co so cau. Bam "Cap nhat" xem moi nhat.
+  8. Trang "Cua toi" (/me) co the "Nhom hoc cua ban".

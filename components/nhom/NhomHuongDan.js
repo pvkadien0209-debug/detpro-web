@@ -1,5 +1,5 @@
 "use client";
-// #230 Học cùng — /nhom/<mã>/huong-dan?k=<mã hướng dẫn>: trang của người hướng dẫn.
+// #230 Học cùng — /nhom/<mã>/huong-dan?k=<mã hướng dẫn>: trang của trưởng nhóm.
 // Tổng quan (cây + bảng; bấm tên một người: thống kê + lời nhắn), Bài nói tự do (nhận xét + duyệt đã nhận),
 // Học viên (PIN, Tạm nghỉ, xoá), Cài đặt (4a), Hỏi đáp. #231: bỏ tab giọng Nghe nói (không ghi giọng nữa).
 import React, { useEffect, useMemo, useState } from "react";
@@ -119,6 +119,8 @@ export function NoiTab({ ma, k, uid, data, reload, now }) {
 export function HvTab({ ma, k, uid, data, reload }) {
   const [err, setErr] = useState("");
   const [nk, setNk] = useState(""); // #260 đang xem nhật ký của ai
+  const [pinFor, setPinFor] = useState(""); // #267 đặt lại PIN: ô nhập ẩn •••• thay cho hộp prompt (lộ số khi chia sẻ màn hình)
+  const [pinNew, setPinNew] = useState("");
   const call = async (body, confirmText) => {
     if (confirmText && !window.confirm(confirmText)) return;
     setErr("");
@@ -143,7 +145,7 @@ export function HvTab({ ma, k, uid, data, reload }) {
               <button type="button" className="nh-mini" onClick={() => { const t = window.prompt("Tên hiển thị mới", m.ten); if (t) call({ viec: "doi-ten", id: m.id, ten: t }); }}>
                 Đổi tên
               </button>
-              <button type="button" className="nh-mini" onClick={() => { const p = window.prompt("PIN mới 4 số (để trống = bỏ PIN)", ""); if (p !== null) call({ viec: "pin", id: m.id, pin: p }); }}>
+              <button type="button" className="nh-mini" onClick={() => { setPinFor(pinFor === m.id ? "" : m.id); setPinNew(""); }}>
                 {m.coPin ? "Đặt lại PIN" : "Đặt PIN"}
               </button>
               <button type="button" className="nh-mini" onClick={() => setNk(nk === m.id ? "" : m.id)} aria-expanded={nk === m.id}>
@@ -156,6 +158,15 @@ export function HvTab({ ma, k, uid, data, reload }) {
                 Xoá
               </button>
             </span>
+            {pinFor === m.id && (
+              <form className="nh-row nh-pinreset" onSubmit={(e) => { e.preventDefault(); call({ viec: "pin", id: m.id, pin: pinNew }); setPinFor(""); }}>
+                <input type="password" inputMode="numeric" autoComplete="off" maxLength={4} value={pinNew} placeholder="PIN mới ••••" onChange={(e) => setPinNew(e.target.value.replace(/\D/g, ""))} autoFocus />
+                <button type="submit" className="kt-btn kt-btn--pri" disabled={pinNew.length !== 4}>
+                  Lưu PIN mới
+                </button>
+                <span className="kt-muted">Báo PIN mới cho {m.ten} (nhắn riêng).</span>
+              </form>
+            )}
             {nk === m.id && (
               <div className="nh-nk-in">
                 <NhatKyList ma={ma} uid={uid} k={k} ai={m.id} title={`Nhật ký học của ${m.ten}`} />
@@ -204,19 +215,19 @@ export function CdTab({ ma, k, uid, data, reload }) {
       });
       await reload();
       setDirty(false);
-      setMsg(`Đã lưu lên máy chủ lúc ${new Date().toLocaleTimeString("vi-VN")} — áp cho chặng đang mở trở đi.`);
+      setMsg(`Đã lưu lên máy chủ lúc ${new Date().toLocaleTimeString("vi-VN")} — áp cho bài đang mở trở đi.`);
     } catch (x) {
       setMsg(errText(x));
     }
   };
   return (
     <form className="nh-card nh-cdform" onSubmit={save}>
-      <h2>Cài đặt lớp</h2>
+      <h2>Cài đặt nhóm</h2>
       <p className="kt-muted">
-        Đang dùng (lưu trên máy chủ): qua Trắc nghiệm {g.nguong.quiz}/40 · Nghe nói {g.nguong["listen-speak"]}/40 · True or false {g.nguong.tf === "xong" ? "làm xong lượt" : `đúng ≥ ${g.nguong.tf}%`} · đếm ngược {g.hanChangGio ? `${g.hanChangGio} giờ/chặng` : "tắt"} · nhắc {g.nhacGio ? `mỗi ${g.nhacGio} giờ` : "tắt"} · tối đa {g.toiDa} người{g.batBuocPin ? " · bắt buộc PIN" : ""}. Chỉ người lập nhóm (có link này) đổi được.
+        Đang dùng (lưu trên máy chủ): qua Trắc nghiệm {g.nguong.quiz}/40 · Nghe nói {g.nguong["listen-speak"]}/40 · True or false {g.nguong.tf === "xong" ? "làm xong lượt" : `đúng ≥ ${g.nguong.tf}%`} · đếm ngược {g.hanChangGio ? `${g.hanChangGio} giờ/bài` : "tắt"} · nhắc {g.nhacGio ? `mỗi ${g.nhacGio} giờ` : "tắt"} · tối đa {g.toiDa} người{g.batBuocPin ? " · bắt buộc PIN" : ""}. Chỉ trưởng nhóm (có link này) đổi được.
       </p>
-      <label className="nh-field"><span className="nh-flabel">Tên lớp</span><input value={f.ten} onChange={set("ten")} maxLength={80} /></label>
-      <label className="nh-field"><span className="nh-flabel">Tên người hướng dẫn</span><input value={f.tenHuongDan} onChange={set("tenHuongDan")} maxLength={40} /></label>
+      <label className="nh-field"><span className="nh-flabel">Tên nhóm</span><input value={f.ten} onChange={set("ten")} maxLength={80} /></label>
+      <label className="nh-field"><span className="nh-flabel">Tên trưởng nhóm</span><input value={f.tenHuongDan} onChange={set("tenHuongDan")} maxLength={40} /></label>
       <label className="nh-field"><span className="nh-flabel">Qua Trắc nghiệm khi đúng (/40)</span><input type="number" min={1} max={40} value={f.quiz} onChange={set("quiz")} /></label>
       <label className="nh-field"><span className="nh-flabel">Qua Nghe nói khi nói đúng (/40)</span><input type="number" min={1} max={40} value={f.say} onChange={set("say")} /></label>
       <label className="nh-field">
@@ -227,7 +238,7 @@ export function CdTab({ ma, k, uid, data, reload }) {
         </select>
         {f.tf !== "xong" && <input type="number" min={1} max={100} value={f.tf} onChange={set("tf")} aria-label="Phần trăm đúng" />}
       </label>
-      <label className="nh-field"><span className="nh-flabel">Đếm ngược mỗi chặng (giờ, 0 = tắt)</span><input type="number" min={0} max={720} value={f.hanChangGio} onChange={set("hanChangGio")} /></label>
+      <label className="nh-field"><span className="nh-flabel">Đếm ngược mỗi bài (giờ, 0 = tắt)</span><input type="number" min={0} max={720} value={f.hanChangGio} onChange={set("hanChangGio")} /></label>
       <label className="nh-field"><span className="nh-flabel">Nhắc hối thúc mỗi (giờ, 0 = tắt)</span><input type="number" min={0} max={168} value={f.nhacGio} onChange={set("nhacGio")} /></label>
       <label className="nh-field"><span className="nh-flabel">Kênh gửi bài nói tự do</span><input type="url" value={f.kenhGuiBai} onChange={set("kenhGuiBai")} placeholder="https://zalo.me/g/…" /></label>
       <label className="nh-field"><span className="nh-flabel">Số học viên tối đa</span><input type="number" min={2} max={30} value={f.toiDa} onChange={set("toiDa")} /></label>
@@ -245,7 +256,7 @@ function Inner({ ma, k }) {
   const [tab, setTab] = useState("tq");
   const [view, setView] = useState("nhom");
   const [tblMode, setTblMode] = useState(false);
-  const [pop, setPop] = useState(null); // #250 làm phần bài (ID học của người lập nhóm) trong cửa sổ nổi
+  const [pop, setPop] = useState(null); // #250 làm phần bài (ID học của trưởng nhóm) trong cửa sổ nổi
   const [qa, setQa] = useState(null); // #250 Hỏi đáp riêng một bài
   useEffect(() => {
     if (data?.nhom) rememberGroup(ma, data.nhom.ten);
@@ -286,7 +297,7 @@ function Inner({ ma, k }) {
       <header className="nh-head">
         <div>
           <p className="kt-kicker">
-            <ShieldCheck size={16} aria-hidden="true" /> Người hướng dẫn · nhóm {ma}
+            <ShieldCheck size={16} aria-hidden="true" /> Trưởng nhóm · nhóm {ma}
           </p>
           <h1 className="kt-h1">{nhom.ten}</h1>
           {ci.xong ? (
@@ -355,22 +366,22 @@ function Inner({ ma, k }) {
                   </>
                 )}
                 <section className="nh-card">
-                  <h2>Chưa xong chặng đang mở</h2>
+                  <h2>Chưa xong bài đang mở</h2>
                   {/* #250 (NHA A3): đồng hồ tính theo MỐC NHỎ (5 phần chia đều hạn chặng) + nút làm ngay */}
                   {ci.u && (
                     <div className="nh-moc">
                       <span>
-                        Cả chặng: <b>{baiLabel(ci.u, ci.ch)}</b>
+                        Bài hiện tại: <b>{baiLabel(ci.u, ci.ch)}</b>
                       </span>
                       <Countdown dh={ci.dh} big />
                       {meM && myJ < 5 && (
                         <>
                           <span>
-                            Mốc của bạn: <b>{myJ + 1}. {PART_SHORT[PART_KEYS[myJ]]}</b>
+                            Phần của bạn: <b>{myJ + 1}. {PART_SHORT[PART_KEYS[myJ]]}</b>
                           </span>
                           <Countdown dh={mocNho(nhom.moChangLuc?.[ci.ch], nhom.hanChangGio, myJ, now)} />
                           <button type="button" className="kt-btn kt-btn--pri" onClick={() => openPart(ci.u, ci.ch, PART_KEYS[myJ])}>
-                            Làm mốc này ngay
+                            Làm phần này ngay
                           </button>
                         </>
                       )}
@@ -385,7 +396,7 @@ function Inner({ ma, k }) {
                         <Countdown dh={mocNho(nhom.moChangLuc?.[ci.ch], nhom.hanChangGio, phanDangLam(m.tom?.[curKey]), now)} label={`mốc ${phanDangLam(m.tom?.[curKey]) + 1}`} />
                       </li>
                     ))}
-                    {!slow.length && <li>Không ai — chặng sau sắp mở.</li>}
+                    {!slow.length && <li>Không ai — bài sau sắp mở.</li>}
                   </ul>
                   <p className="kt-muted">Học viên bỏ dở? Chuyển “Tạm nghỉ” ở tab Học viên để nhóm đi tiếp.</p>
                 </section>

@@ -1272,3 +1272,44 @@ body.nh-in .kt-learn.is-drill .nh-xong { margin-top: 18px; }
 .nh-hv li { flex-wrap: wrap; }
 .nh-nk-in { flex: 1 1 100%; margin-top: 8px; }
 .nh-nk-in .nh-card { margin: 0; box-shadow: none; border: 1px solid #e2e8f0; }
+
+/* #267 Học cùng: cửa sổ làm bài gần kín màn (99%), tiêu đề gọn */
+.nh-pop { padding: .5vh .5vw; }
+.nh-pop-in.is-wide { width: 99vw; height: 99vh; max-height: 99vh; border-radius: 12px; }
+.nh-pop-in.is-wide > header { padding: 6px 10px; }
+/* #267 nút "Đã xong phần này" dính đáy màn khi đã đạt điều kiện */
+.nh-xong.is-ready { position: sticky; bottom: 12px; z-index: 6; box-shadow: 0 10px 30px rgba(15, 110, 86, .25); animation: nhPulse 1.6s ease-in-out 2; }
+.nh-xong.is-ready .nh-xong-dk { flex: 1 1 auto; }
+@keyframes nhPulse { 50% { transform: scale(1.02); } }
+.kt-ttlbtn { background: none; border: 0; color: inherit; font: inherit; cursor: pointer; text-align: left; padding: 0; }
+/* #267 trang cây: 1 nút chính + nút biểu tượng; vòng % không che cây; lá vàng = đạt chưa bấm */
+.nh-actbar { display: flex; gap: 8px; align-items: stretch; margin: 6px 0 14px; flex-wrap: wrap; }
+.nh-actbar .nh-cta { flex: 1 1 260px; justify-content: center; font-size: 16px; padding: 12px 18px; }
+.nh-cta-sp { flex: 1 1 0; }
+.nh-ibtn { display: inline-flex; align-items: center; gap: 6px; }
+@media (max-width: 700px) {
+  .nh-actbar .nh-cta { flex: 1 1 100%; order: -1; }
+  .nh-ibtn { flex: 1 1 0; justify-content: center; padding: 8px 6px; font-size: 13px; }
+  .nh-ibtn span { font-size: 12.5px; }
+  .nh-tree { max-height: 64vh; }
+}
+.nh-crown { position: static; background: transparent; backdrop-filter: none; }
+.nh-leaf.is-wait ellipse { fill: #fde68a; stroke: #d39e00; }
+.nh-now { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.nh-nk-list li.is-dang span { color: #1d4ed8; }
+/* #267 cửa nhóm: một màn — ô PIN mở ngay dưới tên đã chọn */
+.nh-door-note { background: #fff7e0; border: 1px solid #f2d27a; border-radius: 12px; padding: 10px 14px; margin: 10px 0; }
+.nh-door-pin { grid-column: 1 / -1; }
+.nh-pin.is-inline { margin: 0 0 6px; border-color: var(--kt-pine, #0f6e56); }
+.nh-idbtn.is-on { outline: 2px solid var(--kt-pine, #0f6e56); }
+.nh-idline { margin: -4px 0 8px; }
+.nh-open-mob { display: none; }
+@media (max-width: 960px) { .nh-open-mob { display: block; margin: 8px 0 24px; } }
+.nh-tuy > summary { cursor: pointer; list-style: revert; }
+.nh-tuy[open] > summary { margin-bottom: 10px; }
+.nh-pinreset { flex: 1 1 100%; margin-top: 6px; align-items: center; }
+.nh-pinreset input { width: 140px; }
+.nh-mygroups { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; margin-bottom: 18px; }
+.nh-mygroup { justify-content: flex-start; text-align: left; gap: 10px; padding: 12px 14px; }
+.nh-mygroup small { display: block; font-weight: 500; color: var(--kt-muted); }
+@media (max-width: 700px) { .nh-pop-in.is-wide > header { display: none; } .nh-pop { padding: 0; } .nh-pop-in.is-wide { width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 0; } }

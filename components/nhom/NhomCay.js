@@ -1,11 +1,11 @@
 "use client";
 // #230 Học cùng — /nhom/<mã>/<id>: trang chính của học viên trong nhóm = CÂY CHUỖI (mục 5) + "Xem dạng bảng",
 // đồng hồ chặng + chuông nhắc (4a), bài nói tự do (mục 6), ai đang làm gì, Giục bạn, Hỏi đáp (mục 8), cài đặt của tôi.
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "@/lib/router";
 import { Users, TreeDeciduous, Table2, UserCog, Share2, ExternalLink, Check, LogOut, KeyRound, X, RefreshCw, Flower2, Settings } from "lucide-react";
 import KtShell, { useBodyClass } from "@/components/hkt/KtShell";
-import { NoiTab, HvTab, CdTab } from "./NhomHuongDan"; // #253 người lập nhóm quản lý ngay trong trang nhóm
+import { NoiTab, HvTab, CdTab } from "./NhomHuongDan"; // #253 trưởng nhóm quản lý ngay trong trang nhóm
 import { VongDetLoading } from "@/components/hkt/VongDet";
 import NhomTree, { leafState } from "./NhomTree";
 import { PinGate } from "./NhomVao";
@@ -14,7 +14,7 @@ import PartGuide from "@/components/hkt/PartGuide";
 import NhatKyList from "./NhomNhatKy"; // #260
 import { PartPopup, QaPopup } from "./NhomPopup"; // #250 (NHA A3, D, E); bỏ "Hướng dẫn riêng" (NHA H)
 import { useNhomView, useNow, changInfo, baiLabel, Countdown, NhacBell, CopyBtn, origin, errText, NhomChat } from "./NhomShared";
-import { api, setPin, setMyId } from "./nhomClient";
+import { api, setPin, setMyId, rememberGroup } from "./nhomClient";
 import { PART_KEYS, PART_SHORT, baiKey, baiMo, baiMoCua, nhomPath, nhomUnitPath, unitGreen, dangDo, mocNho, phanDangLam } from "@/components/hkt/nhomRules";
 
 const ago = (d, now) => {
@@ -73,7 +73,7 @@ export function NhomTable({ nhom, members, onCell, onNoi }) {
           ))}
         </tbody>
       </table>
-      <p className="kt-muted nh-legend">● xong · ○ chưa · ✿ bài nói tự do (vàng = đã báo gửi, xanh = người hướng dẫn đã nhận)</p>
+      <p className="kt-muted nh-legend">● xong · ○ chưa · ✿ bài nói tự do (vàng = đã báo gửi, xanh = trưởng nhóm đã nhận)</p>
     </div>
   );
 }
@@ -125,7 +125,7 @@ function MySettings({ ma, me, nhom, onLeft }) {
         </h2>
         <p className="kt-muted">{me.coPin ? "ID của bạn đang có PIN." : "ID chưa có PIN — ai có link nhóm cũng chọn được ID này."}</p>
         <div className="nh-row">
-          <input inputMode="numeric" maxLength={4} value={pin} placeholder="PIN mới 4 số" onChange={(e) => setP(e.target.value.replace(/\D/g, ""))} />
+          <input type="password" inputMode="numeric" autoComplete="new-password" maxLength={4} value={pin} placeholder="PIN mới ••••" onChange={(e) => setP(e.target.value.replace(/\D/g, ""))} />
           <button type="button" className="kt-btn kt-btn--pri" disabled={pin.length !== 4} onClick={() => savePin(pin)}>
             Đặt PIN
           </button>
@@ -173,6 +173,10 @@ function Inner({ ma, id }) {
   const me = data?.members.find((m) => m.id === id);
   const nhom = data?.nhom;
   const ci = useMemo(() => (nhom ? changInfo(nhom, now) : {}), [nhom, now]);
+  // #267: máy nhớ nhóm cho MỌI người (trang "Của tôi" có thẻ "Nhóm học của bạn")
+  useEffect(() => {
+    if (nhom && me) rememberGroup(ma, nhom.ten, id);
+  }, [nhom?.ten, me?.id]); // eslint-disable-line react-hooks/exhaustive-deps
   if (err && !data) return <p className="nh-center hkt-u-err">{errText(err)}</p>;
   if (!data)
     return (
@@ -196,7 +200,9 @@ function Inner({ ma, id }) {
   const slow = ci.u ? active.filter((m) => !(m.tom?.[curKey]?.g?.length === 5 && m.tom[curKey].g.every(Boolean))) : [];
   const unitLink = (u, pk) => nhomUnitPath(ma, id, u.audience, u.slug, pk);
   const firstOpenPart = (u) => {
+    // #267: chưa làm gì ở bài này → mở Bài viết trước; đã làm → phần bài tập chưa xong đầu tiên
     const t = me.tom?.[baiKey(u)];
+    if (!t || t.d === "chưa bắt đầu") return "";
     const j = PART_KEYS.findIndex((_, x) => !t?.g?.[x]);
     return PART_KEYS[j < 0 ? 0 : j];
   };
@@ -212,13 +218,13 @@ function Inner({ ma, id }) {
     try {
       await api(`${ma}/noi`, { id, body: { bai: baiKey(u) } });
       await reload();
-      setMsg("Đã báo gửi — bông chuyển vàng, chờ người hướng dẫn nhận.");
+      setMsg("Đã báo gửi — bông chuyển vàng, chờ trưởng nhóm nhận.");
     } catch (e) {
       setMsg(errText(e));
     }
   };
   const share = `${origin()}/nhom/${ma}`;
-  const laChu = nhom.nguoiTaoId === id; // #253 người lập nhóm: có thêm các tab quản lý
+  const laChu = nhom.nguoiTaoId === id; // #253 trưởng nhóm: có thêm các tab quản lý
   const capNhat = async () => {
     setBusyR(true);
     await reload();
@@ -226,8 +232,6 @@ function Inner({ ma, id }) {
     setMsg(`Đã cập nhật lúc ${new Date().toLocaleTimeString("vi-VN")}.`);
   };
   const openPart = (u, k, pk) => setPop({ title: `${baiLabel(u, k)} · ${PART_SHORT[pk]}`, href: unitLink(u, pk) });
-  const myJ = ci.u ? phanDangLam(me.tom?.[curKey]) : 5;
-  const myMoc = ci.u && myJ < 5 ? mocNho(nhom.moChangLuc?.[ci.ch], nhom.hanChangGio, myJ, now) : null;
   const nhan = data.nhan || [];
   const moi = nhanMoi(ma, id, nhan);
   const viewM = view !== "nhom" ? data.members.find((m) => m.id === view) : null;
@@ -242,7 +246,8 @@ function Inner({ ma, id }) {
       <header className="nh-head">
         <div>
           <p className="kt-kicker">
-            <Users size={16} aria-hidden="true" /> Nhóm {ma} · {me.ten}
+            <Users size={16} aria-hidden="true" /> Nhóm học {ma} · {me.ten}
+            {laChu && " · trưởng nhóm"}
             {me.trangThai === "tam-nghi" && " · tạm nghỉ"}
           </p>
           <h1 className="kt-h1">{nhom.ten}</h1>
@@ -254,30 +259,34 @@ function Inner({ ma, id }) {
                 {baiLabel(ci.u, ci.ch)}: {ci.u.title}
               </b>
               <Countdown dh={ci.dh} big />
+              <NhacBell nhom={nhom} now={now} chuaXong={meNotDone} />
             </p>
           )}
         </div>
-        <div className="nh-head-r">
-          <button type="button" className="kt-btn" onClick={capNhat} disabled={busyR} title="Lấy dữ liệu mới nhất từ máy chủ">
-            <RefreshCw size={16} aria-hidden="true" className={busyR ? "nh-spin" : ""} /> Cập nhật
-          </button>
-          <PartGuide k={laChu ? "huong-dan" : "nhom"} className="kt-btn nh-guide" label="Hướng dẫn chung" />
-          <NhacBell nhom={nhom} now={now} chuaXong={meNotDone} />
-          <CopyBtn text={share} className="kt-btn">
-            <Share2 size={16} aria-hidden="true" /> Chép link nhóm
-          </CopyBtn>
-        </div>
       </header>
-      {ci.u && meNotDone && (
-        <button type="button" className="kt-btn kt-btn--pri nh-cta" onClick={() => openPart(ci.u, ci.ch, firstOpenPart(ci.u))}>
-          Học tiếp {baiLabel(ci.u, ci.ch)} · {me.tom?.[curKey]?.d || "bắt đầu"}
+      {/* #267: MỘT nút chính; nút phụ thu nhỏ thành biểu tượng cùng hàng */}
+      <div className="nh-actbar">
+        {ci.u && meNotDone ? (
+          <button type="button" className="kt-btn kt-btn--pri nh-cta" onClick={() => openPart(ci.u, ci.ch, firstOpenPart(ci.u))}>
+            Học tiếp {baiLabel(ci.u, ci.ch)} · {me.tom?.[curKey]?.d || "bắt đầu"}
+          </button>
+        ) : ci.u && me.trangThai === "hoc" && ci.ch + 1 < nhom.chuoi.bai.length ? (
+          <button type="button" className="kt-btn kt-btn--pri nh-cta" onClick={() => openPart(nhom.chuoi.bai[ci.ch + 1], ci.ch + 1, firstOpenPart(nhom.chuoi.bai[ci.ch + 1]))}>
+            Bạn đã xong — làm trước {baiLabel(nhom.chuoi.bai[ci.ch + 1], ci.ch + 1)} trong lúc chờ bạn
+          </button>
+        ) : (
+          <span className="nh-cta-sp" />
+        )}
+        <button type="button" className="kt-btn nh-ibtn" onClick={capNhat} disabled={busyR} title="Cập nhật: lấy dữ liệu mới nhất của cả nhóm">
+          <RefreshCw size={18} aria-hidden="true" className={busyR ? "nh-spin" : ""} />
+          <span>Cập nhật</span>
         </button>
-      )}
-      {ci.u && !meNotDone && me.trangThai === "hoc" && ci.ch + 1 < nhom.chuoi.bai.length && (
-        <Link className="kt-btn nh-cta" to={unitLink(nhom.chuoi.bai[ci.ch + 1], firstOpenPart(nhom.chuoi.bai[ci.ch + 1]))}>
-          Bạn đã xong — làm trước {baiLabel(nhom.chuoi.bai[ci.ch + 1], ci.ch + 1)} trong lúc chờ bạn
-        </Link>
-      )}
+        <PartGuide k={laChu ? "huong-dan" : "nhom"} className="kt-btn nh-ibtn" label="Hướng dẫn" />
+        <CopyBtn text={share} className="kt-btn nh-ibtn">
+          <Share2 size={18} aria-hidden="true" />
+          <span>Chép link</span>
+        </CopyBtn>
+      </div>
 
       <div className="nh-tabs" role="tablist">
         {[
@@ -328,18 +337,6 @@ function Inner({ ma, id }) {
               {!viewM && ci.u && (
                 <section className="nh-card">
                   <h2>Ai chưa xong {baiLabel(ci.u, ci.ch)}</h2>
-                  {/* #250 (NHA A3): đồng hồ mốc nhỏ ngay dưới tiêu đề + nút làm ngay */}
-                  {meNotDone && (
-                    <div className="nh-moc">
-                      <span>
-                        Mốc của bạn: <b>{myJ + 1}. {PART_SHORT[PART_KEYS[myJ]]}</b>
-                      </span>
-                      <Countdown dh={myMoc} big />
-                      <button type="button" className="kt-btn kt-btn--pri" onClick={() => openPart(ci.u, ci.ch, PART_KEYS[myJ])}>
-                        Làm mốc này ngay
-                      </button>
-                    </div>
-                  )}
                   {slow.length ? (
                     <ul className="nh-slow">
                       {slow.map((m) => (
@@ -347,7 +344,6 @@ function Inner({ ma, id }) {
                           <span>
                             <b>{m.ten}</b> · {m.tom?.[curKey]?.d || "chưa bắt đầu"}
                           </span>
-                          <Countdown dh={mocNho(nhom.moChangLuc?.[ci.ch], nhom.hanChangGio, phanDangLam(m.tom?.[curKey]), now)} label={`mốc ${phanDangLam(m.tom?.[curKey]) + 1}`} />
                           {m.id !== id && !meNotDone && (
                             <button type="button" className="nh-mini" onClick={() => giuc(m)}>
                               Giục bạn
@@ -357,7 +353,7 @@ function Inner({ ma, id }) {
                       ))}
                     </ul>
                   ) : (
-                    <p>Mọi người đã xong — chặng sau sắp mở.</p>
+                    <p>Mọi người đã xong — bài sau sắp mở.</p>
                   )}
                 </section>
               )}
@@ -372,7 +368,9 @@ function Inner({ ma, id }) {
                       const k = nhom.chuoi.bai.findIndex((u) => baiKey(u) === m.dangO.bai);
                       return (
                         <li key={m.id}>
-                          <b>{m.ten}</b> {now - new Date(m.dangO.luc).getTime() < 90e3 ? "đang làm" : "làm"} {k >= 0 ? baiLabel(nhom.chuoi.bai[k], k) : ""} · {PART_SHORT[m.dangO.phan] ?? m.dangO.phan} <small>({ago(m.dangO.luc, now)})</small>
+                          <b>{m.ten}</b> {now - new Date(m.dangO.luc).getTime() < 90e3 ? "đang làm" : "làm"} {k >= 0 ? baiLabel(nhom.chuoi.bai[k], k) : ""} · {PART_SHORT[m.dangO.phan] ?? m.dangO.phan}
+                          {["quiz", "listen-speak", "true-or-false"].includes(m.dangO.phan) && m.tom?.[m.dangO.bai]?.c ? ` ${m.tom[m.dangO.bai].c[m.dangO.phan]}/${m.dangO.phan === "true-or-false" ? 80 : 40}` : ""}{" "}
+                          <small>({ago(m.dangO.luc, now)})</small>
                         </li>
                       );
                     })}
@@ -421,14 +419,14 @@ function Inner({ ma, id }) {
       {flower && (
         <Sheet title={`${baiLabel(flower.u, flower.k)} · Bài nói tự do`} onClose={() => setFlower(null)}>
           <p>
-            🎤 <b>Hãy nói những gì bạn nghĩ và nhớ</b> về bài “{flower.u.title}” — bằng tiếng Anh, dài ngắn tuỳ bạn — rồi gửi cho người hướng dẫn qua kênh của nhóm.
+            🎤 <b>Hãy nói những gì bạn nghĩ và nhớ</b> về bài “{flower.u.title}” — bằng tiếng Anh, dài ngắn tuỳ bạn — rồi gửi cho trưởng nhóm qua kênh của nhóm.
           </p>
           {(() => {
             const noi = me.noi?.[baiKey(flower.u)];
             return (
               <>
                 <p className={`nh-noistate ${noi?.xanh ? "is-green" : noi?.baoGui ? "is-yellow" : ""}`}>
-                  {noi?.xanh ? "✓ Người hướng dẫn đã nhận" : noi?.baoGui ? `Đã báo gửi ${noi.soLan > 1 ? `${noi.soLan} lần` : ""} — chờ người hướng dẫn nhận` : "Chưa gửi"}
+                  {noi?.xanh ? "✓ Trưởng nhóm đã nhận" : noi?.baoGui ? `Đã báo gửi ${noi.soLan > 1 ? `${noi.soLan} lần` : ""} — chờ trưởng nhóm nhận` : "Chưa gửi"}
                   {noi?.ghiChu && <span className="nh-note2">Ghi chú: {noi.ghiChu}</span>}
                 </p>
                 <div className="nh-row">
@@ -437,7 +435,7 @@ function Inner({ ma, id }) {
                       <ExternalLink size={16} aria-hidden="true" /> Mở kênh gửi bài
                     </a>
                   ) : (
-                    <span className="kt-muted">Người hướng dẫn chưa dán kênh gửi bài — hỏi trong Hỏi đáp.</span>
+                    <span className="kt-muted">Trưởng nhóm chưa dán kênh gửi bài — hỏi trong Hỏi đáp.</span>
                   )}
                   {baiMoCua(flower.k, nhom, me) && (
                     <button type="button" className="kt-btn kt-btn--pri" onClick={() => baoGui(flower.u)}>

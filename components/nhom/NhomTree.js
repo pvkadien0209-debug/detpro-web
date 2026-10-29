@@ -16,7 +16,8 @@ const cut = (s, n) => (s.length > n ? s.slice(0, n - 1) + "…" : s);
 export function leafState(members, key, k, view) {
   const list = view === "nhom" ? members.filter((m) => m.trangThai === "hoc") : members.filter((m) => m.id === view);
   const n = list.filter((m) => m.tom?.[key]?.g?.[k]).length;
-  return { n, of: list.length, all: list.length > 0 && n === list.length };
+  const w = list.filter((m) => m.tom?.[key]?.a?.[k]).length; // #267 đạt nhưng chưa bấm "Đã xong phần này"
+  return { n, w, of: list.length, all: list.length > 0 && n === list.length };
 }
 export function flowerState(members, key, view) {
   const list = view === "nhom" ? members.filter((m) => m.trangThai === "hoc") : members.filter((m) => m.id === view);
@@ -25,7 +26,7 @@ export function flowerState(members, key, view) {
   return { xanh, vang, of: list.length, all: list.length > 0 && xanh === list.length };
 }
 
-// #250: lá đánh số 1–5 + rê chuột thấy mô tả ngắn (NHA D); nút 💬 nhỏ trên thân mỗi chặng = Hỏi đáp của bài đó (NHA E)
+// #250: lá đánh số 1–5 + rê chuột thấy mô tả ngắn (NHA D); nút 💬 nhỏ trên thân mỗi bài = Hỏi đáp của bài đó (NHA E)
 export default function NhomTree({ nhom, members, meId, view = "nhom", onLeaf, onFlower, dots, onQa, tinBai }) {
   const bai = nhom.chuoi.bai;
   const n = bai.length;
@@ -36,21 +37,24 @@ export default function NhomTree({ nhom, members, meId, view = "nhom", onLeaf, o
   const ref = useRef(null);
   useEffect(() => {
     // cuộn TRONG khung cây tới cành đang học (không cuộn cả trang)
+    // #267: tính theo toạ độ SVG (không phụ thuộc lúc vẽ xong) + thử lại vài lần
     const go = () => {
       const box = ref.current;
-      const el = box?.querySelector(".is-cur-branch");
-      if (!box || !el) return;
-      const d = el.getBoundingClientRect().top - box.getBoundingClientRect().top;
-      box.scrollTop = Math.max(0, box.scrollTop + d - box.clientHeight / 2);
+      const svg = box?.querySelector("svg");
+      if (!box || !svg || !svg.clientHeight) return;
+      const y = (yOf(Math.min(ch, n - 1)) / H) * svg.clientHeight + svg.offsetTop;
+      box.scrollTop = Math.max(0, y - box.clientHeight * 0.55);
     };
-    const t = setTimeout(go, 250); // chờ khung cây có kích thước thật
-    return () => clearTimeout(t);
+    const ts = [60, 300, 900].map((ms) => setTimeout(go, ms));
+    return () => ts.forEach(clearTimeout);
   }, [ch]);
 
   // phần trăm cả chuỗi (vòng Đét ở ngọn)
   let done = 0;
-  bai.forEach((u, k) => PART_KEYS.forEach((_, j) => (done += leafState(members, baiKey(u), j, view).all ? 1 : 0)));
-  const pct = n ? done / (n * PART_KEYS.length) : 0;
+  // #267: % chỉ tính 3 lá BÀI TẬP (lá đọc xanh sẵn không tính)
+  const TAP = [2, 3, 4];
+  bai.forEach((u) => TAP.forEach((j) => (done += leafState(members, baiKey(u), j, view).all ? 1 : 0)));
+  const pct = n ? done / (n * TAP.length) : 0;
   const topY = yOf(Math.min(ch, n - 1));
 
   return (
@@ -105,7 +109,7 @@ export default function NhomTree({ nhom, members, meId, view = "nhom", onLeaf, o
                 const cx = lx;
                 const cy = ly + up * 19;
                 const st = leafState(members, key, j, view);
-                const cls = !open ? "is-off" : st.all ? "is-all" : st.n > 0 ? "is-some" : "is-none";
+                const cls = !open ? "is-off" : st.all ? "is-all" : st.w > 0 && view !== "nhom" ? "is-wait" : st.n > 0 ? "is-some" : "is-none";
                 const rot = (up < 0 ? -35 : 35) * side;
                 return (
                   <g
@@ -117,7 +121,7 @@ export default function NhomTree({ nhom, members, meId, view = "nhom", onLeaf, o
                     onClick={() => onLeaf?.({ u, k, pk, j })}
                     onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onLeaf?.({ u, k, pk, j })}
                   >
-                    <title>{`${j + 1}. ${PART_SHORT[pk]} — ${PART_TIP[pk]}${open ? ` · ${st.n}/${st.of} xong` : " · chưa mở"}`}</title>
+                    <title>{`${j + 1}. ${PART_SHORT[pk]} — ${PART_TIP[pk]}${open ? ` · ${st.n}/${st.of} xong${st.w ? ` · ${st.w} người đạt, chưa bấm "Đã xong phần này"` : ""}` : " · chưa mở"}`}</title>
                     <line x1={lx} y1={ly} x2={cx} y2={cy} className="nh-stem" />
                     <ellipse cx={cx} cy={cy} rx={17} ry={10} transform={`rotate(${rot} ${cx} ${cy})`} filter={st.all && open ? "url(#nhGlow)" : undefined} />
                     {view === "nhom" && open && st.n > 0 && !st.all ? (

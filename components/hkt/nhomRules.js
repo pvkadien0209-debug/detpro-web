@@ -53,7 +53,10 @@ export function partDatNhom(p, key, ng = NGUONG_MAC_DINH, total = 40) {
 }
 /** #258 Xanh (XONG) của một phần trong nhóm = đạt điều kiện VÀ đã bấm "Đã xong mốc này" (p.xong[key] = giờ bấm). */
 // #260: Bảng thông tin chỉ để xem (không chọn đáp án) → mở là xong, không cần bấm nút.
-export const partDoneNhom = (p, key, ng, total) => (key === "info" || !!p?.xong?.[key]) && partDatNhom(p, key, ng, total);
+// #267 (anh chốt): lá ĐỌC (Bài viết, Bảng thông tin, xem video) xanh sẵn — chỉ 3 phần BÀI TẬP cần hoàn thành + bấm "Đã xong phần này".
+export const PHAN_DOC = ["", "info"];
+export const PHAN_TAP = ["quiz", "listen-speak", "true-or-false"];
+export const partDoneNhom = (p, key, ng, total) => PHAN_DOC.includes(key) || (!!p?.xong?.[key] && partDatNhom(p, key, ng, total));
 /** #258 Mô tả điều kiện của một phần + đã đạt chưa (cho nút "Đã xong mốc này"). Bài viết / Bảng: đạt khi đã mở tới cuối trang. */
 export function dieuKien(p, key, ng = NGUONG_MAC_DINH) {
   ng = { ...NGUONG_MAC_DINH, ...(ng || {}) };
@@ -87,6 +90,7 @@ export function dangDo(p, ng) {
   if (!p || !Object.keys(p).length) return "chưa bắt đầu";
   const k = PART_KEYS.find((x) => !partDoneNhom(p, x, ng));
   if (k === undefined) return "xong";
+  if (PHAN_TAP.every((x) => !partCount(p, x)) && !PHAN_TAP.some((x) => p?.xong?.[x])) return "chưa bắt đầu";
   if (partDatNhom(p, k, ng)) return `${PART_SHORT[k]}: đạt, chưa bấm "Đã xong"`;
   if (k === "quiz" || k === "listen-speak") return `${PART_SHORT[k]} ${partCount(p, k)}/40`;
   if (k === "true-or-false") return `${PART_SHORT[k]} ${partCount(p, k)}/80`;

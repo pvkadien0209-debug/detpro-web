@@ -1,5 +1,5 @@
 "use client";
-// #260 Nhật ký học của từng người (lưu trên Mongo: nhat_ky_hoc). Học viên xem của mình; người lập nhóm xem của mọi người (uid = ID người lập, ai = người cần xem).
+// #260 Nhật ký học của từng người (lưu trên Mongo: nhat_ky_hoc). Học viên xem của mình; trưởng nhóm xem của mọi người (uid = ID người lập, ai = người cần xem).
 import React, { useCallback, useEffect, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { api } from "./nhomClient";
@@ -40,7 +40,7 @@ export default function NhatKyList({ ma, uid, k, ai, title = "Nhật ký học c
       {!!shown.length && (
         <ol className="nh-nk-list">
           {shown.map((x, i) => (
-            <li key={i} className={x.chung ? "is-chung" : /Đã xong mốc|Xong cả/.test(x.viec) ? "is-xong" : ""}>
+            <li key={i} className={x.chung ? "is-chung" : x.dang ? "is-dang" : /Đã xong|Xong cả/.test(x.viec) ? "is-xong" : ""}>
               <time>{fmt(x.luc)}</time>
               <span>
                 {x.chung ? "👥 " : ""}

@@ -4,15 +4,18 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "@/lib/router"; // Next.js: thay react-router-dom
 import { Helmet } from "@/lib/helmet"; // Next.js: tiêu đề/mô tả đặt ở trang máy chủ (generateMetadata)
-import { Check } from "lucide-react";
+import { Check, Users } from "lucide-react";
+import { myGroups } from "@/components/nhom/nhomClient"; // #267 nhóm học trên máy này
 import KtShell from "./KtShell";
 import { TopicCard } from "./HomeKnowledge";
 import { loadUnitsIndex, readUnitProgress, unitSummary, unitDoneCount, unitPath, PARTS, partDone, seriesProgress } from "./unitData";
 
 export default function MyPage() {
   const [idx, setIdx] = useState(null);
+  const [nhoms, setNhoms] = useState([]);
   useEffect(() => {
     loadUnitsIndex().then(setIdx).catch(() => {});
+    setNhoms(myGroups());
   }, []);
   const topics = idx ? idx.branches.flatMap((b) => b.topics.map((t) => ({ ...t, branch: b.slug, branchTitle: b.title }))) : [];
   const learning = topics.filter((t) => t.units.some((u) => readUnitProgress(u.audience, u.slug)));
@@ -37,6 +40,27 @@ export default function MyPage() {
           </>
         )}
       </p>
+      {nhoms.length > 0 && (
+        <>
+          <div className="kt-row-head">
+            <h2>Nhóm học của bạn</h2>
+          </div>
+          <div className="nh-mygroups">
+            {nhoms.map((g) => (
+              <Link key={g.ma} className="kt-btn nh-mygroup" to={g.id ? `/nhom/${g.ma}/${g.id}` : `/nhom/${g.ma}`}>
+                <Users size={18} aria-hidden="true" />
+                <span>
+                  <b>{g.ten}</b>
+                  <small>
+                    Nhóm {g.ma}
+                    {g.id ? ` · ${g.id}` : ""} — Học tiếp
+                  </small>
+                </span>
+              </Link>
+            ))}
+          </div>
+        </>
+      )}
       {!idx && <p className="kt-muted">Đang tải…</p>}
       {idx && !learning.length && (
         <div className="kt-resume" style={{ maxWidth: 520 }}>
