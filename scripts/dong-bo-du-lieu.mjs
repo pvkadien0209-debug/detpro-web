@@ -1,8 +1,11 @@
-// N1 — Đồng bộ dữ liệu + hình thương hiệu từ bản CRA cũ sang detpro-web (NX2-Q3: chép bằng script, dời hẳn khi bỏ CRA).
-// Nguồn vẫn là SEO-PT-projectjs vì Remotion và các script Python đang đọc ở đó. Script CHỈ ĐỌC project cũ, không sửa gì bên đó.
+// N1 — Đồng bộ dữ liệu bài vào detpro-web. Script CHỈ ĐỌC nguồn, không sửa gì bên đó.
+// #277 (gốc đổi tên #275): nguồn mặc định = C:\Dienpham\App\DetPro-QuanTri\DetPro\data (thư mục dữ liệu đã dựng, dùng chung web + Remotion):
+//   data\jsonData\units\      ← build_units.py ghi vào (python build_units.py "...\DetPro\data\jsonData")
+//   data\jsonData\knowledge\  ← danh mục (index.json + <nhánh>\<chủ đề>\topic.json)
+// (Trước #275 nguồn là SEO-PT-projectjs\client\public — đã xoá, bản lưu ở AOLD. Vẫn chạy được với --nguon trỏ tới thư mục có jsonData\.)
 //
-// Chạy:  node scripts/dong-bo-du-lieu.mjs            (mặc định nguồn ..\SEO-PT-projectjs\client\public)
-//        node scripts/dong-bo-du-lieu.mjs --nguon "C:\Dienpham\App\SEO-PT-projectjs\client\public"
+// Chạy:  node scripts/dong-bo-du-lieu.mjs            (nguồn mặc định ..\DetPro-QuanTri\DetPro\data)
+//        node scripts/dong-bo-du-lieu.mjs --nguon "<thư mục có jsonData\>"
 //        node scripts/dong-bo-du-lieu.mjs --thu        (chỉ in ra sẽ chép gì, không chép)
 //
 // Chép (#190: một nơi duy nhất là public\jsonData — máy chủ Next.js và trình duyệt cùng đọc):
@@ -22,7 +25,7 @@ const getArg = (k) => {
   return i >= 0 ? args[i + 1] : null;
 };
 const DRY = args.includes("--thu");
-const SRC = path.resolve(getArg("--nguon") || process.env.DETPRO_NGUON || path.join(ROOT, "..", "SEO-PT-projectjs", "client", "public"));
+const SRC = path.resolve(getArg("--nguon") || process.env.DETPRO_NGUON || path.join(ROOT, "..", "DetPro-QuanTri", "DetPro", "data"));
 
 const BRAND_FILES = ["favicon.ico", "detpro-icon.svg", "favicon-vong-det.svg", "logo192.png", "logo512.png", "og-detpro.jpg", "manifest.json"];
 
@@ -69,7 +72,7 @@ async function mirror(fromDir, toDir, keepFile = () => true) {
 async function main() {
   const units = path.join(SRC, "jsonData", "units");
   if (!(await stat(units))) {
-    console.error(`✗ Không thấy thư mục nguồn: ${units}\n  Dùng --nguon "<đường dẫn tới client\\public của SEO-PT-projectjs>"`);
+    console.error(`✗ Không thấy thư mục nguồn: ${units}\n  Lần đầu: bấm bat\\2-du-lieu\\0-khoi-tao-data-tu-web.bat (chép dữ liệu web hiện có sang DetPro\\data).\n  Hoặc dùng --nguon "<thư mục có jsonData\\>"`);
     process.exit(1);
   }
   console.log(`Nguồn: ${SRC}${DRY ? "  (chạy thử, không chép)" : ""}`);
@@ -80,12 +83,17 @@ async function main() {
     /^(index\.json|[^\\/]+[\\/][^\\/]+[\\/]topic\.json)$/.test(rel)
   );
 
-  console.log("[2/3] Video cũ trong web (videos\\dp: index.json + mp4 + ảnh bìa)");
-  await mirror(path.join(SRC, "videos", "dp"), path.join(ROOT, "public", "videos", "dp"));
-
-  console.log("[3/3] Logo, favicon, ảnh chia sẻ, brand\\");
-  for (const f of BRAND_FILES) await copyFile(path.join(SRC, f), path.join(ROOT, "public", f));
-  for (const rel of await listFiles(path.join(SRC, "brand"))) await copyFile(path.join(SRC, "brand", rel), path.join(ROOT, "public", "brand", rel));
+  // #277: video / logo chỉ chép khi nguồn CÓ (DetPro\data không có) và KHÔNG xoá gì bên web —
+  // web tự giữ videos\dp (youtube.json do VID ghi thẳng vào web, #273) và logo.
+  if (await stat(path.join(SRC, "videos", "dp"))) {
+    console.log("[2/3] Video (videos\\dp) — chỉ chép thêm, không xoá");
+    for (const rel of await listFiles(path.join(SRC, "videos", "dp"))) await copyFile(path.join(SRC, "videos", "dp", rel), path.join(ROOT, "public", "videos", "dp", rel));
+  } else console.log("[2/3] Video: nguồn không có videos\\dp — giữ nguyên bên web");
+  if (await stat(path.join(SRC, "brand"))) {
+    console.log("[3/3] Logo, favicon, ảnh chia sẻ, brand\\");
+    for (const f of BRAND_FILES) await copyFile(path.join(SRC, f), path.join(ROOT, "public", f));
+    for (const rel of await listFiles(path.join(SRC, "brand"))) await copyFile(path.join(SRC, "brand", rel), path.join(ROOT, "public", "brand", rel));
+  } else console.log("[3/3] Logo: nguồn không có — giữ nguyên bên web");
 
   console.log(`✓ Xong: chép ${copied} tệp, giữ nguyên ${same} tệp, xoá ${removed} tệp thừa.`);
 }

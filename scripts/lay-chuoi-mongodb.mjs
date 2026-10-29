@@ -8,7 +8,7 @@ import { fileURLToPath } from "url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const i = process.argv.indexOf("--nguon");
-const SRC = path.resolve(i > 0 ? process.argv[i + 1] : path.join(ROOT, "..", "SEO-PT-projectjs", "server", "ulti", "mongodb.js"));
+const SRC = path.resolve(i > 0 ? process.argv[i + 1] : path.join(ROOT, "..", "AOLD", "SEO-PT-projectjs - 2910", "server", "ulti", "mongodb.js") /* #277: project cũ nay ở AOLD */);
 const ENV = path.join(ROOT, ".env.local");
 
 const src = await fs.readFile(SRC, "utf8").catch(() => null);

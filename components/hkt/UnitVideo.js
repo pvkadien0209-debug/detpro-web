@@ -6,7 +6,7 @@
 //   "drive": "<mã tệp>" hoặc nguyên đường dẫn https://drive.google.com/file/d/<mã>/view → phát bằng khung xem của Drive.
 import React, { useEffect, useRef, useState } from "react";
 import { Play } from "lucide-react";
-import DriveVideo from "./DriveVideo"; // #272 phát bằng trình phát gốc (toàn màn hình được trên điện thoại)
+import DriveVideo, { YtVideo } from "./DriveVideo"; // #272 phát bằng trình phát gốc (toàn màn hình được trên điện thoại)
 
 const base = () => `/videos/dp`;
 let manifest = null;
@@ -35,11 +35,22 @@ export const loadDriveList = () => {
     .catch(() => ({})));
 };
 
+// #273 (dựng lại ở #277 sau khi gói #272 ghi đè): video đã đăng YouTube — public/videos/dp/youtube.json
+//   { "<slug>--w01": { id, at? } } (VID tools/youtube xuat-web). Tới giờ công khai (at) → phát YouTube; chưa tới → vẫn Drive.
+let ytP = null;
+export const loadYoutube = () =>
+  (ytP ||= fetch("/videos/dp/youtube.json", { cache: "no-store" })
+    .then((r) => (r.ok ? r.json() : {}))
+    .catch(() => ({})));
+export const ytReady = (row) => (row?.id && (!row.at || Date.parse(row.at) <= Date.now()) ? row.id : null);
+export const ytThumb = (id) => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+
 // #241: tập hợp bài ĐÃ CÓ VIDEO (Drive <slug>--w01.mp4 hoặc dòng manifest) → tick xanh ở thẻ chủ đề, trang chủ đề, mục lục
 let videoSetP = null;
 export const loadVideoSet = () =>
-  (videoSetP ||= Promise.all([loadManifest(), loadDriveList()]).then(([m, list]) => {
+  (videoSetP ||= Promise.all([loadManifest(), loadDriveList(), loadYoutube()]).then(([m, list, yt]) => {
     const s = new Set();
+    Object.entries(yt || {}).forEach(([k, row]) => ytReady(row) && s.add(k.replace(/--w01$/, ""))); // #273
     Object.keys(list).forEach((f) => f.endsWith("--w01.mp4") && s.add(f.slice(0, -9)));
     Object.entries(m).forEach(([k, row]) => (row?.drive || row?.file) && s.add(k));
     return s;
@@ -75,11 +86,12 @@ export default function UnitVideo({ audience, slug, title }) {
     setV(null);
     setOpen(false);
     // Thứ tự: dòng "drive" trong index.json → tệp cùng tên <slug>--w01.mp4 trong thư mục Drive → dòng "file" (video thử)
-    Promise.all([loadManifest(), loadDriveList()]).then(([m, list]) => {
+    Promise.all([loadManifest(), loadDriveList(), loadYoutube()]).then(([m, list, ym]) => {
       if (!live) return;
       const row = m[`${audience}/${slug}`] || {};
       const id = row.drive || list[`${slug}--w01.mp4`];
-      setV(id || row.file ? { ...row, drive: id || null, cover: list[`${slug}--w01.jpg`] || null } : null); // #164: ảnh bìa
+      const yt = ytReady(ym?.[`${slug}--w01`]); // #273 đã công khai trên YouTube → phát YouTube
+      setV(id || row.file || yt ? { ...row, drive: id || null, yt, cover: list[`${slug}--w01.jpg`] || null } : null); // #164: ảnh bìa
     });
     return () => {
       live = false;
@@ -92,12 +104,14 @@ export default function UnitVideo({ audience, slug, title }) {
 
   if (!v) return null;
   const drive = driveId(v.drive);
-  if (!drive && !v.file) return null;
+  if (!drive && !v.file && !v.yt) return null;
   const src = drive ? `https://drive.google.com/file/d/${drive}/preview` : `${base()}/${v.file}`;
-  const poster = v.poster ? `${base()}/${v.poster}` : v.cover || drive ? `https://drive.google.com/thumbnail?id=${v.cover || drive}&sz=w1280` : undefined;
+  const poster = v.poster ? `${base()}/${v.poster}` : v.cover || drive ? `https://drive.google.com/thumbnail?id=${v.cover || drive}&sz=w1280` : v.yt ? ytThumb(v.yt) : undefined;
   return (
     <figure className="kt-uvideo">
-      {open && drive ? (
+      {open && v.yt ? (
+        <YtVideo id={v.yt} title={`Video tóm tắt: ${title}`} />
+      ) : open && drive ? (
         <DriveVideo id={drive} poster={poster} title={`Video tóm tắt: ${title}`} />
       ) : open ? (
         <video ref={ref} src={src} poster={poster} controls playsInline preload="metadata" aria-label={`Video tóm tắt: ${title}`} />
@@ -110,7 +124,7 @@ export default function UnitVideo({ audience, slug, title }) {
           <span className="kt-uvideo-tag">▶ Xem tóm tắt{v.duration ? ` · ${v.duration}` : ""}</span>
         </button>
       )}
-      <figcaption>{drive ? "Video tóm tắt bài" : "Video tóm tắt bài · chưa có giọng đọc (bản thử)"}</figcaption>
+      <figcaption>{drive || v.yt ? "Video tóm tắt bài" : "Video tóm tắt bài · chưa có giọng đọc (bản thử)"}</figcaption>
     </figure>
   );
 }

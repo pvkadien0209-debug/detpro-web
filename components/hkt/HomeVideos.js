@@ -2,7 +2,7 @@
 // #206 — Trang chủ: băng video "Bắt đầu với DetPro" — quẹt ngang qua 6 video slide-show (TC1–TC6, TC-Q6).
 // Không tự phát (#160): bấm mới phát. Video đã render và có trên Drive (trang-chu-<id>--w01.mp4) → phát bằng khung Drive;
 // chưa có → phát bản xem trước ngay trên trang: từng slide + phụ đề Việt, giọng tiếng Anh qua /api/tts (TC-Q1).
-import DriveVideo from "./DriveVideo"; // #272
+import DriveVideo, { YtVideo } from "./DriveVideo"; // #272
 import React, { useEffect, useRef, useState } from "react";
 import {
   Play, Pause, ChevronLeft, ChevronRight, Volume2, VolumeX, RotateCcw, LayoutGrid, FileText, ListChecks, Gift, Footprints, Home, Table, BarChart3,
@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import VongDet, { SIGN } from "./VongDet";
 import { HOME_VIDEOS, videoSeconds, fmtSec } from "./trangChuVideoData";
-import { loadDriveList } from "./UnitVideo";
+import { loadDriveList, loadYoutube, ytReady, ytThumb } from "./UnitVideo";
 import { playText, stopAudio } from "./audioPlayer";
 
 const ICON = {
@@ -134,10 +134,12 @@ function SlidePlayer({ v, onNext }) {
 // #228: dùng chung cho trang chủ (HOME_VIDEOS) và trang /huong-dan (GUIDE_VIDEOS)
 export default function HomeVideos({ list = HOME_VIDEOS, title = "Bắt đầu với DetPro", sub, id = "kt-hv-h" }) {
   const [drive, setDrive] = useState({});
+  const [yt, setYt] = useState({}); // #273 video trang chủ / hướng dẫn đã lên YouTube
   const [open, setOpen] = useState(null);
   const track = useRef(null);
   useEffect(() => {
     loadDriveList().then(setDrive);
+    loadYoutube().then((x) => setYt(x || {})); // #273
   }, []);
 
   const scroll = (dir) => {
@@ -170,18 +172,21 @@ export default function HomeVideos({ list = HOME_VIDEOS, title = "Bắt đầu v
           const base = v.file || `trang-chu-${v.id}`;
           const mp4 = drive[`${base}--w01.mp4`];
           const jpg = drive[`${base}--w01.jpg`];
+          const ytId = ytReady(yt[`${base}--w01`]);
           const sec = videoSeconds(v);
           return (
             <article key={v.id} className={`kt-hv-card ${open === k ? "is-open" : ""}`} style={{ "--hv": v.color }}>
               <div className="kt-hv-frame">
-                {open === k && mp4 ? (
+                {open === k && ytId ? (
+                  <YtVideo id={ytId} title={v.title} />
+                ) : open === k && mp4 ? (
                   <DriveVideo id={mp4} poster={jpg ? `https://drive.google.com/thumbnail?id=${jpg}&sz=w960` : undefined} title={v.title} />
                 ) : open === k ? (
                   <SlidePlayer v={v} onNext={k + 1 < list.length ? () => openAt(k + 1) : null} />
                 ) : (
                   <button type="button" className="kt-hv-cover" onClick={() => openAt(k)} aria-label={`Xem video: ${v.title} (${fmtSec(sec)})`}>
-                    {jpg ? (
-                      <img src={`https://drive.google.com/thumbnail?id=${jpg}&sz=w960`} alt="" loading="lazy" />
+                    {jpg || ytId ? (
+                      <img src={jpg ? `https://drive.google.com/thumbnail?id=${jpg}&sz=w960` : ytThumb(ytId)} alt="" loading="lazy" />
                     ) : (
                       <>
                         <span className="kt-hv-no">{String(k + 1).padStart(2, "0")}</span>

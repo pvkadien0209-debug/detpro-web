@@ -3,7 +3,7 @@
 //   khung video lớn (Drive — YT-Q1 #170; bấm ảnh bìa mới mở, không tự phát), tên bài, chuỗi, "Dành cho …", thời lượng,
 //   vị trí trong chuỗi + "Bài tiếp", nút nhỏ Luyện 40 câu · Đọc bài · Xem sau (YT-Q5: lời mời học nhẹ), giới thiệu trích bài viết,
 //   cột "Tiếp theo" (máy tính: bên phải; điện thoại: dưới video). Lịch sử "đã mở" lưu trên trình duyệt (YT-Q6).
-import DriveVideo from "./DriveVideo"; // #272
+import DriveVideo, { YtVideo } from "./DriveVideo"; // #273 ưu tiên YouTube đã công khai // #272
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "@/lib/router"; // Next.js: thay react-router-dom
 import { Helmet } from "@/lib/helmet"; // Next.js: tiêu đề/mô tả đặt ở trang máy chủ (generateMetadata)
@@ -75,7 +75,7 @@ export default function VideoWatchPage() {
         <div className="kt-watch-main">
           <div className="kt-watch-player">
             {open ? (
-              <DriveVideo id={v.drive} title={`Video: ${title}`} />
+              v.yt ? <YtVideo id={v.yt} title={`Video: ${title}`} /> : <DriveVideo id={v.drive} title={`Video: ${title}`} />
             ) : (
               <button
                 type="button"

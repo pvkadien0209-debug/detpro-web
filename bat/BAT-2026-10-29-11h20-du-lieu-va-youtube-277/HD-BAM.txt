@@ -1,0 +1,11 @@
+VIEC #277 - Phien web: ket noi du lieu sau doi ten goc (#275) + sua loi web khong build duoc
+
+BAM THEO THU TU:
+  1-cap-nhat-web.bat      giai nen + day web (SUA GAP: ban tren GitHub luc 10:58 build loi vi #272 ghi de 3 tep video cua #273).
+  2-khoi-tao-du-lieu.bat  (1 lan) chep du lieu bai web dang co sang C:\Dienpham\App\DetPro-QuanTri\DetPro\data\jsonData
+
+TU NAY (bat\2-du-lieu\):
+  1-dong-bo-du-lieu.bat       chep bai tu DetPro-QuanTri\DetPro\data sang web
+  2-dung-bai-va-dong-bo.bat   soan bai xong: build_units.py ghi vao DetPro\data roi chep sang web (thay cach cu ghi vao client\public)
+
+Thu sau khi web cap nhat: mo 1 bai co video -> phat duoc; video da cong khai YouTube thi phat YouTube.

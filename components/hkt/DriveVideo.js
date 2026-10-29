@@ -21,3 +21,16 @@ export default function DriveVideo({ id, poster, title, autoPlay = true, classNa
     />
   );
 }
+
+/** #273 Video đã công khai trên YouTube: khung YouTube (toàn màn hình được trên điện thoại). */
+export function YtVideo({ id, title, autoPlay = true, className }) {
+  return (
+    <iframe
+      className={className}
+      src={`https://www.youtube-nocookie.com/embed/${id}?rel=0&playsinline=1${autoPlay ? "&autoplay=1" : ""}`}
+      title={title}
+      allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
+      allowFullScreen
+    />
+  );
+}
