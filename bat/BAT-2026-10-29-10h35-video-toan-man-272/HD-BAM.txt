@@ -1,9 +1,0 @@
-VIEC #272 - Video phat bang trinh phat cua dien thoai (bam toan man hinh, khong dan sang Drive)
-
-CHI BAM 1 TEP: 1-cap-nhat-web.bat (goi gom ca #268 - #271).
-
-Thu tren iPhone sau khi web cap nhat:
-  - Mo mot bai co video tom tat -> bam Play -> bam nut toan man hinh cua trinh phat.
-  - Tua, xoay ngang deu duoc; khong con nut "mo bang Drive".
-  - Trang Video va video huong dan o trang chu cung doi theo.
-  - Neu video nao khong phat duoc, trang tu lui ve khung Drive nhu cu (khong mat video).

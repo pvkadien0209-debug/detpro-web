@@ -1,7 +1,0 @@
-VIEC #291 - Hoc rieng: hai the cung mot bai tren cung may khong ghi de nhau
-
-CHI BAM 1 TEP: 1-cap-nhat-web.bat
-(Goi nay gom ca #285 va #290. Khong can bam hai goi do nua.)
-
-Thu: mo cung mot bai o 2 the (khong vao nhom). Lam vai cau o the 1, vai cau o the 2
-  -> the kia tu cong them so cau dung, khong mat cau nao.
