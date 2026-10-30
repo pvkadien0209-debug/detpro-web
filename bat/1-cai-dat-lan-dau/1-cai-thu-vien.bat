@@ -1,4 +1,5 @@
 @echo off
+call "%~dp0..\_ghi-bam.bat" "1-cai-dat-lan-dau\1-cai-thu-vien"
 chcp 65001 >nul
 rem #233: tep .bat nam trong bat\<viec>\ -> ve thu muc goc DetPro truoc khi chay
 cd /d "%~dp0..\.."

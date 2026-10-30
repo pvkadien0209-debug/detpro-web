@@ -1,4 +1,5 @@
 @echo off
+call "%~dp0..\_ghi-bam.bat" "2-du-lieu\2-dung-bai-va-dong-bo"
 chcp 65001 >nul
 rem #277: dung lai toan bo bai (build_units.py) vao DetPro\data\jsonData roi chep sang web. Bai co LOI thi dung lai, khong ghi gi.
 cd /d "C:\Dienpham\App\DetPro-QuanTri\DetPro\noi-dung\soan"

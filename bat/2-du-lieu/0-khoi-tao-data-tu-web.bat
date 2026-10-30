@@ -1,4 +1,5 @@
 @echo off
+call "%~dp0..\_ghi-bam.bat" "2-du-lieu\0-khoi-tao-data-tu-web"
 chcp 65001 >nul
 rem #277 (lam 1 lan sau #275): chep du lieu bai web dang co sang DetPro-QuanTri\DetPro\data\jsonData
 rem   (thu muc du lieu dung chung web + Remotion; build_units.py se ghi vao day). Chi chep tep chua co / moi hon, khong xoa gi.

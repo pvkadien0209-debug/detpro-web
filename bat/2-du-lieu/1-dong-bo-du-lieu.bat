@@ -1,4 +1,5 @@
 @echo off
+call "%~dp0..\_ghi-bam.bat" "2-du-lieu\1-dong-bo-du-lieu"
 chcp 65001 >nul
 rem #233: tep .bat nam trong bat\<viec>\ -> ve thu muc goc DetPro truoc khi chay
 rem #277: nguon moi = DetPro-QuanTri\DetPro\data (goc SEO-PT-projectjs da doi ten o #275)

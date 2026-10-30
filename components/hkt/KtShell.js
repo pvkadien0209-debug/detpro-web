@@ -164,7 +164,8 @@ export const BRAND = {
   slogan: "Mỗi ngày biết thêm một điều hay",
   sloganEn: "One a day, the DetPro way",
   meaning: "Quyết tâm mỗi ngày, tiến bộ mỗi ngày",
-  fanpage: "", // dán địa chỉ Fanpage DetPro khi đã lập trang → hiện liên kết "Fanpage" ở chân trang
+  fanpage: "https://www.facebook.com/hocvoidetpro", // #309: Fanpage DetPro (lập 29/10/2026)
+  youtube: "https://www.youtube.com/@hocvoidetpro", // #309: kênh YouTube DetPro
 };
 
 function BrandFooter() {
@@ -201,6 +202,11 @@ function BrandFooter() {
         {BRAND.fanpage && (
           <a href={BRAND.fanpage} target="_blank" rel="noopener noreferrer">
             Fanpage DetPro
+          </a>
+        )}
+        {BRAND.youtube && (
+          <a href={BRAND.youtube} target="_blank" rel="noopener noreferrer">
+            YouTube DetPro
           </a>
         )}
       </nav>
