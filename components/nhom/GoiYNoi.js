@@ -5,6 +5,7 @@
 import React, { useEffect, useState } from "react";
 import { loadUnit } from "@/components/hkt/unitData";
 import { AnhNhacNut, boGoc, ngatDong, taiAnh } from "./AnhNhac";
+import { docCheDo } from "@/components/hkt/hoTro"; // #354 bản dễ cho người mới
 
 const W = 1080;
 const PAD = 72;
@@ -182,6 +183,8 @@ export default function GoiYNoi({ u, bai, nhom }) {
       live = false;
     };
   }, [u.audience, u.slug]);
+  const [de, setDe] = useState(false);
+  useEffect(() => setDe(docCheDo() === "moi"), []);
   if (loi) return <p className="kt-muted">Chưa tải được gợi ý — thử lại sau.</p>;
   if (!unit) return <p className="kt-muted">Đang soạn gợi ý…</p>;
   const g = taoGoiY(unit);
@@ -191,6 +194,21 @@ export default function GoiYNoi({ u, bai, nhom }) {
         <b>💡 Gợi ý bài nói (1–2 phút)</b>
         <AnhNhacNut ten={`goi-y-noi-${u.slug}`} label="Tải ảnh gợi ý" className="kt-btn" tieuDe="Ảnh gợi ý bài nói" meo="Lưu ảnh vào điện thoại để nhìn khi ghi âm." title="Tải gợi ý về bằng ảnh" ve={veAnhGoiY} make={() => ({ g, bai, nhom })} />
       </header>
+      <div className="nh-goiy-tab" role="group" aria-label="Kiểu gợi ý">
+        <button type="button" className={de ? "is-on" : ""} aria-pressed={de} onClick={() => setDe(true)}>🌱 Bản dễ (3 câu)</button>
+        <button type="button" className={!de ? "is-on" : ""} aria-pressed={!de} onClick={() => setDe(false)}>Bản đầy đủ (1–2 phút)</button>
+      </div>
+      {de ? (
+        <div className="nh-goiy-de">
+          <p className="kt-muted">Mới bắt đầu: nói đúng 3 câu này (thay phần … bằng ý của bạn) — 30 giây cũng được, quan trọng là bắt đầu.</p>
+          <ol>
+            <li lang="en"><b>Today I learned about {g.chuDe.replace(/[.?!]*$/, "").replace(/^./, (x) => x.toLowerCase())}.</b></li>
+            <li lang="en"><b>One important idea is: {g.y[0]?.cau || "…"}.</b></li>
+            <li lang="en"><b>I will try … because …</b></li>
+          </ol>
+        </div>
+      ) : (
+      <>
       <p className="nh-goiy-chude" lang="en">{g.chuDe}</p>
       <ol>
         <li>
@@ -218,6 +236,8 @@ export default function GoiYNoi({ u, bai, nhom }) {
           <code key={m} lang="en">{m}</code>
         ))}
       </p>
+      </>
+      )}
     </section>
   );
 }

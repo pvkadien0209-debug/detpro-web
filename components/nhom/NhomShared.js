@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { Link } from "@/lib/router";
 import { Bell, Copy, Check, MessageCircle, Send, Mic, Square, Trash2, X, Reply, CircleCheck, Play, Pause, Tag } from "lucide-react";
 import { api, ApiErr, tepUrl } from "./nhomClient";
-import { dongHo, fmtHan } from "@/components/hkt/nhomRules";
+import { dongHo, fmtHan, NHAN_DOC } from "@/components/hkt/nhomRules";
 import { startRecording, canRecord } from "@/components/hkt/recorder";
 
 /** Tải GET /api/nhom/<mã> và hỏi lại mỗi `every` ms (mục 10: 10–15 giây). Lệch giờ máy ↔ máy chủ được bù (skew). */
@@ -179,6 +179,23 @@ const writeSeen = (ma, who, v) => {
 const HD_ICON = (v) => (/^Đang làm/.test(v) ? "✏️" : /^Đạt điều kiện/.test(v) ? "🌟" : /^Đã xong/.test(v) ? "✅" : /^Xong cả/.test(v) ? "🌸" : /^Báo đã gửi bài nói/.test(v) ? "🎤" : /^Vào nhóm/.test(v) ? "👋" : /^Nhận huy hiệu/.test(v) ? "🏅" : "🎉");
 const K_HD = "dp.nhom.chatHoatDong";
 
+/** #359 mở khung Hỏi đáp và điền sẵn lời (người học sửa rồi tự bấm Gửi). */
+export const vietChat = (text) => {
+  try { window.dispatchEvent(new CustomEvent("nh-chat-viet", { detail: text })); } catch { /* bỏ qua */ }
+};
+/** #359 khối "Chưa đọc được?" — 2 nút điền sẵn lời nhắn người hướng dẫn. */
+export function NhanDoc({ bai, gon = false }) {
+  return (
+    <div className={`nh-nhandoc${gon ? " is-gon" : ""}`}>
+      <p>{NHAN_DOC.ghiChu}</p>
+      <div className="nh-row">
+        <button type="button" className="kt-btn" onClick={() => vietChat(NHAN_DOC.choNay(bai))}>💬 Chỗ này mình chưa đọc được</button>
+        <button type="button" className="kt-btn" onClick={() => vietChat(NHAN_DOC.tuDau)}>🆘 Chưa biết đọc, cần học từ đầu</button>
+      </div>
+    </div>
+  );
+}
+
 export function NhomChat({ ma, who, gan, floating = false, chatTat, linkFor, slotId, chiBai, hd, members = [] }) {
   const [hienHd, setHienHd] = useState(true);
   useEffect(() => {
@@ -210,6 +227,29 @@ export function NhomChat({ ma, who, gan, floating = false, chatTat, linkFor, slo
   const [draft, setDraft] = useState(null); // { blob, ms, url }
   const lastRef = useRef("");
   const boxRef = useRef(null);
+  const taRef = useRef(null); // #354 bấm vào tin → trả lời
+  useEffect(() => {
+    // #359 nút "Nhắn người hướng dẫn" ở nơi khác → mở chat, điền sẵn lời
+    const nghe = (e) => {
+      setOpen(true);
+      setText(String(e.detail || ""));
+      setTimeout(() => { const t = taRef.current; if (t) { t.focus(); t.scrollIntoView({ block: "center", behavior: "smooth" }); } }, 60);
+    };
+    window.addEventListener("nh-chat-viet", nghe);
+    return () => window.removeEventListener("nh-chat-viet", nghe);
+  }, []);
+  const traLoiTin = (t) => {
+    if (t.xoa || t.tu === "det" || (chatTat && !who.k)) return;
+    setReply(t);
+    setTimeout(() => taRef.current?.focus(), 30);
+  };
+  const toiTin = (tid) => {
+    const el = boxRef.current?.querySelector(`[data-tin="${tid}"]`);
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    el.classList.add("is-flash");
+    setTimeout(() => el.classList.remove("is-flash"), 1400);
+  };
   const meKey = who.k ? "huong-dan" : who.id;
   const [seen, setSeen] = useState("");
   useEffect(() => setSeen(readSeen(ma, meKey)), [ma, meKey]);
@@ -376,7 +416,16 @@ export function NhomChat({ ma, who, gan, floating = false, chatTat, linkFor, slo
           const q = t.traLoi && byId.get(t.traLoi);
           const cls = t.tu === "huong-dan" ? "is-hd" : t.tu === "det" ? "is-det" : mine ? "is-me" : "";
           return (
-            <article key={t._id} className={`nh-msg ${cls} ${t.xoa ? "is-del" : ""}`}>
+            <article
+              key={t._id}
+              data-tin={t._id}
+              className={`nh-msg ${cls} ${t.xoa ? "is-del" : ""} ${!t.xoa && t.tu !== "det" ? "is-bam" : ""} ${reply?._id === t._id ? "is-traloi" : ""}`}
+              title={!t.xoa && t.tu !== "det" ? "Bấm vào tin để trả lời (câu trả lời đính kèm tin này)" : undefined}
+              onClick={(e) => {
+                if (e.target.closest("a,button,audio,input,textarea,blockquote")) return;
+                traLoiTin(t);
+              }}
+            >
               <header>
                 <b>{t.tu === "huong-dan" ? `${t.ten} · hướng dẫn` : t.ten}</b>
                 <time>{fmtTime(t.luc)}</time>
@@ -386,7 +435,11 @@ export function NhomChat({ ma, who, gan, floating = false, chatTat, linkFor, slo
                   </span>
                 )}
               </header>
-              {q && <blockquote>{q.xoa ? "(tin đã xoá)" : `${q.ten}: ${q.loai === "giong" ? "🎤 tin giọng" : q.chu.slice(0, 120)}`}</blockquote>}
+              {q && (
+                <blockquote className="is-bam" title="Bấm để tới tin gốc" onClick={() => toiTin(q._id)}>
+                  ↩ {q.xoa ? "(tin đã xoá)" : `${q.ten}: ${q.loai === "giong" ? "🎤 tin giọng" : q.chu.slice(0, 120)}`}
+                </blockquote>
+              )}
               {t.gan?.nhan &&
                 (linkFor && t.gan.bai ? (
                   <Link className="nh-tag" to={linkFor(t.gan)}>
@@ -436,6 +489,13 @@ export function NhomChat({ ma, who, gan, floating = false, chatTat, linkFor, slo
               </button>
             </p>
           )}
+          {gan && !who.k && !text && !reply && (
+            <p className="nh-docnhanh">
+              {/* #359 trong bài: gắn sẵn câu đang làm → chỉ cần bấm */}
+              <button type="button" onClick={() => { setText(`🔤 Câu này mình chưa đọc được: … (ghi từ / chỗ khó). Nhờ người hướng dẫn chỉ cách đọc.`); setUseTag(true); setTimeout(() => taRef.current?.focus(), 30); }}>🔤 Câu này mình chưa đọc được</button>
+              <button type="button" onClick={() => { setText(NHAN_DOC.tuDau); setTimeout(() => taRef.current?.focus(), 30); }}>🆘 Chưa biết đọc, cần học từ đầu</button>
+            </p>
+          )}
           {gan && (
             <label className="nh-tagopt">
               <input type="checkbox" checked={useTag} onChange={(e) => setUseTag(e.target.checked)} /> Gắn nhãn “{gan.nhan}”
@@ -472,7 +532,7 @@ export function NhomChat({ ma, who, gan, floating = false, chatTat, linkFor, slo
                 send();
               }}
             >
-              <textarea value={text} maxLength={2000} rows={2} placeholder="Viết câu hỏi hoặc trả lời…" onChange={(e) => setText(e.target.value)}
+              <textarea ref={taRef} value={text} maxLength={2000} rows={2} placeholder={reply ? `Trả lời ${reply.ten}…` : "Viết câu hỏi… (bấm vào một tin để trả lời tin đó)"} onChange={(e) => setText(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();

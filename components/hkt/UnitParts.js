@@ -13,6 +13,7 @@ import { matchAnswer, scoreOption } from "./matcher";
 import { MATCH } from "./config";
 import { shownOptions, shuffle, newQaRun, reshuffleQaRest, qaTotal, paraKind, frameOf, hasIllustrativeCharacters } from "./unitData";
 import VongDet from "./VongDet";
+import { NutCham, viMoSan } from "./hoTro"; // #354
 import { useNhom } from "@/components/nhom/nhomClient"; // #230 Học cùng
 
 const html = (s) => ({ __html: s });
@@ -93,6 +94,9 @@ export function Modal({ open, onClose, title, children, wide }) {
  */
 export function ViHint({ text, className = "hkt-u-qvi" }) {
   const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (viMoSan()) setOpen(true); // #354 chế độ "Mới bắt đầu": tiếng Việt mở sẵn
+  }, [text]);
   useEffect(() => {
     const onKey = (e) => {
       if (e.key !== "v" && e.key !== "V") return;
@@ -445,6 +449,7 @@ export function PickPart({ unit, prog, update, player, openExplain, refButton, o
           <button type="button" className="kt-dicon kt-darrow" disabled={i === qs.length - 1} onClick={() => go(i + 1)} aria-label="Câu sau" title="Câu sau (→)">
             <ArrowRight size={18} aria-hidden="true" />
           </button>
+          <NutCham />
           {refButton}
         </div>
       </div>
@@ -1056,6 +1061,7 @@ export function SayPart({ unit, prog, update, player, openExplain, refButton, on
           <button type="button" className="kt-dicon kt-darrow" disabled={at === qs.length - 1} onClick={() => goAt(at + 1)} aria-label="Câu sau" title="Câu sau (→)">
             <ArrowRight size={18} aria-hidden="true" />
           </button>
+          <NutCham />
           {refButton}
         </div>
       </div>
@@ -1227,6 +1233,7 @@ export function TrueFalsePart({ unit, prog, update, player, openExplain, refButt
         <LamTiepBao text={baoTiep} />
         <div className="kt-dnav">
           <ShuffleButton used={!!qa.dao} onClick={() => !qa.dao && set({ items: reshuffleQaRest(qa.items, doneHere ? pos + 1 : pos), dao: Date.now() })} />
+          <NutCham />
           {refButton}
         </div>
       </div>

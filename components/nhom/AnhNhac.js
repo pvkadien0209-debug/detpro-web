@@ -1,7 +1,7 @@
 "use client";
 // #321 Nhắc nhở dạng ẢNH (chuyên nghiệp) để gửi Zalo — bên cạnh nút chép lời giữ nguyên.
 // Vẽ bằng canvas ngay trên máy (không thư viện, không gửi đi đâu): dải màu DetPro, tên nhóm, bài, hạn,
-// danh sách người chưa xong + 5 ô tiến độ, link vào học. Xem trước → Chép ảnh / Gửi ảnh (điện thoại) / Tải ảnh.
+// danh sách người chưa xong + ô tiến độ (3 bài tập + bài nói), dải 🎯 mục tiêu bài nói (#347), link vào học. Xem trước → Chép ảnh / Gửi ảnh (điện thoại) / Tải ảnh.
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Image as ImageIcon, X, Copy, Check, Share2, Download } from "lucide-react";
@@ -132,15 +132,50 @@ export async function veAnhNhac(d) {
     y += 40 + (ll.length - 1) * 52 + 14;
   }
 
-  // danh sách người (3 phần bài tập: Trắc nghiệm · Nghe nói · True or false)
+  // #350 dải mục tiêu + 4 ý: Việc của bạn · Làm thế nào · Người hướng dẫn · Để tiến bộ
+  {
+    y += 44;
+    const nv = d.nv || {};
+    const muc = [
+      ["🙋 Việc của bạn", nv.ban],
+      ["🛠 Làm thế nào", nv.cach],
+      ["🎧 Người hướng dẫn", nv.hd],
+      ["📈 Để tiến bộ", nv.tienBo],
+    ].filter((x) => x[1]);
+    c.font = F(26, 600);
+    const dong = muc.map(([nh, t]) => [nh, ngatDong(c, t, W - PAD * 2 - 68, 3)]);
+    const bh = 76 + dong.reduce((n, [, l]) => n + 50 + l.length * 36, 0) + 4;
+    c.fillStyle = "#fff8e1";
+    boGoc(c, PAD, y, W - PAD * 2, bh, 22);
+    c.fill();
+    c.fillStyle = "#f59e0b";
+    boGoc(c, PAD, y, 12, bh, 6);
+    c.fill();
+    c.fillStyle = "#7c4a00";
+    c.font = F(32, 800);
+    c.fillText("🎯 MỤC TIÊU: BÀI NÓI THẬT CUỐI BÀI", PAD + 34, y + 52);
+    let yy = y + 76;
+    for (const [nh, ls] of dong) {
+      c.fillStyle = "#9a5b00";
+      c.font = F(24, 800);
+      c.fillText(nh.toUpperCase(), PAD + 34, yy + 26);
+      c.fillStyle = "#3b2f05";
+      c.font = F(26, 600);
+      ls.forEach((l, k) => c.fillText(l, PAD + 34, yy + 62 + k * 36));
+      yy += 50 + ls.length * 36;
+    }
+    y += bh;
+  }
+
+  // danh sách người (3 phần bài tập: Trắc nghiệm · Nghe nói · True or false + #347 ô NÓI)
   if (ds.length) {
     y += 56;
     c.font = F(28, 800);
     c.fillStyle = MUTED;
     c.fillText(d.loai === "giuc" ? "TIẾN ĐỘ BÀI TẬP" : `CHƯA XONG (${(d.ds || []).length})`, PAD, y);
-    const nhanO = ["TN", "NN", "TF"];
+    const nhanO = ["TN", "NN", "TF", "NÓI"];
     c.font = F(22, 800);
-    nhanO.forEach((t, k) => c.fillText(t, W - PAD - 24 - (3 - k) * 76 + 16, y));
+    nhanO.forEach((t, k) => c.fillText(t, W - PAD - 24 - (4 - k) * 76 + (k === 3 ? 6 : 16), y));
     y += 18;
     for (const p of ds) {
       c.fillStyle = "#fff";
@@ -162,9 +197,9 @@ export async function veAnhNhac(d) {
       c.font = F(24, 500);
       c.fillText(String(p.d || "chưa bắt đầu").slice(0, 34), PAD + 96, y + 68);
       const g = (p.g || []).slice(2, 5);
-      for (let k = 0; k < 3; k++) {
-        c.fillStyle = g[k] ? "#22c55e" : "#e5e7eb";
-        boGoc(c, W - PAD - 24 - (3 - k) * 76, y + 25, 64, 32, 10);
+      for (let k = 0; k < 4; k++) {
+        c.fillStyle = k < 3 ? (g[k] ? "#22c55e" : "#e5e7eb") : p.noi === "xanh" ? "#22c55e" : p.noi === "vang" ? "#fbbf24" : "#fde2e2";
+        boGoc(c, W - PAD - 24 - (4 - k) * 76, y + 25, 64, 32, 10);
         c.fill();
       }
       y += 96;

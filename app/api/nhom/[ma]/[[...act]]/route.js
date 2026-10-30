@@ -12,7 +12,7 @@
 //  GET  /api/nhom/<mã>/huong-dan          (tiêu đề x-nhom-k) mọi thứ cho người hướng dẫn
 //  POST /api/nhom/<mã>/quan-ly            { k, viec, … } cài đặt, duyệt bài nói tự do (+ nhận xét), Tạm nghỉ, PIN, xoá ID
 import {
-  HttpErr, xemNhom, vao, docTienDo, ghiTienDo, baoGuiNoi, docTin, guiTin, suaTin, docTep, guiNhan, xoaNhan, themHdr, xoaHdr, xemHuongDan, quanLy, docNhatKy, hoatDong,
+  HttpErr, xemNhom, vao, docTienDo, ghiTienDo, baoGuiNoi, docTin, guiTin, suaTin, docTep, guiNhan, xoaNhan, themHdr, xoaHdr, xemHuongDan, quanLy, docNhatKy, hoatDong, ghiTrinhDo,
 } from "@/lib/nhom.server";
 
 export const runtime = "nodejs";
@@ -80,6 +80,8 @@ export async function POST(req, { params }) {
         return ok(await ghiTienDo(ma, body));
       case "noi":
         return ok(await baoGuiNoi(ma, body));
+      case "trinh-do": // #354 tự đánh giá lúc vào nhóm
+        return ok(await ghiTrinhDo(ma, body));
       case "tin":
         return ok(await guiTin(ma, body, audio));
       case "tin/sua":

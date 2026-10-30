@@ -271,3 +271,92 @@ export function chuoiNgay(hocNgay, d = ngayVN()) {
   }
   return n;
 }
+
+// ---------- #347 Mục tiêu của mỗi bài: BÀI NÓI THẬT cuối bài; bài tập là để chuẩn bị nói; người hướng dẫn chủ yếu nghe & sửa bài nói ----------
+export const MUC_TIEU = "🎯 Mục tiêu: bài nói thật cuối bài — bài tập là để chuẩn bị."; // #350 chi tiết 4 ý ở nhacChu()
+export const MUC_TIEU_NGAN = "🎯 Mục tiêu là bài nói cuối bài — bài tập để chuẩn bị nói.";
+export const VIEC_HUONG_DAN = "Việc chính của người hướng dẫn: nghe và sửa bài nói của từng bạn; trả lời thắc mắc, hỗ trợ khi cần, gửi hướng dẫn riêng, chuẩn bị bài, cùng làm để tạo động lực, nhắc nhở."; // #350
+// #347 "Ai làm việc gì" — để người học thấy rõ phần được kèm riêng (không phải "trả tiền mà tự học")
+export const VIEC_MOI_NGUOI = [
+  { ai: "Bạn", icon: "🙋", viec: "Làm 3 bài tập để chuẩn bị (khoảng 20 phút, chấm ngay), rồi nói 1–2 phút bằng tiếng Anh và gửi bài nói." },
+  { ai: "Người hướng dẫn", icon: "🎧", viec: "Nghe từng bài nói của bạn, sửa riêng phát âm – cách dùng từ – ý; trả lời thắc mắc trong Hỏi đáp, hỗ trợ khi bạn cần, gửi hướng dẫn riêng; chuẩn bị bài, cùng làm với nhóm để tạo động lực, nhắc nhở để không ai bị bỏ lại." }, // #350
+  { ai: "Đét & DetPro", icon: "🤖", viec: "Soạn bài, chấm bài tập ngay, gợi ý bài nói, nhắc lịch và hạn cho cả nhóm." },
+];
+
+// ---------- #359 Chưa đọc được → nhắn người hướng dẫn (một chỗ dùng chung: màn chào, cây, trang bài) ----------
+export const NHAN_DOC = {
+  ghiChu: "🔤 Không đọc được chỗ nào thì nhắn người hướng dẫn (ghi bài, câu/từ đó). Hoàn toàn chưa biết đọc tiếng Anh, cần học lại từ đầu — cũng nhắn ngay để được hướng dẫn riêng cách đọc.",
+  choNay: (bai) => `Mình chưa đọc được chỗ này${bai ? ` ở ${bai}` : ""}: … (ghi câu / từ). Nhờ người hướng dẫn chỉ cách đọc giúp mình.`,
+  tuDau: "Mình hoàn toàn chưa biết đọc tiếng Anh, cần học lại từ đầu (cách đọc U E O A I, âm ơ…). Nhờ người hướng dẫn chỉ mình bắt đầu từ đâu.",
+};
+
+// ---------- #350 Nhắc nhở 4 ý: Việc của bạn · Làm thế nào · Người hướng dẫn · Để tiến bộ (theo đúng bước của từng người) ----------
+const TEN_PHAN_TAP = { quiz: "Trắc nghiệm", "listen-speak": "Nghe nói", "true-or-false": "True or false" };
+/** Bước hiện tại của một người ở một bài: t = tom[bài] (g, a, c), noi = noi[bài]. */
+export function buocCua(t, noi) {
+  // đã gửi bài nói → xét bước bài nói trước (gửi rồi thì không nhắc lại từ đầu)
+  if (noi?.baoGui) return noi.ghiChu ? { b: "sua" } : !noi.xanh ? { b: "cho" } : { b: "xong" };
+  const g = t?.g || [];
+  const lam = ["quiz", "listen-speak", "true-or-false"];
+  const j = [2, 3, 4].find((i) => !g[i]);
+  if (j !== undefined) {
+    const k = lam[j - 2];
+    const chuaBatDau = !t || lam.every((x) => !t.c?.[x]) && !g[2] && !g[3] && !g[4];
+    return chuaBatDau ? { b: "doc" } : { b: "bai-tap", phan: k, dem: t.c?.[k] || 0, of: k === "true-or-false" ? 80 : 40, vang: !!t.a?.[j] };
+  }
+  if (!noi?.baoGui) return { b: "noi" };
+  if (noi.ghiChu) return { b: "sua" };
+  if (!noi.xanh) return { b: "cho" };
+  return { b: "xong" };
+}
+const MEO = {
+  doc: ["Đọc chậm ở chữ tô đậm — 40 câu hỏi đều nằm ở đó.", "Học 15–20 phút mỗi ngày đều đặn tốt hơn dồn một buổi dài."],
+  "bai-tap": ["Câu sai: đọc “Giải thích” rồi “Luyện lại câu sai” — sai là đang học.", "Ở Nghe nói, nói to thành tiếng: miệng quen thì lúc nói thật mới trôi."],
+  noi: ["Dùng lại câu tiếng Anh trong gợi ý, thêm một ví dụ của chính bạn.", "Nghe lại bài nói của mình trước khi gửi và tự sửa một chỗ."],
+  cho: ["Trong lúc chờ: nghe lại bài nói của mình, đoán trước chỗ cần sửa.", "Làm trước bài sau để có thêm thời gian cho bài nói kế tiếp."],
+  sua: ["Ghi lại 2–3 lỗi được sửa, nói lại đúng câu đó cho tới khi trôi.", "Bài sau cố tránh đúng những lỗi vừa được sửa — đó là tiến bộ thật."],
+  xong: ["Động viên bạn cùng nhóm trong Hỏi đáp — nhóm đi đều thì ai cũng xa hơn.", "Ôn lại câu sai cũ trước khi bài mới mở."],
+};
+const meo = (b, seed = 0) => {
+  const ds = MEO[b] || MEO["bai-tap"];
+  return ds[Math.abs(seed) % ds.length];
+};
+/** 4 ý theo bước. bai = "Bài 2". seed để đổi mẹo (vd. ngày). */
+export function nhacViec(bc, bai = "bài này", seed = 0) {
+  const b = bc?.b || "chung";
+  if (b === "doc")
+    return { ban: `Bắt đầu ${bai}: đọc Bài viết (khoảng 6 phút) rồi làm Trắc nghiệm.`, cach: "Mở link nhóm → bấm “Học tiếp” → đọc bài → làm bài tập (chấm ngay, có Giải thích).", hd: "Đã chuẩn bị bài và đang cùng làm với nhóm; có gì chưa hiểu hỏi trong Hỏi đáp — người hướng dẫn trả lời.", tienBo: meo(b, seed) };
+  if (b === "bai-tap")
+    return {
+      ban: bc.vang ? `Bạn đã đạt ${TEN_PHAN_TAP[bc.phan]} — bấm “Đã xong phần này” để lưu.` : `Làm tiếp ${TEN_PHAN_TAP[bc.phan]} của ${bai} (đang ${bc.dem}/${bc.of}) — đây là phần chuẩn bị cho bài nói.`,
+      cach: "Mở bài → trang tự về câu đang dở (“▶ Làm tiếp”) → đạt điều kiện thì bấm “Đã xong phần này”.",
+      hd: "Trả lời thắc mắc trong Hỏi đáp (bấm “Hỏi” ở câu đang làm — tin tự gắn nhãn câu), chờ bài nói của bạn để nghe và sửa riêng.",
+      tienBo: meo(b, seed),
+    };
+  if (b === "noi")
+    return { ban: `Xong 3 bài tập rồi — giờ là phần chính: nói 1–2 phút về ${bai} bằng tiếng Anh và gửi.`, cach: "Bấm hoa cuối cành → xem “Gợi ý bài nói” → ghi âm bằng Zalo → gửi vào kênh nhóm → bấm “Đã gửi bài nói”.", hd: "Nghe bài nói của bạn, sửa riêng phát âm – cách dùng từ – ý; gửi hướng dẫn riêng nếu bạn cần.", tienBo: meo(b, seed) };
+  if (b === "cho")
+    return { ban: "Bài nói đã gửi — chờ nhận xét. Trong lúc chờ có thể làm trước bài sau.", cach: "Nhận xét hiện ở hoa bài nói (bấm hoa để xem).", hd: "Đang nghe và sửa bài nói của bạn.", tienBo: meo(b, seed) };
+  if (b === "sua")
+    return { ban: "Đọc nhận xét, nói lại những câu được sửa (gửi thêm bài nếu muốn).", cach: "Bấm hoa bài nói → đọc nhận xét → ghi âm lại → “Tôi gửi thêm bài”.", hd: "Đã sửa bài nói của bạn — xem ở hoa bài nói.", tienBo: meo(b, seed) };
+  if (b === "xong") return { ban: `Bạn xong ${bai} rồi — làm trước bài sau hoặc động viên bạn cùng nhóm.`, cach: "Bấm “Học tiếp” trên cây nhóm.", hd: "Đã nhận bài nói của bạn.", tienBo: meo(b, seed) };
+  return {
+    ban: `Làm 3 bài tập của ${bai} để chuẩn bị, rồi nói 1–2 phút bằng tiếng Anh và gửi.`,
+    cach: "Mở link nhóm → “Học tiếp” (tự về câu đang dở) → xong 5 lá thì bấm hoa lấy gợi ý bài nói → ghi âm Zalo → gửi.",
+    hd: "Nghe và sửa riêng từng bài nói (phát âm – cách dùng từ – ý); trả lời thắc mắc, gửi hướng dẫn riêng khi bạn cần; cùng làm và nhắc nhở cả nhóm.",
+    tienBo: [MEO["bai-tap"][0], MEO.noi[0], MEO.doc[1], MEO.sua[0]][Math.abs(seed) % 4],
+  };
+}
+/** Dạng chữ 4 dòng (Zalo / Hỏi đáp). */
+export const nhacChu = (n) => `🙋 Việc của bạn: ${n.ban}\n🛠 Làm thế nào: ${n.cach}\n🎧 Người hướng dẫn: ${n.hd}\n📈 Để tiến bộ: ${n.tienBo}`;
+/** Việc ngắn của một người (dòng trong danh sách). */
+export function viecNgan(bc) {
+  const b = bc?.b;
+  if (b === "doc") return "cần bắt đầu đọc bài";
+  if (b === "bai-tap") return bc.vang ? `bấm “Đã xong” ${TEN_PHAN_TAP[bc.phan]}` : `làm tiếp ${TEN_PHAN_TAP[bc.phan]} ${bc.dem}/${bc.of}`;
+  if (b === "noi") return "cần nói và gửi bài nói";
+  if (b === "cho") return "đã gửi bài nói, chờ sửa";
+  if (b === "sua") return "xem nhận xét, nói lại";
+  return "đã xong";
+}
+export const ngaySeed = () => Math.floor(Date.now() / 864e5);

@@ -11,6 +11,7 @@ import ListenAll from "./ListenAll";
 import PartGuide from "./PartGuide"; // #231 hướng dẫn riêng từng phần
 // #230 Học cùng: trong nhóm (/nhom/<mã>/<id>/…) tiến độ đọc/ghi trên máy chủ, đường dẫn giữ nhóm, ngưỡng nhóm, khoá chặng
 import { useNhom, inPopup } from "@/components/nhom/nhomClient";
+import { NutCham } from "./hoTro"; // #354
 import { useBaoTroThu } from "./troThuCtx"; // #269
 import { partDoneNhom, unitGreenCount, unitGreen, baiMo, dieuKien, PHAN_TAP, gopTienDo } from "./nhomRules";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -482,6 +483,9 @@ export default function UnitPage({ initialUnit = null }) {
                   );
                 })()}
                 {/* #228: nghe lần lượt cả 40 câu, chọn hiện câu hỏi / đáp án / cả hai / nghe chay */}
+                <p className="kt-cham-row">
+                  <NutCham className="kt-btn kt-cham" /> <span className="kt-muted">Nghe chậm (0,75×) cho cả bảng và phần nghe 40 câu</span>
+                </p>
                 <details className="kt-la-wrap">
                   <summary>🎧 Nghe cả {qs.length} câu (câu hỏi + đáp án đúng) — chọn hiện câu hỏi, đáp án, cả hai hoặc nghe chay</summary>
                   <ListenAll questions={qs} />

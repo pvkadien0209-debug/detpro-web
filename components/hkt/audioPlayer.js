@@ -151,6 +151,8 @@ export function releaseAudioForMic() {
 /**
  * Đọc một câu tiếng Anh. Trả về Promise xong khi đọc hết HOẶC bị dừng.
  */
+import { tocDoNghe } from "./hoTro"; // #354 nghe chậm
+
 export function playText(text) {
   stopAudio();
   const token = ++tokenSeq;
@@ -163,7 +165,9 @@ export function playText(text) {
   }
   return new Promise((resolve) => {
     current = { token, source: null, audio: null, utter: null, resolve };
-    playWebAudio(text, token).catch(() => playElement(text, token));
+    // #354 nghe chậm: dùng thẻ <audio> (giữ cao độ giọng khi chậm lại); bình thường giữ Web Audio như cũ
+    if (tocDoNghe() < 1) playElement(text, token);
+    else playWebAudio(text, token).catch(() => playElement(text, token));
   });
 }
 
@@ -188,6 +192,11 @@ async function playElement(text, token) {
     const url = await getUrl(text);
     if (!current || current.token !== token) return;
     const audio = new Audio(url);
+    const r = tocDoNghe();
+    if (r !== 1) {
+      audio.preservesPitch = true;
+      audio.playbackRate = r;
+    }
     current.audio = audio;
     audio.onended = () => finish(token);
     audio.onerror = () => speakBrowser(text, token);
@@ -204,7 +213,7 @@ function speakBrowser(text, token) {
   synth.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = "en-US";
-  u.rate = 0.9;
+  u.rate = 0.9 * tocDoNghe();
   const voice = synth.getVoices().find((v) => v.lang && v.lang.startsWith("en"));
   if (voice) u.voice = voice;
   u.onend = () => finish(token);

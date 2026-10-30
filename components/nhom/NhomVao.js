@@ -9,7 +9,7 @@ import KtShell, { useBodyClass } from "@/components/hkt/KtShell";
 import { VongDetLoading } from "@/components/hkt/VongDet";
 import { api, setPin, getPin, ApiErr, getMyId, setMyId, rememberGroup } from "./nhomClient";
 import { useNhomView, errText } from "./NhomShared";
-import { idFromName, isId, nhomPath } from "@/components/hkt/nhomRules";
+import { idFromName, isId, nhomPath, VIEC_MOI_NGUOI } from "@/components/hkt/nhomRules";
 
 function PinForm({ ma, id, ten, onOk, onCancel, msg, inline }) {
   const [pin, setP] = useState("");
@@ -222,8 +222,19 @@ export default function NhomVao({ ma }) {
         </p>
         <h1 className="kt-h1">{g.ten}</h1>
         <p className="kt-lead">
-          Chuỗi “{g.chuoi.title}” · {g.chuoi.bai.length} bài · trưởng nhóm: {g.tenHuongDan}
+          Chuỗi “{g.chuoi.title}” · {g.chuoi.bai.length} bài · người hướng dẫn: {g.tenHuongDan}
         </p>
+        {/* #347 ai làm việc gì — rõ phần được kèm riêng */}
+        <ul className="nh-viec">
+          {VIEC_MOI_NGUOI.map((x) => (
+            <li key={x.ai}>
+              <span aria-hidden="true">{x.icon}</span>
+              <span>
+                <b>{x.ai}:</b> {x.viec}
+              </span>
+            </li>
+          ))}
+        </ul>
         {aiM && (
           <p className="nh-door-note">
             Link này là trang của <b>{aiM.ten}</b>. Nếu bạn là {aiM.ten}, gõ PIN bên dưới. Nếu không phải — chọn tên của bạn, hoặc bấm <b>“Tôi là người mới”</b>.
@@ -249,7 +260,7 @@ export default function NhomVao({ ma }) {
                 <span>
                   <b>
                     {m.ten}
-                    {g.nguoiTaoId === m.id && " · trưởng nhóm"}
+                    {g.nguoiTaoId === m.id && " · người hướng dẫn"}
                   </b>
                   <small>
                     {m.id}

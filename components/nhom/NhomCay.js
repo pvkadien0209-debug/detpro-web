@@ -13,13 +13,14 @@ import { StatsCard, NhanCard, nhanMoi, markNhanSeen } from "./NhomExtra";
 import PartGuide from "@/components/hkt/PartGuide";
 import NhatKyList from "./NhomNhatKy"; // #260
 import { PartPopup, QaPopup } from "./NhomPopup"; // #250 (NHA A3, D, E); bỏ "Hướng dẫn riêng" (NHA H)
-import { useNhomView, useNow, changInfo, baiLabel, Countdown, NhacBell, CopyBtn, origin, errText, NhomChat, NhanXet } from "./NhomShared";
+import { useNhomView, useNow, changInfo, baiLabel, Countdown, NhacBell, CopyBtn, origin, errText, NhomChat, NhanXet, NhanDoc } from "./NhomShared";
 import { api, setPin, setMyId, rememberGroup, guiCho } from "./nhomClient";
 import { useBaoTroThu } from "@/components/hkt/troThuCtx";
 import { AnhNhacNut, hanChu } from "./AnhNhac";
-import GoiYNoi from "./GoiYNoi"; // #325 gợi ý bài nói // #321 nhắc nhở dạng ảnh
+import GoiYNoi from "./GoiYNoi";
+import ManChao, { docChao, ghiChao } from "./ManChao"; // #354 màn chào người mới // #325 gợi ý bài nói // #321 nhắc nhở dạng ảnh
 import { SoiNoiCard, SoiNoiStrip, useHoatDong, HuyHieuRow } from "./NhomSoiNoi"; // #298
-import { PART_KEYS, PART_SHORT, baiKey, baiMo, baiMoCua, nhomPath, nhomUnitPath, unitGreen, dangDo, mocNho, phanDangLam, fmtHan } from "@/components/hkt/nhomRules";
+import { PART_KEYS, PART_SHORT, baiKey, baiMo, baiMoCua, nhomPath, nhomUnitPath, unitGreen, dangDo, mocNho, phanDangLam, fmtHan, MUC_TIEU, MUC_TIEU_NGAN, VIEC_HUONG_DAN, VIEC_MOI_NGUOI, buocCua, nhacViec, nhacChu, viecNgan, ngaySeed } from "@/components/hkt/nhomRules";
 
 const ago = (d, now) => {
   const s = Math.max(0, (now - new Date(d).getTime()) / 1000);
@@ -174,6 +175,14 @@ function Inner({ ma, id }) {
   const [msg, setMsg] = useState("");
   const [busyR, setBusyR] = useState(false);
   const hd = useHoatDong(ma, id); // #298 dòng việc của nhóm
+  // #354 màn chào người mới (bỏ qua được; ngày 2 nhắc riêng 1 lần)
+  const [chao, setChao] = useState(false);
+  const [nhacChao, setNhacChao] = useState(false);
+  useEffect(() => {
+    const v = docChao(ma, id);
+    if (!v) setChao("tu-dong");
+    else if (v.tt === "bo" && !v.nhac2 && Date.now() - (v.luc || 0) > 20 * 3600e3) setNhacChao(true);
+  }, [ma, id]);
   // #298 TD-Q1: còn câu chưa lưu từ lần trước (mất mạng) → gửi lên rồi cập nhật cây
   useEffect(() => {
     guiCho(ma, id).then((n) => n && reload());
@@ -226,6 +235,7 @@ function Inner({ ma, id }) {
       openFlower: () => setFlower({ u, k: ch }),
       hocTiep: () => sau && setPop({ title: `${baiLabel(sau, ch + 1)} · Bài viết`, href: nhomUnitPath(ma, id, sau.audience, sau.slug, "") }),
       mo: (tb) => setTab(tb),
+      xemChao: () => setChao("xem"), // #354
     };
   }, [data, id]);
   if (err && !data) return <p className="nh-center hkt-u-err">{errText(err)}</p>;
@@ -272,22 +282,27 @@ function Inner({ ma, id }) {
   };
   // #285 (LB-Q4): giục = chép sẵn câu kèm link nhóm để dán Zalo + vẫn đăng vào Hỏi đáp
   const giuc = async (m) => {
-    const cau = `⏰ ${m.ten} ơi, vào làm ${baiLabel(ci.u, ci.ch)}: ${ci.u.title} nhé (đang: ${m.tom?.[curKey]?.d || "chưa bắt đầu"})${ci.dh ? ` — ${fmtHan(ci.dh.con)}` : ""}. Vào học: ${share}`;
+    // #350 nhắc 4 ý theo đúng bước của bạn đó
+    const bc = buocCua(m.tom?.[curKey], m.noi?.[curKey]);
+    const nv = nhacViec(bc, baiLabel(ci.u, ci.ch), ngaySeed());
+    const cau = `⏰ ${m.ten} ơi — ${baiLabel(ci.u, ci.ch)}: ${ci.u.title}${ci.dh ? ` (${fmtHan(ci.dh.con)})` : ""}\n${MUC_TIEU}\n${nhacChu(nv)}\nVào học: ${share}`;
     await chep(cau);
     try {
-      await api(`${ma}/tin`, { id, body: { chu: `⏰ ${me.ten} giục ${m.ten}: vào làm ${baiLabel(ci.u, ci.ch)} nhé — ${m.tom?.[curKey]?.d || "chưa bắt đầu"}!` } });
-      setMsg(`Đã chép câu giục ${m.ten} — dán vào Zalo. (Cũng đã đăng trong Hỏi đáp.)`);
+      await api(`${ma}/tin`, { id, body: { chu: `⏰ ${me.ten} nhắc ${m.ten} (${viecNgan(bc)}):\n${nhacChu(nv)}` } });
+      setMsg(`Đã chép lời nhắc ${m.ten} — dán vào Zalo. (Cũng đã đăng trong Hỏi đáp.)`);
     } catch (e) {
-      setMsg(`Đã chép câu giục ${m.ten} — dán vào Zalo.`);
+      setMsg(`Đã chép lời nhắc ${m.ten} — dán vào Zalo.`);
     }
   };
+  // #347 lời nhắc luôn ghi mục tiêu: bài nói cuối bài (bài tập = chuẩn bị); kèm tình trạng bài nói từng người
+  // #350 lời nhắc chung: mục tiêu + 4 ý + việc ngắn của từng người
   const loiNhac = ci.u
-    ? `⏰ ${nhom.ten} — ${baiLabel(ci.u, ci.ch)}: ${ci.u.title}${ci.dh ? ` (${fmtHan(ci.dh.con)})` : ""}\nChưa xong: ${slow.map((m) => `${m.ten} (${m.tom?.[curKey]?.d || "chưa bắt đầu"})`).join(", ") || "không ai"}\nVào học: ${share}`
+    ? `⏰ ${nhom.ten} — ${baiLabel(ci.u, ci.ch)}: ${ci.u.title}${ci.dh ? ` (${fmtHan(ci.dh.con)})` : ""}\n${MUC_TIEU}\n${nhacChu(nhacViec(null, baiLabel(ci.u, ci.ch), ngaySeed()))}\nTừng bạn: ${slow.map((m) => `${m.ten} — ${viecNgan(buocCua(m.tom?.[curKey], m.noi?.[curKey]))}`).join("; ") || "mọi người đã xong"}\nVào học: ${share}`
     : "";
   // #321 dữ liệu ảnh nhắc nhở (chung)
-  const anhGoc = () => ({ nhom: nhom.ten, bai: baiLabel(ci.u, ci.ch), tieuDe: ci.u.title, han: ci.dh ? hanChu(ci.dh.con) : "", link: share, tu: me.ten });
-  const nguoiAnh = (m) => ({ ten: m.ten, d: m.tom?.[curKey]?.d || "chưa bắt đầu", g: m.tom?.[curKey]?.g || [] });
-  const thongBaoMo = ci.u ? `📢 ${nhom.ten}: ${baiLabel(ci.u, ci.ch)} đã mở — ${ci.u.title}${ci.dh ? ` (hạn: ${fmtHan(ci.dh.con)})` : ""}. Vào học: ${share}` : "";
+  const anhGoc = () => ({ nv: nhacViec(null, baiLabel(ci.u, ci.ch), ngaySeed()), nhom: nhom.ten, bai: baiLabel(ci.u, ci.ch), tieuDe: ci.u.title, han: ci.dh ? hanChu(ci.dh.con) : "", link: share, tu: me.ten });
+  const nguoiAnh = (m) => ({ ten: m.ten, d: m.tom?.[curKey]?.d || "chưa bắt đầu", g: m.tom?.[curKey]?.g || [], noi: m.noi?.[curKey]?.xanh ? "xanh" : m.noi?.[curKey]?.baoGui ? "vang" : "" }); // #347 thêm ô NÓI
+  const thongBaoMo = ci.u ? `📢 ${nhom.ten}: ${baiLabel(ci.u, ci.ch)} đã mở — ${ci.u.title}${ci.dh ? ` (hạn: ${fmtHan(ci.dh.con)})` : ""}.\n${MUC_TIEU}\n${nhacChu(nhacViec({ b: "doc" }, baiLabel(ci.u, ci.ch), ngaySeed()))}\nVào học: ${share}` : ""; // #350
   const anBaoMo = () => {
     try {
       localStorage.setItem(`dp.nhom.baoMo.${ma}`, String(ci.ch));
@@ -324,6 +339,7 @@ function Inner({ ma, id }) {
 
   return (
     <div className="nh-wrap nh-home">
+      {chao && (chao === "xem" || !laChu) && <ManChao ma={ma} id={id} nhom={nhom} onDong={() => { setChao(false); reload(); }} />}
       <header className="nh-head">
         <div>
           <p className="kt-kicker">
@@ -369,6 +385,16 @@ function Inner({ ma, id }) {
         </CopyBtn>
       </div>
 
+      {laChu && (() => {
+        // #347 việc chính của người hướng dẫn: nghe & sửa bài nói
+        const cho = data.members.reduce((n, m) => n + Object.values(m.noi || {}).filter((x) => x?.baoGui && !x.xanh).length, 0);
+        return (
+          <div className={`nh-viecthay ${cho ? "is-cho" : ""}`} role="status">
+            <span>🎤 {cho ? <><b>{cho} bài nói</b> chờ người hướng dẫn nghe &amp; sửa</> : "Chưa có bài nói mới"} — {VIEC_HUONG_DAN}</span>
+            {cho > 0 && <button type="button" className="kt-btn kt-btn--pri" onClick={() => setTab("noi")}>Mở Duyệt bài nói</button>}
+          </div>
+        );
+      })()}
       {laChu && ci.u && ci.ch > daBaoMo && !ci.xong && (
         <div className="nh-baomo" role="status">
           <span>
@@ -377,7 +403,7 @@ function Inner({ ma, id }) {
           <CopyBtn text={thongBaoMo} className="kt-btn kt-btn--pri">
             Chép thông báo
           </CopyBtn>
-          <AnhNhacNut ten="bai-moi" label="Ảnh thông báo" make={() => ({ ...anhGoc(), loai: "mo", loi: ci.ch > 0 ? `Cả nhóm đã xong ${baiLabel(nhom.chuoi.bai[ci.ch - 1], ci.ch - 1)} — vào làm bài mới ngay nhé!` : "Vào làm bài mới ngay nhé!" })} />
+          <AnhNhacNut ten="bai-moi" label="Ảnh thông báo" make={() => ({ ...anhGoc(), nv: nhacViec({ b: "doc" }, baiLabel(ci.u, ci.ch), ngaySeed()), loai: "mo", loi: ci.ch > 0 ? `Cả nhóm đã xong ${baiLabel(nhom.chuoi.bai[ci.ch - 1], ci.ch - 1)} — vào làm bài mới ngay nhé!` : "Vào làm bài mới ngay nhé!" })} />
           <button type="button" className="kt-linkbtn" onClick={anBaoMo}>
             Đã báo, ẩn
           </button>
@@ -412,6 +438,7 @@ function Inner({ ma, id }) {
               <button key={m.id} type="button" className={view === m.id ? "is-on" : ""} onClick={() => openView(m.id)}>
                 {m.id === id ? `${m.ten} (tôi)` : m.ten}
                 {m.chuoi > 0 && <small className={`nh-lua ${m.homNay === null ? "is-cho" : ""}`} title={m.homNay === null ? `Chuỗi ${m.chuoi} ngày — hôm nay chưa học` : `Chuỗi ${m.chuoi} ngày học liên tục`}>🔥{m.chuoi}</small>}
+                {m.trinhDo === "moi" && <small className="nh-moi-n" title="Mới bắt đầu — cần kèm sát hơn">🌱</small>}
                 {m.huyHieu?.length > 0 && <small className="nh-hh-n" title={`${m.huyHieu.length} huy hiệu`}>🏅{m.huyHieu.length}</small>}
                 {nhanCount(m.id) > 0 && <small className="nh-who-n">❤ {nhanCount(m.id)}</small>}
               </button>
@@ -456,7 +483,7 @@ function Inner({ ma, id }) {
                               <button type="button" className="nh-mini" onClick={() => giuc(m)} title="Chép câu giục kèm link nhóm để dán vào Zalo">
                                 Giục bạn
                               </button>
-                              <AnhNhacNut ten={`giuc-${m.id}`} label="" className="nh-mini nh-mini-anh" title={`Ảnh giục ${m.ten}`} make={() => ({ ...anhGoc(), loai: "giuc", ten: m.ten, loi: `${m.ten} ơi, vào làm bài nhé — cả nhóm đang chờ bạn 💪`, ds: [nguoiAnh(m)] })} />
+                              <AnhNhacNut ten={`giuc-${m.id}`} label="" className="nh-mini nh-mini-anh" title={`Ảnh giục ${m.ten}`} make={() => ({ ...anhGoc(), nv: nhacViec(buocCua(m.tom?.[curKey], m.noi?.[curKey]), baiLabel(ci.u, ci.ch), ngaySeed()), loai: "giuc", ten: m.ten, loi: `${m.ten} ơi, đây là việc của bạn ở ${baiLabel(ci.u, ci.ch)} 👇`, ds: [nguoiAnh(m)] })} />
                             </span>
                           )}
                         </li>
@@ -468,6 +495,52 @@ function Inner({ ma, id }) {
                 </section>
               )}
               {!viewM && <p className="kt-muted nh-hint">Bấm tên một người để xem thống kê và gửi lời nhắn, chọc nhau trên cây của họ.</p>}
+              {nhacChao && (
+                <section className="nh-card nh-nhacchao" role="status">
+                  <p>📽 <b>Bạn chưa xem giới thiệu nhóm</b> (2 phút) — để biết việc của bạn, việc của người hướng dẫn và công cụ khi tiếng Anh còn yếu.</p>
+                  <div className="nh-row">
+                    <button type="button" className="kt-btn kt-btn--pri" onClick={() => { ghiChao(ma, id, { nhac2: true }); setNhacChao(false); setChao("xem"); }}>Xem ngay</button>
+                    <button type="button" className="kt-linkbtn" onClick={() => { ghiChao(ma, id, { nhac2: true }); setNhacChao(false); }}>Không cần</button>
+                  </div>
+                </section>
+              )}
+              {ci.u && me.trangThai === "hoc" && (() => {
+                // #350 việc của chính mình bây giờ — 4 ý theo bước
+                const nv = nhacViec(buocCua(me.tom?.[curKey], me.noi?.[curKey]), baiLabel(ci.u, ci.ch), ngaySeed());
+                return (
+                  <section className="nh-card nh-bayGio">
+                    <h2>🎯 Việc của bạn bây giờ</h2>
+                    <dl>
+                      <dt>🙋 Việc của bạn</dt>
+                      <dd>{nv.ban}</dd>
+                      <dt>🛠 Làm thế nào</dt>
+                      <dd>{nv.cach}</dd>
+                      <dt>🎧 Người hướng dẫn</dt>
+                      <dd>{nv.hd}</dd>
+                      <dt>📈 Để tiến bộ</dt>
+                      <dd>{nv.tienBo}</dd>
+                    </dl>
+                    <NhanDoc bai={baiLabel(ci.u, ci.ch)} />
+                  </section>
+                );
+              })()}
+              <details className="nh-card nh-viec-card">
+                <summary>
+                  <b>Ai làm việc gì trong nhóm</b>
+                </summary>
+                <ul className="nh-viec">
+                  {VIEC_MOI_NGUOI.map((x) => (
+                    <li key={x.ai} className={x.ai === "Người hướng dẫn" ? "is-hd" : ""}>
+                      <span aria-hidden="true">{x.icon}</span>
+                      <span>
+                        <b>{x.ai}:</b> {x.viec}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="kt-muted nh-viec-chot">Bài tập giúp bạn sẵn sàng — phần được kèm riêng là bài nói của bạn.</p>
+                <button type="button" className="kt-linkbtn" onClick={() => setChao("xem")}>📽 Xem lại giới thiệu nhóm · đổi chế độ hỗ trợ</button>
+              </details>
               <SoiNoiCard ma={ma} id={id} me={me} members={data.members} hd={hd} />
               {rong && (
                 <div className="nh-chat-side">
@@ -534,7 +607,7 @@ function Inner({ ma, id }) {
           ) : (
           <>
           <p>
-            🎤 <b>Hãy nói những gì bạn nghĩ và nhớ</b> về bài “{flower.u.title}” — bằng tiếng Anh, dài ngắn tuỳ bạn — rồi gửi cho trưởng nhóm qua kênh của nhóm.
+            🎤 <b>Đây là phần chính của cả bài:</b> nói những gì bạn nghĩ và nhớ về “{flower.u.title}” bằng tiếng Anh (1–2 phút), rồi gửi qua kênh của nhóm. <b>Người hướng dẫn sẽ nghe và sửa riêng bài nói của bạn</b> — phát âm, cách dùng từ, ý.
           </p>
           {(() => {
             const noi = me.noi?.[baiKey(flower.u)];

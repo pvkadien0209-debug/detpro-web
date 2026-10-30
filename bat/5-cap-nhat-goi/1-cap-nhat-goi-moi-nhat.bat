@@ -19,13 +19,15 @@ echo.
 echo ===== Goi moi nhat: %GOI% =====
 if exist "%GOIDIR%\%GOI%.txt" type "%GOIDIR%\%GOI%.txt"
 echo.
-set /p OK=Giai nen %GOI% vao C:\Dienpham\App va day len web? Go y roi Enter: 
+set /p OK=Giai nen %GOI% vao thu muc web va day len web? Go y roi Enter: 
 if /i not "%OK%"=="y" (
   echo Da huy, chua lam gi.
   pause
   exit /b 0
 )
-tar -xf "%GOIDIR%\%GOI%.zip" -C "C:\Dienpham\App"
+rem #362 giai nen vao thu muc CHUA thu muc web that (App\Web neu da chuyen #332) - khong phu thuoc loi tat App\DetPro
+for %%I in ("%~dp0..\..\..") do set "GOCWEB=%%~fI"
+tar -xf "%GOIDIR%\%GOI%.zip" -C "%GOCWEB%"
 if errorlevel 1 (
   echo LOI giai nen - chup man hinh gui Claude.
   pause
