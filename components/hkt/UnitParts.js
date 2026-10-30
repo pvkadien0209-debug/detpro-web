@@ -317,31 +317,53 @@ function Pill({ children, tone }) {
 
 // ---------- 3. Trắc nghiệm — FX-Q1 (#068): từng câu một trong khung cố định ----------
 // Đọc / nghe câu hỏi, bấm 1 trong 3 đáp án. Đúng → tô vàng, tự sang câu chưa làm sau 1,5 giây
-// (bấm "Giải thích" thì dừng lại). Sai → tô đỏ, chọn lại. Ô "Câu x/40" mở lưới 40 câu để nhảy.
+// (bấm "Giải thích" thì dừng lại). #319 Sai → tô đỏ + hiện đáp án đúng, KHÔNG chọn lại, KHÔNG tự sang câu (tự bấm "Câu tiếp"). Ô "Câu x/40" mở lưới 40 câu để nhảy.
 export function PickPart({ unit, prog, update, player, openExplain, refButton, onNextPart }) {
   const qs = unit.questions;
   const pick = { ok: {}, bad: {}, wrong: 0, ...(prog.pick || {}) }; // #269 dữ liệu thiếu khoá (bản cũ / máy chủ) không làm sập trang
   const [tuSang, setTuSang] = useTuSang(); // #285
   const [dung, setDung] = useState(false);
   const okCount = Object.keys(pick.ok).length;
+  // #319 mỗi câu chỉ chọn MỘT lần: chọn sai = câu đã làm (sai), không chọn lại; muốn làm lại → "Luyện lại câu sai" ở báo cáo
+  const saiSet = new Set(Object.keys(pick.bad).map((key) => +key.split("-")[0]).filter((k) => !pick.ok[k]));
+  const daLam = (k) => !!pick.ok[k] || saiSet.has(k);
+  const lamCount = okCount + saiSet.size;
   const firstOpen = () => {
-    for (let k = 0; k < qs.length; k++) if (!pick.ok[k]) return k;
+    for (let k = 0; k < qs.length; k++) if (!daLam(k)) return k;
     return 0;
   };
   const i = Math.min(pick.pos ?? firstOpen(), qs.length - 1);
   const q = qs[i];
   const opts = shownOptions(q);
   const solved = !!pick.ok[i];
+  const saiCau = !solved && saiSet.has(i); // #319
+  const xongCau = solved || saiCau;
   const [gridOpen, setGridOpen] = useState(false);
   const [review, setReview] = useState(false); // #160: xong cả 40 câu → hiện báo cáo; bấm "Xem lại từng câu" mới về câu hỏi
   const grp = useNhom();
   useEffect(() => { grp?.setCau?.(i); }, [i]); // eslint-disable-line react-hooks/exhaustive-deps
   const stageRef = useStageTop(i);
   const go = (n) => update({ pick: { ...pick, pos: Math.max(0, Math.min(qs.length - 1, n)) } });
-  const nextOpen = (from = i, ok = pick.ok) => {
+  // #319 câu làm tiếp = câu chưa đúng đầu tiên SAU câu vừa làm tới (pick.cuoi)
+  const tiep = (() => {
+    if (lamCount >= qs.length) return null;
+    const from = pick.cuoi ?? -1;
+    for (let k = 1; k <= qs.length; k++) {
+      const n = (from + k + qs.length) % qs.length;
+      if (!daLam(n)) return n;
+    }
+    return null;
+  })();
+  const [baoTiep, setBaoTiep] = useState("");
+  useLamTiepLucMo(lamCount, () => {
+    if (tiep === null) return;
+    setBaoTiep(`▶ Làm tiếp từ câu ${tiep + 1}/${qs.length} — bạn đã làm ${lamCount} câu (đúng ${okCount})`);
+    if (xongCau && tiep !== i) go(tiep); // mở lại phần mà đang đứng ở câu đã làm → về câu làm dở
+  });
+  const nextOpen = (from = i) => {
     for (let k = 1; k <= qs.length; k++) {
       const n = (from + k) % qs.length;
-      if (!ok[n]) return n;
+      if (!daLam(n)) return n;
     }
     return null;
   };
@@ -353,15 +375,15 @@ export function PickPart({ unit, prog, update, player, openExplain, refButton, o
 
   const onPick = (k) => {
     const o = opts[k];
-    if (solved) {
-      if (o.ok) openExplain(i);
+    if (xongCau) {
+      if (o.ok) openExplain(i); // #319 đã chọn rồi → không chọn lại; bấm đáp án đúng = xem giải thích
       return;
     }
     if (o.ok) {
       const ok = { ...pick.ok, [i]: 1 };
-      update({ pick: { ...pick, ok, pos: i } });
-    } else if (!pick.bad[`${i}-${k}`]) {
-      update({ pick: { ...pick, bad: { ...pick.bad, [`${i}-${k}`]: 1 }, wrong: pick.wrong + 1, pos: i } });
+      update({ pick: { ...pick, ok, pos: i, cuoi: i } });
+    } else {
+      update({ pick: { ...pick, bad: { ...pick.bad, [`${i}-${k}`]: 1 }, wrong: pick.wrong + 1, pos: i, cuoi: i } }); // sai → khoá câu, tự bấm Câu tiếp
     }
   };
   const explain = () => {
@@ -377,10 +399,9 @@ export function PickPart({ unit, prog, update, player, openExplain, refButton, o
     ArrowLeft: () => i > 0 && go(i - 1),
     ArrowRight: () => i < qs.length - 1 && go(i + 1),
   };
-  if (solved && n !== null) keys.Enter = () => go(n);
-  useDrillKeys(keys, [i, solved, n, pick]);
-  const badHere = opts.some((o, k) => pick.bad[`${i}-${k}`]);
-  const allDone = okCount === qs.length;
+  if (xongCau && n !== null) keys.Enter = () => go(n);
+  useDrillKeys(keys, [i, solved, xongCau, n, pick]);
+  const allDone = lamCount === qs.length; // #319 làm hết 40 câu (đúng hoặc sai) → báo cáo
   if (allDone && !review)
     return (
       <PartReport
@@ -414,7 +435,9 @@ export function PickPart({ unit, prog, update, player, openExplain, refButton, o
           </button>
           <Pill tone="ok">Đúng {okCount}</Pill>
           <Pill tone="bad">Sai {pick.wrong}</Pill>
+          {tiep !== null && tiep !== i && <LamTiepNut so={tiep + 1} of={qs.length} onGo={() => go(tiep)} />}
         </div>
+        <LamTiepBao text={baoTiep} />
         <div className="kt-dnav">
           <button type="button" className="kt-dicon kt-darrow" disabled={i === 0} onClick={() => go(i - 1)} aria-label="Câu trước" title="Câu trước (←)">
             <ArrowLeft size={18} aria-hidden="true" />
@@ -426,7 +449,7 @@ export function PickPart({ unit, prog, update, player, openExplain, refButton, o
         </div>
       </div>
       <div className="hkt-progress-bar">
-        <span style={{ width: `${(okCount / qs.length) * 100}%` }} />
+        <span style={{ width: `${(lamCount / qs.length) * 100}%` }} />
       </div>
       <div className="kt-dstage" ref={stageRef}>
         {allDone && (
@@ -449,7 +472,7 @@ export function PickPart({ unit, prog, update, player, openExplain, refButton, o
       <div className="kt-ddock">
         <div className="kt-dchoices">
           {opts.map((o, k) => {
-            const ok = solved && o.ok;
+            const ok = xongCau && o.ok; // #319 chọn sai cũng hiện đáp án đúng
             const bad = pick.bad[`${i}-${k}`];
             return (
               <button
@@ -477,8 +500,18 @@ export function PickPart({ unit, prog, update, player, openExplain, refButton, o
             {n !== null && <NextBtn onGo={() => go(n)} auto={tuSang} dung={dung} resetKey={i} />}
             <TuSangChip on={tuSang} setOn={setTuSang} />
           </div>
+        ) : saiCau ? (
+          <div className="kt-drow is-bad">
+            <span className="kt-dmsg">
+              <X size={18} aria-hidden="true" /> Sai — đáp án đúng là số {opts.findIndex((o) => o.ok) + 1}. Xem lại vì sao rồi bấm “Câu tiếp”.
+            </span>
+            <button type="button" className="hkt-btn" onClick={explain}>
+              Giải thích
+            </button>
+            {n !== null && <NextBtn onGo={() => go(n)} auto={false} dung resetKey={i} />}
+          </div>
         ) : (
-          <Status fb={badHere ? { tone: "bad", text: "Chưa đúng — chọn lại." } : null} />
+          <Status fb={null} />
         )}
         <KeyHint>Phím tắt: 1 2 3 chọn đáp án · Q nghe câu hỏi · V tiếng Việt · Enter câu tiếp · ← → đổi câu</KeyHint>
       </div>
@@ -488,12 +521,12 @@ export function PickPart({ unit, prog, update, player, openExplain, refButton, o
             <button
               key={k}
               type="button"
-              className={`${pick.ok[k] ? "is-done" : ""} ${k === i ? "is-cur" : ""}`}
+              className={`${pick.ok[k] ? "is-done" : ""} ${saiSet.has(k) ? "is-bad" : ""} ${k === i ? "is-cur" : ""}`}
               onClick={() => {
                 go(k);
                 setGridOpen(false);
               }}
-              aria-label={`Câu ${k + 1}${pick.ok[k] ? " — đã đúng" : ""}`}
+              aria-label={`Câu ${k + 1}${pick.ok[k] ? " — đã đúng" : saiSet.has(k) ? " — đã sai" : ""}`}
             >
               {k + 1}
             </button>
@@ -703,27 +736,74 @@ function useStageTop(key) {
   return ref;
 }
 /** #073: nút đảo thứ tự câu (Nghe nói, True or false) — câu đã làm giữ kết quả. */
-function ShuffleButton({ onClick }) {
+// #319: mỗi bài chỉ đảo thứ tự MỘT lần (thứ tự lưu lại → "Làm tiếp" luôn đúng chỗ). Bấm lần 1 = hỏi, bấm lần 2 trong 4 giây = đảo.
+function ShuffleButton({ onClick, used }) {
+  const [hoi, setHoi] = useState(false);
   const [flash, setFlash] = useState(false);
+  useEffect(() => {
+    if (!hoi) return;
+    const t = setTimeout(() => setHoi(false), 4000);
+    return () => clearTimeout(t);
+  }, [hoi]);
   useEffect(() => {
     if (!flash) return;
     const t = setTimeout(() => setFlash(false), 1600);
     return () => clearTimeout(t);
   }, [flash]);
+  if (used)
+    return (
+      <span className="kt-dicon is-used" title="Bài này đã đảo thứ tự (mỗi bài chỉ đảo 1 lần — thứ tự được lưu để làm tiếp đúng chỗ)" aria-label="Đã đảo thứ tự">
+        <Shuffle size={18} aria-hidden="true" />
+      </span>
+    );
   return (
     <button
       type="button"
-      className={`kt-dicon ${flash ? "is-flash" : ""}`}
+      className={`kt-dicon ${flash ? "is-flash" : ""} ${hoi ? "is-ask" : ""}`}
       onClick={() => {
+        if (!hoi) return setHoi(true);
+        setHoi(false);
         onClick();
         setFlash(true);
       }}
-      aria-label="Đảo thứ tự các câu chưa làm"
-      title={flash ? "Đã đảo thứ tự" : "Đảo thứ tự các câu chưa làm"}
+      aria-label={hoi ? "Bấm lần nữa để đảo — chỉ được 1 lần" : "Đảo thứ tự các câu chưa làm (chỉ 1 lần)"}
+      title={hoi ? "Bấm lần nữa để đảo — mỗi bài chỉ được 1 lần" : "Đảo thứ tự các câu chưa làm (mỗi bài chỉ 1 lần)"}
     >
       <Shuffle size={18} aria-hidden="true" />
+      {hoi && <span className="kt-dask">Bấm lần nữa để đảo (chỉ 1 lần)</span>}
     </button>
   );
+}
+
+// #319 "Làm tiếp": nút về câu đang làm dở + báo khi vừa mở phần
+function LamTiepNut({ so, of, onGo }) {
+  return (
+    <button type="button" className="kt-lamtiep" onClick={onGo} title="Về câu đang làm dở">
+      ▶ Làm tiếp câu {so}/{of}
+    </button>
+  );
+}
+function LamTiepBao({ text }) {
+  const [hien, setHien] = useState(false);
+  useEffect(() => {
+    if (!text) return undefined;
+    setHien(true);
+    const t = setTimeout(() => setHien(false), 4500);
+    return () => clearTimeout(t);
+  }, [text]);
+  return hien && text ? <p className="kt-lamtiep-bao" role="status">{text}</p> : null;
+}
+/** #319 Lúc vừa mở phần: chờ tiến độ đọc xong (trang có thể hiện trước) rồi xét MỘT lần — báo + về câu làm dở. */
+function useLamTiepLucMo(daLamN, xet) {
+  const mo = useRef(Date.now());
+  const xong = useRef(false);
+  useEffect(() => {
+    if (xong.current) return;
+    if (Date.now() - mo.current > 3000) return void (xong.current = true);
+    if (!daLamN) return;
+    xong.current = true;
+    xet();
+  }, [daLamN]); // eslint-disable-line react-hooks/exhaustive-deps
 }
 const canHover = () => typeof window !== "undefined" && window.matchMedia?.("(hover: hover)").matches;
 function KeyHint({ children }) {
@@ -873,11 +953,29 @@ export function SayPart({ unit, prog, update, player, openExplain, refButton, on
     }
     return null;
   };
+  const daDao = !!say.order; // #319 đã đảo một lần → thứ tự giữ nguyên
   const reshuffle = () => {
+    if (daDao) return;
     const o = shuffle([...Array(qs.length).keys()]);
     const first = o.find((k) => !say.ok[k]);
-    update({ say: { ...say, order: o, pos: first ?? o[0] } });
+    update({ say: { ...say, order: o, pos: first ?? o[0], cuoi: undefined } });
   };
+  // #319 câu làm tiếp theo THỨ TỰ đang dùng (kể cả đã đảo)
+  const tiep = (() => {
+    if (okCount >= qs.length) return null;
+    const from = say.cuoi !== undefined && say.cuoi !== null ? order.indexOf(say.cuoi) : -1;
+    for (let k = 1; k <= qs.length; k++) {
+      const n = order[(from + k + qs.length) % qs.length];
+      if (!say.ok[n]) return n;
+    }
+    return null;
+  })();
+  const [baoTiep, setBaoTiep] = useState("");
+  useLamTiepLucMo(okCount, () => {
+    if (tiep === null) return;
+    setBaoTiep(`▶ Làm tiếp từ câu ${order.indexOf(tiep) + 1}/${qs.length}${say.order ? " (thứ tự đã đảo)" : ""} — bạn đã nói đúng ${okCount} câu`);
+    if (solved && tiep !== i) go(tiep);
+  });
 
   const onSubmit = (alts, mode) => {
     if (solved) return;
@@ -887,10 +985,10 @@ export function SayPart({ unit, prog, update, player, openExplain, refButton, on
     const p = pctTo(alts, opts.find((o) => o.ok).text);
     const base = { ...say, said, ...(mode === "speak" ? { reads: [...(say.reads || []), { i, p }].slice(-600) } : {}) };
     if (r.status === "match" && opts[r.key].ok) {
-      update({ say: { ...base, ok: { ...say.ok, [i]: k1(r.key) } } });
+      update({ say: { ...base, ok: { ...say.ok, [i]: k1(r.key) }, cuoi: i } });
       setFb(null);
     } else if (r.status === "match") {
-      update({ say: { ...base, wrong: say.wrong + 1, bad: { ...say.bad, [i]: (say.bad?.[i] || 0) + 1 } } });
+      update({ say: { ...base, wrong: say.wrong + 1, bad: { ...say.bad, [i]: (say.bad?.[i] || 0) + 1 }, cuoi: i } });
       setFb({ tone: "bad", text: `Bạn vừa nói đáp án ${r.key + 1} — chưa đúng (khớp đáp án đúng ${p}%). Nghe lại và thử tiếp.`, said: r.said });
     } else {
       // U3-Q3 (#061): máy không hiểu (không khớp / gần nhiều đáp án) → không tính Sai, hỏi lại
@@ -947,9 +1045,11 @@ export function SayPart({ unit, prog, update, player, openExplain, refButton, on
           <Pill>Câu {at + 1}/{qs.length}</Pill>
           <Pill tone="ok">Đúng {okCount}</Pill>
           <Pill tone="bad">Sai {say.wrong}</Pill>
+          {tiep !== null && tiep !== i && <LamTiepNut so={order.indexOf(tiep) + 1} of={qs.length} onGo={() => go(tiep)} />}
         </div>
+        <LamTiepBao text={baoTiep} />
         <div className="kt-dnav">
-          <ShuffleButton onClick={reshuffle} />
+          <ShuffleButton onClick={reshuffle} used={daDao} />
           <button type="button" className="kt-dicon kt-darrow" disabled={at === 0} onClick={() => goAt(at - 1)} aria-label="Câu trước" title="Câu trước (←)">
             <ArrowLeft size={18} aria-hidden="true" />
           </button>
@@ -1058,6 +1158,12 @@ export function TrueFalsePart({ unit, prog, update, player, openExplain, refButt
   const [tuSang, setTuSang] = useTuSang(); // #285
   const [dung, setDung] = useState(false);
   useEffect(() => setDung(false), [pos]);
+  // #319 vừa mở phần mà đã làm dở → báo "Làm tiếp từ câu …" (True or false luôn đi thẳng, vị trí lưu ở qa.pos)
+  const [baoTiep, setBaoTiep] = useState("");
+  const tfDa = qa ? Object.keys(qa.done || {}).length : 0;
+  useLamTiepLucMo(tfDa, () => {
+    if (qa && !qa.finished) setBaoTiep(`▶ Làm tiếp từ câu ${Math.min(pos + (qa.done[pos] ? 2 : 1), qa.items.length)}/${qa.items.length}${qa.dao ? " (thứ tự đã đảo)" : ""} — bạn đã làm ${tfDa} câu`);
+  });
   useEffect(() => { grp?.setCau?.(it?.i ?? 0); }, [it?.i]); // eslint-disable-line react-hooks/exhaustive-deps
   const stageRef = useStageTop(`${pos}-${qa?.runs}`);
   useEffect(() => {
@@ -1090,7 +1196,7 @@ export function TrueFalsePart({ unit, prog, update, player, openExplain, refButt
       // #160: báo cáo cuối phần (thay cho bảng kết quả ngắn)
       <PartReport
         kind="tf" unit={unit} prog={prog} player={player} openExplain={openExplain}
-        onRestart={() => update({ qa: { ...newQaRun(qs.length), runs: (qa.runs || 1) + 1, lu: Date.now() } })}
+        onRestart={() => update({ qa: { ...newQaRun(qs.length), runs: (qa.runs || 1) + 1, lu: Date.now(), ...(qa.dao ? { dao: qa.dao } : {}) } })} // #319 đã đảo thì lượt mới cũng không đảo nữa (lượt mới vốn đã trộn)
         restartLabel="Làm lại (trộn mới)"
         overall={results}
         onNextPart={onNextPart} nextLabel="Sang bài tiếp"
@@ -1118,8 +1224,9 @@ export function TrueFalsePart({ unit, prog, update, player, openExplain, refButt
           <Pill tone="bad">Sai {badN}</Pill>
           <Pill tone={qa.d2pt < 0 ? "bad" : "ok"}>{qa.d2pt} điểm</Pill>
         </div>
+        <LamTiepBao text={baoTiep} />
         <div className="kt-dnav">
-          <ShuffleButton onClick={() => set({ items: reshuffleQaRest(qa.items, doneHere ? pos + 1 : pos) })} />
+          <ShuffleButton used={!!qa.dao} onClick={() => !qa.dao && set({ items: reshuffleQaRest(qa.items, doneHere ? pos + 1 : pos), dao: Date.now() })} />
           {refButton}
         </div>
       </div>
@@ -1203,12 +1310,12 @@ export function partStats(kind, unit, prog) {
   if (kind === "quiz") Object.keys(p.bad || {}).forEach((key) => (tries[+key.split("-")[0]] = (tries[+key.split("-")[0]] || 0) + 1));
   else Object.entries(p.bad || {}).forEach(([k, n]) => (tries[+k] = n));
   const miss = p.miss || {};
-  const answered = Object.keys(ok).length;
   const wrongIs = qs.map((_, k) => k).filter((k) => tries[k]);
+  const answered = kind === "quiz" ? new Set([...Object.keys(ok).map(Number), ...wrongIs]).size : Object.keys(ok).length; // #319 trắc nghiệm: đã làm = đúng + sai
   const first = Object.keys(ok).filter((k) => !tries[k]).length;
   const wrongList = wrongIs.map((k) => ({ i: k, q: qs[k].q, tries: tries[k], miss: miss[k] || 0, said: p.said?.[k], solved: !!ok[k] }));
   return {
-    total: qs.length, answered, first, fixed: answered - first, wrong: Object.values(tries).reduce((a, b) => a + b, 0),
+    total: qs.length, answered, first, fixed: kind === "quiz" ? Object.keys(ok).filter((k) => tries[k]).length : answered - first, // #319 wrong: Object.values(tries).reduce((a, b) => a + b, 0),
     unclear: p.unclear || 0, pct: qs.length ? Math.round((first / qs.length) * 100) : 0, wrongList,
     legacy: (p.wrong || 0) > 0 && !wrongIs.length, // tiến độ cũ (trước #160) không ghi câu nào sai
   };
@@ -1271,7 +1378,7 @@ export function PartReport({ kind, unit, prog, player, openExplain, onReview, on
   const name = PART_NAME[kind];
   const did =
     kind === "quiz"
-      ? `Đã làm đúng ${s.answered}/${s.total} câu trắc nghiệm, chọn nhầm ${s.wrong} lần.`
+      ? `Đã làm ${s.answered}/${s.total} câu trắc nghiệm: đúng ${s.first}, sai ${s.wrongList.filter((w) => !w.solved).length}${s.fixed > 0 ? ` (đã sửa ${s.fixed} câu khi luyện lại)` : ""}.`
       : kind === "say"
       ? `Đã nói đúng ${s.answered}/${s.total} câu; nói nhầm đáp án ${s.wrong} lần${s.unclear ? `, máy chưa hiểu ${s.unclear} lần (không tính sai)` : ""}.`
       : `Đã trả lời ${s.answered}/${s.total} câu: đúng ${s.first}, sai ${s.wrong} · ${s.points} điểm.`;

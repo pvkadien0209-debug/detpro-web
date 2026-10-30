@@ -192,7 +192,7 @@ export const phanDangLam = (t) => {
 export const PART_TIP = {
   "": "Đọc bài viết — chú ý chữ tô đậm",
   info: "Bảng 40 câu — tự tìm đáp án trong bài",
-  quiz: "Trắc nghiệm 40 câu, sai thì chọn lại",
+  quiz: "Trắc nghiệm 40 câu, mỗi câu chọn 1 lần",
   "listen-speak": "Nghe câu hỏi, nói lại đáp án đúng",
   "true-or-false": "80 câu đúng / sai, luyện phản xạ",
 };

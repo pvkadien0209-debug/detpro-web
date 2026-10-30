@@ -5,6 +5,8 @@
 // #285 (LB-Q4): kéo thả đổi chỗ (nhớ trên máy); đang làm bài tập thì thu thành nút tròn nhỏ có ✕ để tắt nhanh.
 import React, { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+import { useNavigate } from "@/lib/router";
+import { readLastUnit, unitPath } from "./unitData"; // #318
 import { X } from "lucide-react";
 import { useTroThuCtx } from "./troThuCtx";
 import { KICH_BAN, goiY } from "./troThuKichBan";
@@ -31,9 +33,21 @@ export const hienTroThu = () => {
 };
 export const daAnTroThu = () => !!lsGet(AN);
 
+// #318 trang bên ngoài nào
+function trangNgoai(p) {
+  if (p === "/" || p === "") return "chu";
+  if (p.startsWith("/me")) return "toi";
+  if (p.startsWith("/videos")) return "video";
+  if (p.startsWith("/huong-dan")) return "hd";
+  if (/^\/for\/[^/]+\/?$/.test(p)) return "doi-tuong";
+  if (/^\/(knowledge|learn|articles|for)\//.test(p)) return "chu-de";
+  return "khac";
+}
+
 export default function TroThu() {
   const pathname = usePathname() || "";
   const ctx0 = useTroThuCtx();
+  const navigate = useNavigate();
   const [an, setAn] = useState(true);
   const [mo, setMo] = useState(false);
   const [vet, setVet] = useState(["goc"]); // đường đi trong kịch bản
@@ -56,7 +70,15 @@ export default function TroThu() {
   }, []);
   useEffect(() => setVet(["goc"]), [pathname]);
   if (an || pathname.startsWith("/quanlinhomhoc")) return null;
-  const ctx = ctx0 || (pathname.startsWith("/nhom/tao") ? { loai: "tao" } : /^\/nhom\/[A-Za-z0-9]{6}\/?$/.test(pathname) ? { loai: "cua" } : null);
+  // #318 Đét phân biệt: trang ngoài (theo từng trang) · học riêng · học trong nhóm · cây nhóm · cửa nhóm · mở nhóm
+  const base = ctx0 || (pathname.startsWith("/nhom/tao") ? { loai: "tao" } : /^\/nhom\/[A-Za-z0-9]{6}\/?$/.test(pathname) ? { loai: "cua" } : null);
+  const nav = (h) => h && navigate(h);
+  let ctx;
+  if (base) ctx = { ...base, nav };
+  else {
+    const last = readLastUnit();
+    ctx = { loai: "ngoai", trang: trangNgoai(pathname), last, lastHref: last ? unitPath(last.audience, last.slug, last.part || "") : null, nav };
+  }
   const id = vet[vet.length - 1];
   const node = KICH_BAN[id] || KICH_BAN.goc;
   const det = typeof node.det === "function" ? node.det(ctx) : node.det;

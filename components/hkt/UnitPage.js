@@ -38,6 +38,24 @@ const PRACTICE = ["quiz", "listen-speak", "true-or-false"];
 // #067: hai phần luyện liên tục dùng khung cố định — trang không cuộn
 const DRILL = ["quiz", "listen-speak", "true-or-false"]; // FX-Q1 (#068): thêm Trắc nghiệm
 
+// #319 lựa chọn sau khi đọc: "hoi" (mặc định) | "bo" (làm bài tập luôn) | "xem" (xem Bảng trước) — nhớ trên máy
+const K_XEMBANG = "hkt.xemBang";
+const docXemBang = () => {
+  try {
+    const v = typeof window !== "undefined" && window.localStorage.getItem(K_XEMBANG);
+    return v === "bo" || v === "xem" ? v : "hoi";
+  } catch {
+    return "hoi";
+  }
+};
+const ghiXemBang = (v) => {
+  try {
+    window.localStorage.setItem(K_XEMBANG, v);
+  } catch {
+    /* bỏ qua */
+  }
+};
+
 export default function UnitPage({ initialUnit = null }) {
   // #190 (Next.js): initialUnit = bài đọc sẵn ở máy chủ → HTML có đủ chữ bài (Google đọc được)
   const { audience, slug, part = "" } = useParams();
@@ -73,6 +91,14 @@ export default function UnitPage({ initialUnit = null }) {
 
   // #262: phần con (vd. True or false) ghi tiến độ ngay khi dựng — TRƯỚC khi effect này đọc tiến độ đã lưu → trước đây ghi đè mất các mốc cũ.
   // Nay: ghi trước lúc đọc xong thì xếp hàng, đọc xong mới gộp vào tiến độ cũ rồi ghi một lần.
+  const [hoiBang, setHoiBang] = useState(null); // #319 { mark } — khung hỏi xem Bảng trước?
+  const [nhoChon, setNhoChon] = useState(true);
+  const [xemBang, setXemBang] = useState("hoi"); // đọc sau khi trang hiện (máy chủ không biết)
+  useEffect(() => setXemBang(docXemBang()), []);
+  const datXemBang = (v) => {
+    ghiXemBang(v);
+    setXemBang(v);
+  };
   const progKey = useRef(null);
   const progQueue = useRef([]);
   useEffect(() => {
@@ -253,10 +279,23 @@ export default function UnitPage({ initialUnit = null }) {
   const markSeen = () => {
     if (part === "" || part === "info") update({ seen: { ...(prog.seen || {}), [part === "" ? "article" : "info"]: 1 } });
   };
-  const goStep = (st, mark) => {
+  const goStep = (st, mark, bo) => {
     if (!st || isLocked(st.i)) return;
+    // #319 đọc xong Bài viết → hỏi "xem Bảng 40 câu trước hay làm bài tập luôn?" (nhớ lựa chọn trên máy)
+    if (!bo && part === "" && st.i === k && st.key === "info") {
+      const chon = docXemBang();
+      if (chon === "hoi") return void setHoiBang({ mark });
+      if (chon === "bo") return boQuaBang(mark);
+    }
     if (mark && !grp) markSeen(); // #258 trong nhóm: xong phần bằng nút "Đã xong mốc này"
     navigate(P(st.u.audience, st.u.slug, st.key), { state: { tab: true }, replace: inPop }); // #267 trong cửa sổ: không chồng lịch sử
+  };
+  // #319 bỏ qua Bảng: coi như đã xem bảng (bảng chỉ để tham khảo — mở lại được bằng nút bảng trong lúc làm) rồi sang Trắc nghiệm
+  const boQuaBang = (mark) => {
+    update((p) => ({ seen: { ...(p.seen || {}), ...(mark && !grp ? { article: 1 } : {}), info: 1 } }));
+    grp?.flushNow?.();
+    const q = flat.find((x) => x.i === k && x.key === "quiz");
+    if (q) navigate(P(q.u.audience, q.u.slug, "quiz"), { state: { tab: true }, replace: inPop });
   };
   // #260: trong nhóm, mở Bảng thông tin là xong phần này (bảng chỉ để xem)
   useEffect(() => {
@@ -273,9 +312,12 @@ export default function UnitPage({ initialUnit = null }) {
       loai: "bai", nhom: !!grp, part,
       parts: PARTS.map((p) => ({ key: p.key, done: pDone(prog, p.key), dat: !!grp && PHAN_TAP.includes(p.key) && dieuKien(prog, p.key, grp.ng).dat, count: dem[p.key]?.[0], of: dem[p.key]?.[1], can: dem[p.key]?.[2] })),
       go: (k2) => navigate(P(audience, slug, k2), { state: { tab: true }, replace: inPop }),
+      veCay: grp ? () => navigate(grp.treePath) : null, // #318
+      boBang: xemBang === "bo", // #319
+      docXong: () => nextStep && goStep(nextStep, true),
       next: list[k + 1] && !isLocked(k + 1) ? { label: unitLabel(list[k + 1], k + 1), go: () => navigate(P(list[k + 1].audience, list[k + 1].slug)) } : null,
     };
-  }, [part, prog, audience, slug, grp?.nhom?.changHienTai, list.length]);
+  }, [part, prog, audience, slug, grp?.nhom?.changHienTai, list.length, xemBang]);
   const partInfo = PARTS.find((p) => p.key === part);
   const drill = DRILL.includes(part);
   const PartIcon = PART_ICONS[part];
@@ -454,6 +496,32 @@ export default function UnitPage({ initialUnit = null }) {
               update((p) => ({ xong: { ...(p.xong || {}), [part]: Date.now() }, ...(part === "" || part === "info" ? { seen: { ...(p.seen || {}), [part === "" ? "article" : "info"]: 1 } } : {}) }));
               grp.flushNow?.();
             }} onNext={nextStep ? () => goStep(nextStep) : null} />}
+            {hoiBang && (
+              <div className="kt-hoibang" role="dialog" aria-modal="true" aria-label="Xem Bảng 40 câu trước?">
+                <div className="kt-hoibang-box">
+                  <h2>Đọc xong rồi! Tiếp theo?</h2>
+                  <p>Bảng 40 câu cho biết trước bài sẽ hỏi gì. Bỏ qua cũng được — lúc làm bài vẫn mở bảng bằng nút 📋.</p>
+                  <div className="kt-hoibang-nut">
+                    <button type="button" className="kt-btn kt-btn--pri" onClick={() => { if (nhoChon) datXemBang("bo"); const mk = hoiBang.mark; setHoiBang(null); boQuaBang(mk); }}>
+                      Làm bài tập luôn
+                    </button>
+                    <button type="button" className="kt-btn" onClick={() => { if (nhoChon) datXemBang("xem"); const mk = hoiBang.mark; setHoiBang(null); goStep(flat[pos + 1], mk, true); }}>
+                      Xem Bảng 40 câu trước
+                    </button>
+                  </div>
+                  <label className="kt-hoibang-nho">
+                    <input type="checkbox" checked={nhoChon} onChange={(e) => setNhoChon(e.target.checked)} /> Nhớ lựa chọn, lần sau không hỏi
+                  </label>
+                  <button type="button" className="kt-linkbtn" onClick={() => setHoiBang(null)}>Ở lại đọc tiếp</button>
+                </div>
+              </div>
+            )}
+            {part === "" && xemBang !== "hoi" && (
+              <p className="kt-muted kt-xembang-dat">
+                Đọc xong: {xemBang === "bo" ? "sang thẳng bài tập (bỏ qua Bảng 40 câu)" : "xem Bảng 40 câu trước"} ·{" "}
+                <button type="button" className="kt-linkbtn" onClick={() => { datXemBang("hoi"); setNhoChon(true); }}>đổi (hỏi lại lần sau)</button>
+              </p>
+            )}
             {summary?.started && !drill && part !== "" && (
               <details className="hkt-u-summary">
                 <summary>Kết quả của bạn ở bài này</summary>

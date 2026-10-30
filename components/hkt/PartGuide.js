@@ -36,9 +36,9 @@ export const GUIDES = {
     ten: "Trắc nghiệm",
     video: "hd4",
     buoc: [
-      "Nghe / đọc câu hỏi, chọn 1 trong 3 đáp án. Sai thì chọn lại tới khi đúng.",
+      "Nghe / đọc câu hỏi, chọn 1 trong 3 đáp án — mỗi câu chỉ chọn 1 lần. Sai thì thấy ngay đáp án đúng, không tự sang câu: xem lại rồi tự bấm “Câu tiếp”.",
       "Bấm “Giải thích” để hiểu vì sao đúng — đọc lại đoạn bài liên quan.",
-      "Xong cả 40 câu có báo cáo: câu sai được gom lại để luyện lại.",
+      "Xong cả 40 câu có báo cáo: bấm “Luyện lại câu sai” để làm lại những câu sai.",
     ],
   },
   "listen-speak": {

@@ -1,9 +1,10 @@
 "use client";
 // #230 Học cùng — /nhom/<mã>: "Bạn là ai?" chọn ID (gõ PIN nếu có) hoặc tạo ID mới (thiết kế mục 3).
 // + PinGate: cổng PIN cho trang cây và trang bài trong nhóm (PIN giữ trong bộ nhớ tab).
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "@/lib/router";
-import { Lock, UserPlus, Users, KeyRound } from "lucide-react";
+import { Lock, UserPlus, Users, KeyRound, Eye, EyeOff } from "lucide-react";
+import { useBaoTroThu } from "@/components/hkt/troThuCtx"; // #319
 import KtShell, { useBodyClass } from "@/components/hkt/KtShell";
 import { VongDetLoading } from "@/components/hkt/VongDet";
 import { api, setPin, getPin, ApiErr, getMyId, setMyId, rememberGroup } from "./nhomClient";
@@ -114,6 +115,19 @@ export default function NhomVao({ ma }) {
   const [dongY, setDongY] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
+  const [hienPin, setHienPin] = useState(false); // #319 xem lại PIN vừa gõ
+  const [nhay, setNhay] = useState(""); // #319 ô đang cần điền (viền nhấp nháy)
+  const tenRef = useRef(null);
+  const pinRef = useRef(null);
+  const dongYRef = useRef(null);
+  const formRef = useRef(null);
+  // #319 bước đang làm khi tạo tên mới: 1 tên · 2 PIN · 3 đồng ý · 4 bấm Vào nhóm
+  const buoc = !ten.trim() ? 1 : pin.length !== 4 ? 2 : !dongY ? 3 : 4;
+  useBaoTroThu(() => ({ loai: "cua", moi, buoc }), [moi, buoc]);
+  useEffect(() => setMsg((m) => (m.startsWith("Còn thiếu") ? "" : m)), [buoc]); // điền xong chỗ thiếu → tắt nhắc
+  useEffect(() => {
+    if (moi) setTimeout(() => formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+  }, [moi]);
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
     if (q.get("moi")) setMoi(true);
@@ -123,6 +137,8 @@ export default function NhomVao({ ma }) {
   useEffect(() => {
     const toi = getMyId(ma);
     if (data && toi && !new URLSearchParams(window.location.search).get("doi") && data.members.some((m) => m.id === toi)) navigate(nhomPath(ma, toi));
+    // #319 nhóm mới chỉ có trưởng nhóm → người mở link gần như chắc là người mới: mở sẵn khung tạo tên
+    if (data && !ai && !toi && !data.nhom.khoaNguoiMoi && data.members.length <= 1) setMoi(true);
     if (data && ai && !pick) {
       const m = data.members.find((x) => x.id === ai);
       if (m) setPick(m);
@@ -167,7 +183,16 @@ export default function NhomVao({ ma }) {
   };
   const create = async (e) => {
     e.preventDefault();
-    if (!dongY) return setMsg("Tick ô “Tôi đồng ý…” ở trên rồi bấm lại.");
+    // #319 thiếu gì nói rõ + đưa con trỏ tới đúng ô
+    const thieu = !ten.trim() ? ["tên", tenRef, "ten"] : !idOk ? ["ID hợp lệ", null, "id"] : pin.length !== 4 ? ["PIN đủ 4 số", pinRef, "pin"] : !dongY ? ["tick ô đồng ý", dongYRef, "dongy"] : null;
+    if (thieu) {
+      setMsg(`Còn thiếu: ${thieu[0]}. Làm theo dòng 👉 rồi bấm “Vào nhóm” lại nhé.`);
+      setNhay(thieu[2]);
+      thieu[1]?.current?.focus();
+      thieu[1]?.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      setTimeout(() => setNhay(""), 2400);
+      return;
+    }
     setBusy(true);
     setMsg("");
     try {
@@ -175,11 +200,13 @@ export default function NhomVao({ ma }) {
       setPin(ma, id, pin);
       go(id);
     } catch (x) {
-      setMsg(errText(x));
       if (x instanceof ApiErr && x.status === 409) {
+        setMsg(`Tên đăng nhập “${id}” đã có người dùng. Sửa ô ID bên dưới — thêm số hoặc chữ đầu họ, ví dụ ${id}2 hoặc ${id}-${(ten.trim().split(/\s+/)[0] || "x").charAt(0).toLowerCase()}.`);
         setSuaId(true);
+        setNhay("id");
+        setTimeout(() => setNhay(""), 2400);
         reload();
-      }
+      } else setMsg(errText(x));
     } finally {
       setBusy(false);
     }
@@ -203,7 +230,15 @@ export default function NhomVao({ ma }) {
           </p>
         )}
 
-        <h2 className="nh-h2">1. Bạn là ai? Bấm vào tên của bạn</h2>
+        {!moi && !pick && !g.khoaNguoiMoi && (
+          <button type="button" className="nh-door-chao" onClick={() => { setPick(null); setMoi(true); }}>
+            <span aria-hidden="true">👋</span>
+            <span>
+              <b>Lần đầu vào nhóm này?</b> Bấm vào đây — mình chỉ từng bước (khoảng 1 phút): gõ tên → đặt PIN 4 số → vào học.
+            </span>
+          </button>
+        )}
+        <h2 className="nh-h2">1. Bạn là ai? Bấm vào tên của bạn (đã vào nhóm trước đây)</h2>
         <div className="nh-ids">
           {data.members.map((m) => (
             <React.Fragment key={m.id}>
@@ -250,54 +285,96 @@ export default function NhomVao({ ma }) {
         {g.khoaNguoiMoi && <p className="kt-muted">Nhóm đã khoá nhận người mới.</p>}
 
         {moi && (
-          <form className="nh-card nh-door-new" onSubmit={create}>
-            <h2>2. Tạo tên của bạn</h2>
-            <label className="nh-field">
-              <span className="nh-flabel">Tên hiển thị trong nhóm</span>
-              <input
-                value={ten}
-                maxLength={40}
-                autoFocus
-                placeholder="Ví dụ: Lan"
-                onChange={(e) => {
-                  setTen(e.target.value);
-                  if (!idTouched) setId(idFromName(e.target.value));
-                }}
-              />
-            </label>
-            {suaId ? (
+          <form className="nh-card nh-door-new" onSubmit={create} ref={formRef} noValidate>
+            <h2>2. Tạo tên của bạn — 4 bước</h2>
+            {/* #319 hướng dẫn cầm tay chỉ việc: bước đang làm sáng lên, xong có dấu ✓ */}
+            <ol className="nh-buoc" aria-label="Các bước">
+              {["Gõ tên", "Đặt PIN 4 số", "Tick đồng ý", "Bấm Vào nhóm"].map((t, k) => (
+                <li key={t} className={k + 1 < buoc ? "is-xong" : k + 1 === buoc ? "is-nay" : ""}>
+                  <i>{k + 1 < buoc ? "✓" : k + 1}</i> {t}
+                </li>
+              ))}
+            </ol>
+
+            <div className={`nh-bstep ${buoc === 1 ? "is-nay" : ""}`}>
+              {buoc === 1 && <p className="nh-chi">👉 <b>Bước 1:</b> gõ tên bạn muốn cả nhóm thấy (tên thật hoặc tên thường gọi), ví dụ “Oanh”.</p>}
               <label className="nh-field">
-                <span className="nh-flabel">ID (chữ thường không dấu, số, dấu gạch)</span>
+                <span className="nh-flabel">Tên hiển thị trong nhóm</span>
                 <input
-                  value={id}
-                  maxLength={20}
+                  ref={tenRef}
+                  className={nhay === "ten" ? "is-nhay" : ""}
+                  value={ten}
+                  maxLength={40}
+                  autoFocus
+                  placeholder="Ví dụ: Oanh"
                   onChange={(e) => {
-                    setIdTouched(true);
-                    setId(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""));
+                    setTen(e.target.value);
+                    if (!idTouched) setId(idFromName(e.target.value));
                   }}
                 />
               </label>
-            ) : (
-              id && (
-                <p className="kt-muted nh-idline">
-                  ID: <b>{id}</b>{" "}
-                  <button type="button" className="kt-linkbtn" onClick={() => setSuaId(true)}>
-                    đổi
+              {suaId ? (
+                <label className="nh-field">
+                  <span className="nh-flabel">ID — tên đăng nhập (chữ thường không dấu, số, dấu gạch)</span>
+                  <input
+                    className={nhay === "id" ? "is-nhay" : ""}
+                    value={id}
+                    maxLength={20}
+                    onChange={(e) => {
+                      setIdTouched(true);
+                      setId(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""));
+                    }}
+                  />
+                </label>
+              ) : (
+                id && (
+                  <p className="kt-muted nh-idline">
+                    Tên đăng nhập (máy tự tạo, không cần sửa): <b>{id}</b>{" "}
+                    <button type="button" className="kt-linkbtn" onClick={() => setSuaId(true)}>
+                      đổi
+                    </button>
+                  </p>
+                )
+              )}
+            </div>
+
+            <div className={`nh-bstep ${buoc === 2 ? "is-nay" : ""}`}>
+              {buoc === 2 && <p className="nh-chi">👉 <b>Bước 2:</b> đặt 4 số bất kỳ làm PIN — như mật khẩu ngắn, để vào lại nhóm trên máy khác. <b>Chụp màn hình hoặc ghi lại.</b></p>}
+              <label className="nh-field">
+                <span className="nh-flabel">PIN 4 số</span>
+                <span className="nh-pinrow">
+                  <input
+                    ref={pinRef}
+                    className={nhay === "pin" ? "is-nhay" : ""}
+                    type={hienPin ? "text" : "password"}
+                    inputMode="numeric"
+                    autoComplete="new-password"
+                    maxLength={4}
+                    value={pin}
+                    onChange={(e) => setP(e.target.value.replace(/\D/g, ""))}
+                    placeholder="••••"
+                  />
+                  <button type="button" className="nh-mat" onClick={() => setHienPin((v) => !v)} aria-label={hienPin ? "Ẩn PIN" : "Xem PIN vừa gõ"} title={hienPin ? "Ẩn PIN" : "Xem PIN vừa gõ"}>
+                    {hienPin ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
-                </p>
-              )
-            )}
-            <label className="nh-field">
-              <span className="nh-flabel">Đặt PIN 4 số (nhớ PIN để vào lại trên máy khác)</span>
-              <input type="password" inputMode="numeric" autoComplete="new-password" maxLength={4} value={pin} onChange={(e) => setP(e.target.value.replace(/\D/g, ""))} placeholder="••••" />
-            </label>
-            <label className="nh-consent">
-              <input type="checkbox" checked={dongY} onChange={(e) => setDongY(e.target.checked)} />
-              <span>Tôi đồng ý nhóm lưu tên, tiến độ, lời nhắn và tin Hỏi đáp của tôi (tự xoá 30 ngày sau khi nhóm về đích; rời nhóm là xoá ngay).</span>
-            </label>
+                  <small className="nh-pindem">{pin.length}/4 số</small>
+                </span>
+              </label>
+              {pin.length === 4 && /^(\d)\1{3}$|^1234$|^0123$|^4321$/.test(pin) && <p className="kt-muted nh-pinyeu">PIN này dễ đoán — đổi 4 số khác cho an toàn hơn (vẫn dùng được nếu bạn muốn).</p>}
+            </div>
+
+            <div className={`nh-bstep ${buoc === 3 ? "is-nay" : ""}`}>
+              {buoc === 3 && <p className="nh-chi">👉 <b>Bước 3:</b> tick vào ô vuông bên dưới để đồng ý.</p>}
+              <label className={`nh-consent ${nhay === "dongy" ? "is-nhay" : ""}`}>
+                <input ref={dongYRef} type="checkbox" checked={dongY} onChange={(e) => setDongY(e.target.checked)} />
+                <span>Tôi đồng ý nhóm lưu tên, tiến độ, lời nhắn và tin Hỏi đáp của tôi (tự xoá 30 ngày sau khi nhóm về đích; rời nhóm là xoá ngay).</span>
+              </label>
+            </div>
+
+            {buoc === 4 && <p className="nh-chi">👉 <b>Bước 4:</b> bấm “Vào nhóm”. Lần sau trên máy này tự vào; máy khác thì bấm tên <b>{ten.trim()}</b> + gõ PIN.</p>}
             {msg && <p className="hkt-u-err">{msg}</p>}
-            <button type="submit" className="kt-btn kt-btn--pri" disabled={busy || !idOk || !ten.trim() || pin.length !== 4}>
-              Vào nhóm
+            <button type="submit" className={`kt-btn kt-btn--pri nh-vaonhom ${buoc === 4 ? "is-nay" : ""}`} disabled={busy}>
+              {busy ? "Đang vào…" : "Vào nhóm"}
             </button>
           </form>
         )}

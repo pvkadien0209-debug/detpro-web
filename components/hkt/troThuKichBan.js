@@ -8,12 +8,27 @@ const di = (k) => (c) => c?.go?.(k); // đi tới một phần của bài đang 
 /** Câu mở đầu + 1 nút làm ngay, theo ngữ cảnh. */
 export function goiY(c) {
   if (!c) return { text: "Chào bạn! Mình là Đét. Chọn một chủ đề rồi bấm “Học tiếp” — mỗi bài có 5 phần: đọc, xem bảng, trắc nghiệm, nghe nói, true or false." };
+  // #318 trang bên ngoài (chưa vào bài, chưa vào nhóm): lời theo từng trang + nút "Học tiếp" nếu có bài đang dở
+  if (c.loai === "ngoai") {
+    const hoc = c.last ? { t: "Học tiếp bài đang dở", lam: (x) => x.nav?.(x.lastHref) } : null;
+    const T = {
+      chu: "Chào bạn! Mình là Đét. Chọn một chủ đề bạn thích bên dưới, mở bài 1 rồi làm lần lượt 5 phần — mỗi ngày một bài khoảng 20–30 phút là đủ.",
+      "doi-tuong": "Đây là các chủ đề dành riêng cho nhóm người học này. Chọn một chủ đề → bấm bài đầu tiên để bắt đầu.",
+      "chu-de": "Chọn một bài để học. Bài có dấu ✓ là bạn đã làm; nên đi theo thứ tự từ bài 1.",
+      video: "Video tóm tắt bài học. Xem xong, mở bài để làm 40 câu — có làm mới nhớ lâu.",
+      toi: "Trang của bạn: chủ đề đang học, kết quả từng bài, nhóm học. Đổi máy? Mở “Chuyển tiến độ sang máy khác”.",
+      hd: "Đây là trang hướng dẫn. Cần làm ngay thì bấm nút bên dưới, mình chỉ từng bước.",
+      khac: "Chào bạn! Mình là Đét. Hỏi mình bất cứ lúc nào: “Tôi cần làm gì?”",
+    };
+    const text = T[c.trang] || T.khac;
+    return { text: hoc && c.trang !== "toi" ? `${text} Bạn còn một bài đang học dở.` : text, nut: hoc };
+  }
   if (c.loai === "bai") {
     const p = c.parts || [];
     const cho = p.find((x) => x.dat && !x.done && c.nhom);
     if (cho) return { text: `Bạn đã đạt ${PHAN[cho.key]} rồi! Bấm “Đã xong phần này” ở cuối trang để lưu cho nhóm nhé.`, nut: cho.key !== c.part ? { t: `Mở ${PHAN[cho.key]}`, lam: di(cho.key) } : null };
     const k = p.find((x) => !x.done && x.key !== "" && x.key !== "info") || p.find((x) => !x.done);
-    if (c.part === "") return { text: "Bây giờ: đọc hết Bài viết. Chú ý chữ tô đậm — đó là ý sẽ được hỏi trong 40 câu.", nut: { t: "Đọc xong → xem Bảng 40 câu", lam: di("info") } };
+    if (c.part === "") return { text: "Bây giờ: đọc hết Bài viết. Chú ý chữ tô đậm — đó là ý sẽ được hỏi trong 40 câu.", nut: c.boBang ? { t: "Đọc xong → làm Trắc nghiệm", lam: di("quiz") } : { t: "Đọc xong → bước tiếp", lam: (x) => x.docXong?.() } }; // #319
     if (c.part === "info") return { text: "Lướt Bảng 40 câu để biết bài hỏi gì — bảng không đánh dấu đáp án đúng, tự tìm trong bài viết.", nut: k ? { t: `Xem xong → ${PHAN[k.key]}`, lam: di(k.key) } : null };
     if (!k) return c.next ? { text: "Bài này bạn xong cả 5 phần rồi. Giỏi lắm! Sang bài tiếp nhé.", nut: { t: `Sang ${c.next.label}`, lam: c.next.go } } : { text: "Bạn xong cả 5 phần của bài này rồi. Ôn lại câu sai hoặc chọn chủ đề mới nhé." };
     if (k.key === c.part) {
@@ -37,23 +52,87 @@ export function goiY(c) {
     return { text: "Bạn đã làm hết phần của mình. Chờ cả nhóm xong để mở bài tiếp — bấm tên một bạn để gửi lời động viên." };
   }
   if (c.loai === "tao") return { text: "Mở nhóm học chỉ cần: chọn chuỗi bài, gõ tên bạn và đặt PIN 4 số. Các cài đặt khác để mặc định là được." };
-  if (c.loai === "cua") return { text: "Bấm vào tên của bạn rồi gõ PIN. Chưa có tên? Bấm “Tôi là người mới”, gõ tên + đặt PIN 4 số (nhớ PIN để vào lại trên máy khác)." };
+  if (c.loai === "cua" && c.moi) {
+    // #319 cầm tay chỉ việc theo bước đang làm
+    const B = {
+      1: "Bước 1/4: gõ tên của bạn vào ô “Tên hiển thị” — tên cả nhóm sẽ thấy, ví dụ “Oanh”. Dòng “Tên đăng nhập” máy tự tạo, không cần sửa.",
+      2: "Bước 2/4: gõ 4 số bất kỳ làm PIN (như mật khẩu ngắn). Bấm hình con mắt để xem lại. Nhớ chụp màn hình hoặc ghi ra giấy — sang máy khác cần PIN này.",
+      3: "Bước 3/4: tick vào ô vuông “Tôi đồng ý…”.",
+      4: "Bước 4/4: bấm nút xanh “Vào nhóm” là xong! Vào rồi mình chỉ tiếp việc đầu tiên cần làm.",
+    };
+    return { text: B[c.buoc] || B[1] };
+  }
+  if (c.loai === "cua") return { text: "Lần đầu vào nhóm? Bấm “Lần đầu vào nhóm này?” hoặc “Tôi là người mới” — mình chỉ từng bước. Đã vào trước đây: bấm tên của bạn rồi gõ PIN." };
   return { text: "Chào bạn! Mình là Đét. Hỏi mình bất cứ lúc nào: “Tôi cần làm gì?”" };
 }
 const KEYS = ["", "info", "quiz", "listen-speak", "true-or-false"];
+/** #318 Khu vực Đét đang đứng → menu phù hợp. */
+export function vung(c) {
+  if (!c || c.loai === "ngoai") return "ngoai";
+  if (c.loai === "bai") return c.nhom ? "bai-nhom" : "bai";
+  return c.loai; // nhom | cua | tao
+}
 
 export const KICH_BAN = {
   goc: {
     det: (c) => goiY(c).text,
-    chon: (c) => [
-      ...(goiY(c).nut ? [{ t: goiY(c).nut.t, lam: goiY(c).nut.lam, chinh: true }] : []),
-      { t: "Hỏi từng bước: mình đang ở đâu?", toi: "hoi-doc" },
-      { t: "Cách học một bài (5 phần)", toi: "buoc" },
-      ...(c?.loai === "nhom" || c?.nhom ? [{ t: "Về nhóm học", toi: "nhom" }] : []),
-      ...(c?.laChu ? [{ t: "Việc của trưởng nhóm", toi: "chu" }] : []),
-      { t: "Gặp trục trặc", toi: "loi" },
-    ],
+    chon: (c) => {
+      const g = goiY(c);
+      const nut = g.nut ? [{ t: g.nut.t, lam: g.nut.lam, chinh: true }] : [];
+      const v = vung(c);
+      if (v === "ngoai")
+        return [
+          ...nut,
+          { t: "Mới bắt đầu thì học từ đâu?", toi: "ng-bat-dau" },
+          { t: "Một bài học gồm những gì?", toi: "buoc" },
+          { t: "Học cùng bạn bè (nhóm học)", toi: "ng-nhom" },
+          { t: "Đổi máy / tiến độ lưu ở đâu?", toi: "ng-tien-do" },
+          { t: "Gặp trục trặc", toi: "loi" },
+        ];
+      if (v === "cua") return [{ t: "Tôi là người mới", toi: "cua-moi", chinh: true }, { t: "Quên PIN / đổi máy", toi: "pin" }, { t: "Nhóm học là gì?", toi: "ng-nhom" }];
+      if (v === "tao") return [{ t: "Mở nhóm cần chuẩn bị gì?", toi: "tao-can", chinh: true }, { t: "Cài đặt nên để thế nào?", toi: "tao-cd" }, { t: "Nhóm học là gì?", toi: "ng-nhom" }];
+      if (v === "bai")
+        return [...nut, { t: "Hỏi từng bước: mình đang ở đâu?", toi: "hoi-doc" }, { t: "Cách học một bài (5 phần)", toi: "buoc" }, { t: "Muốn học cùng bạn bè?", toi: "ng-nhom" }, { t: "Đổi máy có mất bài không?", toi: "ng-tien-do" }, { t: "Gặp trục trặc", toi: "loi" }];
+      if (v === "bai-nhom")
+        return [
+          ...nut,
+          { t: "Hỏi từng bước: mình đang ở đâu?", toi: "hoi-doc" },
+          { t: "Nút “Đã xong phần này” ở đâu?", toi: "nut-xong" },
+          { t: "Hỏi bạn / thầy về câu này", toi: "hoi-dap" },
+          ...(c?.veCay ? [{ t: "Về cây nhóm", lam: (x) => x.veCay?.() }] : []),
+          { t: "Mất mạng có sao không?", toi: "mat-mang" },
+          { t: "Gặp trục trặc", toi: "loi" },
+        ];
+      // cây nhóm
+      return [
+        ...nut,
+        { t: "Hỏi từng bước: mình đang ở đâu?", toi: "hoi-doc" },
+        { t: "Về nhóm học (lá, khoá bài, đồng hồ…)", toi: "nhom" },
+        { t: "Chuỗi ngày 🔥 và huy hiệu 🏅", toi: "chuoi-hh" },
+        ...(c?.laChu ? [{ t: "Việc của trưởng nhóm", toi: "chu" }] : []),
+        { t: "Gặp trục trặc", toi: "loi" },
+      ];
+    },
   },
+
+  // ---- #318 Trang bên ngoài ----
+  "ng-bat-dau": {
+    det: "Mới bắt đầu: chọn một chủ đề bạn quan tâm → mở Bài 1 → làm lần lượt 5 phần (đọc, xem bảng, trắc nghiệm, nghe nói, true or false). Mỗi ngày một bài khoảng 20–30 phút là đủ — đều đặn quan trọng hơn làm nhiều.",
+    chon: (c) => [...(c?.last ? [{ t: "Học tiếp bài đang dở", lam: (x) => x.nav?.(x.lastHref), chinh: true }] : []), { t: "Về trang chủ chọn chủ đề", lam: (x) => x.nav?.("/") }, { t: "Một bài học gồm những gì?", toi: "buoc" }],
+  },
+  "ng-nhom": {
+    det: "Nhóm học: vài người học cùng một chuỗi bài, mỗi người một cây. Cả nhóm xong bài thì mở bài tiếp. Có Hỏi đáp, thấy ai đang làm gì, chuỗi ngày 🔥, huy hiệu 🏅, trưởng nhóm nghe bài nói. Mở nhóm mất khoảng 1 phút.",
+    chon: [{ t: "Mở nhóm học mới", lam: (x) => x.nav?.("/nhom/tao"), chinh: true }, { t: "Tôi đã có link nhóm", toi: "cua-moi" }, { t: "Xem nhóm học của tôi", lam: (x) => x.nav?.("/me") }],
+  },
+  "ng-tien-do": {
+    det: "Học riêng: tiến độ lưu trên trình duyệt của máy này. Đổi máy: vào trang Của tôi → “Chuyển tiến độ sang máy khác” → chép mã, dán ở máy mới (câu ở hai máy được cộng dồn). Học nhóm: tiến độ lưu trên máy chủ — máy nào cũng thấy.",
+    chon: [{ t: "Mở trang Của tôi", lam: (x) => x.nav?.("/me"), chinh: true }],
+  },
+  "cua-moi": { det: "Mở link nhóm trưởng nhóm gửi → bấm “Tôi là người mới” → gõ tên → đặt PIN 4 số (nhớ PIN). Lần sau trên máy này tự vào; máy khác thì bấm tên mình + gõ PIN.", chon: [{ t: "Quên PIN thì sao?", toi: "pin" }] },
+  "tao-can": { det: "Chỉ cần: chọn chuỗi bài, gõ tên bạn, đặt PIN 4 số. Xong bấm “Chép link” gửi vào nhóm Zalo — mọi người bấm link là vào.", chon: [{ t: "Cài đặt nên để thế nào?", toi: "tao-cd" }] },
+  "tao-cd": { det: "Để mặc định là ổn: Trắc nghiệm đúng 40/40, Nghe nói 30/40, True or false làm hết lượt; mỗi bài hạn 48 giờ, Đét tự nhắc người chậm. Sửa được bất cứ lúc nào trong tab “Cài đặt nhóm”.", chon: [{ t: "Quay lại", toi: "tao-can" }] },
+  "chuoi-hh": { det: "🔥 Chuỗi ngày: hôm nào làm thêm vài câu là +1 ngày (tính theo giờ Việt Nam, tới 24h). 🔥 mờ = hôm nay chưa học. 🏅 Huy hiệu: về đích đầu tiên một bài, chuỗi 3/7/14/30 ngày, về đích cả chuỗi. Mỗi tối sau 20h Đét tổng kết trong Hỏi đáp.", chon: [{ t: "Quay lại", toi: "goc" }] },
+  "mat-mang": { det: "Không sao! Mất mạng vẫn làm bài bình thường — câu được giữ trong máy, có mạng là tự lưu (kể cả đóng trang rồi mở lại). Thấy dòng “Đang mất mạng” là đang chờ lưu.", chon: [{ t: "Quay lại", toi: "goc" }] },
 
   // ---- Hỏi từng bước ----
   "hoi-doc": { det: "Bạn đã đọc Bài viết của bài này chưa?", chon: [{ t: "Chưa", toi: "doc" }, { t: "Rồi", toi: "hoi-bang" }] },
@@ -68,10 +147,10 @@ export const KICH_BAN = {
   },
   "hoi-tn": { det: "Trắc nghiệm 40 câu bạn làm xong chưa?", chon: [{ t: "Chưa", toi: "tn" }, { t: "Xong rồi", toi: "hoi-nn" }] },
   tn: {
-    det: "Trắc nghiệm: chọn 1 trong 3 đáp án, sai thì chọn lại tới khi đúng. Bấm “Giải thích” để hiểu vì sao. Xong 40 câu có báo cáo — câu sai được gom lại để luyện lại.",
+    det: "Trắc nghiệm: mỗi câu chọn 1 lần trong 3 đáp án. Đúng thì tự sang câu (3 giây). Sai thì thấy ngay đáp án đúng — bấm “Giải thích” xem vì sao, rồi tự bấm “Câu tiếp”. Xong 40 câu có báo cáo — bấm “Luyện lại câu sai” để làm lại những câu sai.",
     chon: [{ t: "Làm Trắc nghiệm", lam: (c) => (c?.loai === "nhom" ? c.openPart?.("quiz") : c?.go?.("quiz")), chinh: true }, { t: "Sai nhiều quá thì sao?", toi: "tn-sai" }, { t: "Xong rồi → bước tiếp", toi: "hoi-nn" }],
   },
-  "tn-sai": { det: "Không sao — sai là đang học! Đọc phần “Giải thích”, mở lại Bảng (nút bảng góc phải) để tra, rồi bấm “Luyện lại câu sai” ở báo cáo cuối.", chon: [{ t: "Quay lại", toi: "tn" }] },
+  "tn-sai": { det: "Không sao — sai là đang học! Câu sai được khoá lại để bạn xem đáp án đúng và “Giải thích”. Làm hết 40 câu rồi bấm “Luyện lại câu sai” ở báo cáo — làm lại tới khi đúng hết (nhóm cần đủ 40/40).", chon: [{ t: "Quay lại", toi: "tn" }] },
   "hoi-nn": { det: "Phần Nghe nói (nói lại đáp án đúng bằng tiếng Anh) xong chưa?", chon: [{ t: "Chưa", toi: "nn" }, { t: "Xong rồi", toi: "hoi-tf" }] },
   nn: {
     det: "Nghe nói: nghe câu hỏi + 3 đáp án → bấm Nói → nói lại đáp án đúng (khớp từ 50% là được). Trên điện thoại chọn “Cả hai” để đọc trên màn hình rồi chỉ việc nói.",
@@ -86,10 +165,10 @@ export const KICH_BAN = {
   "nut-xong": { det: "Nút “Đã xong phần này” hiện ở cuối mỗi phần bài tập và tự dính ở đáy màn khi bạn đạt điều kiện (ví dụ Trắc nghiệm đúng 40/40). Chưa thấy = chưa đạt — xem dòng “Điều kiện xong” ngay trên nút.", chon: [{ t: "Hiểu rồi", toi: "hoi-noi" }] },
   "hoi-noi": { det: "Còn bài nói tự do (bông cuối cành). Bạn gửi chưa?", chon: [{ t: "Chưa", toi: "noi" }, { t: "Gửi rồi", toi: "xong-nhom" }] },
   noi: {
-    det: "Bài nói tự do: nói 1–2 phút bằng tiếng Anh những gì bạn nhớ và nghĩ về bài (không cần hoàn hảo). Ghi âm bằng Zalo, gửi vào nhóm Zalo của trưởng nhóm, rồi quay lại bấm “Đã gửi bài nói” trên bông.",
-    chon: [{ t: "Mở bông bài nói", lam: (c) => c?.openFlower?.(), chinh: true }, { t: "Nói gì bây giờ?", toi: "noi-goi-y" }],
+    det: "Bài nói tự do: hoa cuối cành mở khi bạn xong cả 5 lá. Bấm hoa → có “Gợi ý bài nói” (dàn ý 1–2 phút, câu tiếng Anh lấy từ chính bài — tải về bằng ảnh được). Nói theo gợi ý, ghi âm bằng Zalo, gửi trưởng nhóm, rồi quay lại bấm “Đã gửi bài nói”.",
+    chon: [{ t: "Mở hoa bài nói", lam: (c) => c?.openFlower?.(), chinh: true }, { t: "Nói gì bây giờ?", toi: "noi-goi-y" }],
   },
-  "noi-goi-y": { det: "Gợi ý 3 câu: (1) Today I learned that… (2) The most useful idea for me is… because… (3) Next week I will try… — thế là đủ một bài nói!", chon: [{ t: "Quay lại", toi: "noi" }] },
+  "noi-goi-y": { det: "Bấm hoa bài nói (khi đã xong 5 lá) → khung “💡 Gợi ý bài nói”: mở đầu, 3–4 ý chính bằng tiếng Anh từ chính bài, phần của bạn, kết. Bấm “Tải ảnh gợi ý” để nhìn khi ghi âm. Không cần hoàn hảo — nói 1–2 phút là đủ!", chon: [{ t: "Quay lại", toi: "noi" }] },
   "xong-nhom": { det: "Bạn xong phần của mình rồi! Khi chính bạn xong bài hiện tại, bạn được làm trước 1 bài. Bài xa hơn mở khi cả nhóm xong — vào Hỏi đáp động viên bạn bè nhé.", chon: [{ t: "Về đầu", toi: "goc" }] },
 
   buoc: {
@@ -113,8 +192,8 @@ export const KICH_BAN = {
   khoa: { det: "Bạn xong cả 5 phần của bài hiện tại → được làm trước 1 bài. Các bài xa hơn mở khi CẢ NHÓM xong bài hiện tại — để mọi người đi cùng nhau. Bạn nào bỏ dở lâu, trưởng nhóm có thể cho “tạm nghỉ” để nhóm đi tiếp.", chon: [{ t: "Quay lại", toi: "nhom" }] },
   "dong-ho": { det: "Đồng hồ trên đầu trang = thời hạn của bài hiện tại cho cả nhóm (trưởng nhóm đặt, thường 48 giờ). Chuông đỏ = bạn chưa xong và sắp hết giờ.", chon: [{ t: "Quay lại", toi: "nhom" }] },
   pin: { det: "Máy này nhớ PIN của bạn. Sang máy khác: mở link nhóm → bấm tên bạn → gõ PIN. Quên PIN: nhắn trưởng nhóm đặt lại (tab Học viên). Gõ sai nhiều lần sẽ bị khoá 10 phút.", chon: [{ t: "Quay lại", toi: "nhom" }] },
-  "hoi-dap": { det: "Nút 💬 góc phải = Hỏi đáp chung. Nút tròn trên thân cây = Hỏi đáp riêng của bài đó. Đang làm câu nào mà hỏi thì tin tự gắn nhãn câu đó.", chon: [{ t: "Quay lại", toi: "nhom" }] },
-  "ai-lam": { det: "Xem khung “Ai đang làm gì” bên cạnh cây (có số câu đang làm). Bấm “Cập nhật” để lấy số mới nhất. Bấm tên một bạn: xem thống kê, gửi lời động viên.", chon: [{ t: "Quay lại", toi: "nhom" }] },
+  "hoi-dap": { det: "Trang bài: nút “Hỏi đáp” trên thanh nhóm — đang làm câu nào mà hỏi thì tin tự gắn nhãn câu đó, thầy và bạn bấm nhãn là mở đúng câu. Trang cây: khung Hỏi đáp cạnh cây (điện thoại: nút 💬). Nút tròn trên thân cây = Hỏi đáp riêng của bài đó.", chon: [{ t: "Quay lại", toi: "goc" }] },
+  "ai-lam": { det: "Thẻ “Nhóm đang học” cạnh cây: chấm xanh = đang trong bài, việc mới nhất của từng người (bấm 👏 Khen để động viên). Trong Hỏi đáp cũng có dòng “… đang làm …” (tắt bằng nút “Hoạt động”). Bấm tên một bạn: xem thống kê, huy hiệu, gửi lời nhắn.", chon: [{ t: "Quay lại", toi: "nhom" }] },
 
   // ---- Trưởng nhóm ----
   chu: {
@@ -145,5 +224,5 @@ export const KICH_BAN = {
   },
   "loi-mic": { det: "Cho phép trình duyệt dùng micro (biểu tượng ổ khoá cạnh địa chỉ web). Nói rõ, gần máy. Máy hỏi “Sorry, what did you say?” là chưa nghe rõ — không tính sai. iPhone: dùng Safari. Không nói được thì chuyển sang “Gõ”.", chon: [{ t: "Quay lại", toi: "loi" }] },
   "loi-loa": { det: "Kiểm tra âm lượng và nút gạt im lặng của điện thoại; bấm vào trang một lần (trình duyệt chỉ phát tiếng sau khi bạn bấm).", chon: [{ t: "Quay lại", toi: "loi" }] },
-  "loi-mat": { det: "Học riêng: tiến độ lưu trên trình duyệt của máy này (đổi máy / xoá dữ liệu trình duyệt là mất). Trong nhóm: tiến độ lưu trên máy chủ — bấm “Cập nhật”. Vẫn mất thì báo trưởng nhóm.", chon: [{ t: "Quay lại", toi: "loi" }] },
+  "loi-mat": { det: "Học riêng: tiến độ lưu trên trình duyệt của máy này — đổi máy thì dùng “Chuyển tiến độ sang máy khác” ở trang Của tôi. Trong nhóm: tiến độ lưu trên máy chủ, mất mạng vẫn giữ trong máy rồi tự lưu — bấm “Cập nhật”. Vẫn mất thì báo trưởng nhóm.", chon: [{ t: "Quay lại", toi: "loi" }] },
 };

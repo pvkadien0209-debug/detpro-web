@@ -90,6 +90,9 @@ export default function NhomTree({ nhom, members, meId, view = "nhom", onLeaf, o
           const started = k <= ch;
           const groupDone = PART_KEYS.every((_, j) => leafState(members, key, j, view).all);
           const fl = flowerState(members, key, view);
+          // #325 hoa bài nói khoá (xám mờ + 🔒) tới khi CHÍNH MÌNH xong cả 5 lá của bài
+          const gMe = members.find((m) => m.id === meId)?.tom?.[key]?.g;
+          const hoaKhoa = !!meId && (view === meId || view === "nhom") && open && !(gMe?.length === 5 && gMe.every(Boolean));
           const pt = (t) => [trunkX + (x1 - trunkX) * t, y0 + (y1 - y0) * t];
           const label = u.kind === "tong" ? "Bài tổng" : `Bài ${k}`;
           return (
@@ -154,10 +157,10 @@ export default function NhomTree({ nhom, members, meId, view = "nhom", onLeaf, o
                 </g>
               )}
               <g
-                className={`nh-flower ${!open ? "is-off" : fl.all ? "is-green" : fl.vang || fl.xanh ? "is-yellow" : "is-none"}`}
+                className={`nh-flower ${!open ? "is-off" : hoaKhoa ? "is-khoa" : fl.all ? "is-green" : fl.vang || fl.xanh ? "is-yellow" : "is-none"}`}
                 role="button"
                 tabIndex={0}
-                aria-label={`${label} · Bài nói tự do`}
+                aria-label={`${label} · Bài nói tự do${hoaKhoa ? " — xong cả 5 lá thì mở" : ""}`}
                 onClick={() => onFlower?.({ u, k })}
                 onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onFlower?.({ u, k })}
               >
@@ -165,6 +168,11 @@ export default function NhomTree({ nhom, members, meId, view = "nhom", onLeaf, o
                   <ellipse key={a} cx={x1 + side * 14} cy={y1 - 10} rx={5.5} ry={8} transform={`rotate(${a} ${x1 + side * 14} ${y1 - 2})`} />
                 ))}
                 <circle cx={x1 + side * 14} cy={y1 - 2} r={6} className="nh-fc" />
+                {hoaKhoa && (
+                  <text x={x1 + side * 14} y={y1 + 3} textAnchor="middle" className="nh-hoakhoa" aria-hidden="true">
+                    🔒
+                  </text>
+                )}
                 {view === "nhom" && open && (fl.vang > 0 || (fl.xanh > 0 && !fl.all)) && (
                   <text x={x1 + side * 14} y={y1 + 30} textAnchor="middle" className="nh-leafn">
                     🎤 {fl.xanh}/{fl.of}
