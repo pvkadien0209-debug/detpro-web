@@ -205,10 +205,11 @@ export function HvTab({ ma, k, uid, data, reload }) {
       <h2>Học viên ({data.members.length}/{data.nhom.toiDa})</h2>
       <ul className="nh-hv">
         {data.members.map((m) => (
-          <li key={m.id} className={m.trangThai === "tam-nghi" ? "is-pause" : ""}>
+          <li key={m.id} className={m.trangThai !== "hoc" ? "is-pause" : ""}>
             <span>
               <b>{m.ten}</b> <small>({m.id}{m.coPin ? " · có PIN" : ""})</small>
               {m.trangThai === "tam-nghi" && <em> · Tạm nghỉ (không tính vào luật nhóm)</em>}
+              {m.trangThai === "huong-dan" && <em> · 🎧 Chỉ hướng dẫn (không bắt buộc làm bài)</em>}
             </span>
             <span className="nh-row">
               <button type="button" className="nh-mini" onClick={() => { const t = window.prompt("Tên hiển thị mới", m.ten); if (t) call({ viec: "doi-ten", id: m.id, ten: t }); }}>
@@ -220,8 +221,13 @@ export function HvTab({ ma, k, uid, data, reload }) {
               <button type="button" className="nh-mini" onClick={() => setNk(nk === m.id ? "" : m.id)} aria-expanded={nk === m.id}>
                 Nhật ký
               </button>
-              <button type="button" className="nh-mini" onClick={() => call({ viec: "trang-thai", id: m.id, trangThai: m.trangThai === "hoc" ? "tam-nghi" : "hoc" })}>
-                {m.trangThai === "hoc" ? "Tạm nghỉ" : "Học lại"}
+              {m.trangThai !== "huong-dan" && (
+                <button type="button" className="nh-mini" onClick={() => call({ viec: "trang-thai", id: m.id, trangThai: m.trangThai === "hoc" ? "tam-nghi" : "hoc" })}>
+                  {m.trangThai === "hoc" ? "Tạm nghỉ" : "Học lại"}
+                </button>
+              )}
+              <button type="button" className="nh-mini" onClick={() => call({ viec: "trang-thai", id: m.id, trangThai: m.trangThai === "huong-dan" ? "hoc" : "huong-dan" })} title="#370 Chỉ hướng dẫn: không tính vào luật nhóm, không bị giục">
+                {m.trangThai === "huong-dan" ? "Học cùng nhóm" : "Chỉ hướng dẫn"}
               </button>
               <button type="button" className="nh-mini is-danger" onClick={() => call({ viec: "xoa-id", id: m.id }, `Xoá ID “${m.id}” và toàn bộ dữ liệu của người này?`)}>
                 Xoá
@@ -229,8 +235,8 @@ export function HvTab({ ma, k, uid, data, reload }) {
             </span>
             {pinFor === m.id && (
               <form className="nh-row nh-pinreset" onSubmit={(e) => { e.preventDefault(); call({ viec: "pin", id: m.id, pin: pinNew }); setPinFor(""); }}>
-                <input type="password" inputMode="numeric" autoComplete="off" maxLength={4} value={pinNew} placeholder="PIN mới ••••" onChange={(e) => setPinNew(e.target.value.replace(/\D/g, ""))} autoFocus />
-                <button type="submit" className="kt-btn kt-btn--pri" disabled={pinNew.length !== 4}>
+                <input type="password" inputMode="numeric" autoComplete="off" maxLength={6} value={pinNew} placeholder="PIN mới 6 số" onChange={(e) => setPinNew(e.target.value.replace(/\D/g, ""))} autoFocus />
+                <button type="submit" className="kt-btn kt-btn--pri" disabled={pinNew.length !== 6}>
                   Lưu PIN mới
                 </button>
                 <span className="kt-muted">Báo PIN mới cho {m.ten} (nhắn riêng).</span>

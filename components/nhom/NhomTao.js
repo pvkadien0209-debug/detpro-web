@@ -41,6 +41,7 @@ export default function NhomTao() {
   // #250 (NHA A1): trưởng nhóm cũng học → tên + ID + PIN bắt buộc
   const [myId, setMyId] = useState("");
   const [myPin, setMyPin] = useState("");
+  const [chiHD, setChiHD] = useState(true); // #370 Chỉ hướng dẫn (mặc định)
   const [quiz, setQuiz] = useState(40);
   const [say, setSay] = useState(30); // #285 LB-Q3
   const [tf, setTf] = useState("xong");
@@ -67,7 +68,7 @@ export default function NhomTao() {
     if (!topic) return setErr("Chọn chuỗi bài");
     if (!tenHD.trim()) return setErr("Nhập tên của bạn");
     if (!/^[a-z0-9][a-z0-9-]{1,19}$/.test(myId)) return setErr("ID của bạn 2–20 ký tự: chữ thường không dấu, số, dấu gạch");
-    if (!/^\d{4}$/.test(myPin)) return setErr("Đặt PIN 4 số cho ID của bạn");
+    if (!/^\d{6}$/.test(myPin)) return setErr("Đặt PIN 6 số cho ID của bạn");
     setBusy(true);
     setErr("");
     try {
@@ -75,7 +76,7 @@ export default function NhomTao() {
         body: {
           topic: topicKey, ten: ten || topic.title.vi, tenHuongDan: tenHD,
           nguong: { quiz, "listen-speak": say, tf }, hanChangGio: han, nhacGio: nhac, kenhGuiBai: kenh, batBuocPin: true, toiDa,
-          nguoiTao: { id: myId, ten: tenHD.trim(), pin: myPin },
+          nguoiTao: { id: myId, ten: tenHD.trim(), pin: myPin, chiHuongDan: chiHD },
         },
       });
       saveK(r.ma, r.k);
@@ -105,7 +106,7 @@ export default function NhomTao() {
               Chép lời mời + link
             </CopyBtn>
           </div>
-          <p className="kt-muted">Người nhận mở link → bấm “Tôi là người mới” → gõ tên + đặt PIN 4 số là vào học. Lần sau máy tự nhớ.</p>
+          <p className="kt-muted">Người nhận mở link → bấm “Tôi là người mới” → gõ tên + đặt PIN 6 số là vào học. Lần sau máy tự nhớ.</p>
           <div className="nh-card">
             <h2>2. Vào nhóm của bạn</h2>
             <p className="kt-muted">
@@ -202,8 +203,14 @@ export default function NhomTao() {
             )
           )}
           <label className="nh-field">
-            <span className="nh-flabel">PIN 4 số * (hiện ••••, an toàn khi chia sẻ màn hình)</span>
-            <input type="password" inputMode="numeric" autoComplete="new-password" maxLength={4} required value={myPin} placeholder="••••" onChange={(e) => setMyPin(e.target.value.replace(/\D/g, ""))} />
+            <span className="nh-flabel">PIN 6 số * (hiện ••••••, an toàn khi chia sẻ màn hình)</span>
+            <input type="password" inputMode="numeric" autoComplete="new-password" maxLength={6} required value={myPin} placeholder="••••••" onChange={(e) => setMyPin(e.target.value.replace(/\D/g, ""))} />
+          </label>
+          <label className="nh-check nh-chihd">
+            <input type="checkbox" checked={chiHD} onChange={(e) => setChiHD(e.target.checked)} />
+            <span>
+              <b>Tôi chỉ hướng dẫn</b> — không bắt buộc làm bài; nhóm mở bài sau không chờ tôi, Đét không giục tôi. Muốn làm cùng để tạo động lực vẫn làm được. (Bỏ tick nếu bạn cũng là người học.)
+            </span>
           </label>
           <label className="nh-field">
             <span className="nh-flabel">Kênh nhận bài nói tự do (link nhóm Zalo…) — không bắt buộc</span>

@@ -1329,9 +1329,9 @@ body.nh-in .kt-learn.is-drill .nh-xong { margin-top: 18px; }
 .nh-noinote.has-nx { border-style: solid; color: var(--kt-ink); }
 .nh-note2 .nh-nx { margin-top: 4px; font-weight: 400; }
 /* #269 Đét trợ thủ */
-.tt { position: fixed; left: 16px; bottom: 16px; z-index: 1120; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; pointer-events: none; }
-.tt > * { pointer-events: auto; }
-body.kt-shell .tt { left: calc(var(--kt-rail, 0px) + 16px); }
+.tt-goc { position: fixed; left: 16px; bottom: 16px; z-index: 1120; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; pointer-events: none; }
+.tt-goc > * { pointer-events: auto; }
+body.kt-shell .tt-goc { left: calc(var(--kt-rail, 0px) + 16px); }
 .tt-btn { display: inline-flex; align-items: center; gap: 6px; padding: 4px 14px 4px 4px; border-radius: 999px; border: 1px solid #cfe3da; background: #fff; box-shadow: 0 6px 18px rgba(23,32,51,.15); font-weight: 700; font-size: 14px; color: #0f6e56; cursor: pointer; }
 .tt-btn img { width: 34px; height: 34px; border-radius: 50%; background: #eaf6f0; object-fit: contain; }
 .tt-btn.has-goiy img { box-shadow: 0 0 0 3px #fbbf24; }
@@ -1347,8 +1347,8 @@ body.kt-shell .tt { left: calc(var(--kt-rail, 0px) + 16px); }
 .tt-chon button { text-align: left; border: 1px solid #cfe3da; background: #fff; border-radius: 12px; padding: 8px 12px; cursor: pointer; font-weight: 600; color: #0f3d33; }
 .tt-chon button.is-pri { background: #0f6e56; color: #fff; border-color: #0f6e56; }
 .tt-lui { margin-top: 10px; background: none; border: 0; color: var(--kt-muted, #667); cursor: pointer; padding: 0; }
-@media (max-width: 960px) { body.kt-shell .tt { left: 12px; } .tt { bottom: 76px; left: 12px; } .tt-btn span { font-size: 13px; } }
-body.nh-noscroll .tt { display: none; }
+@media (max-width: 960px) { body.kt-shell .tt-goc { left: 12px; } .tt-goc { bottom: 76px; left: 12px; } .tt-btn span { font-size: 13px; } }
+body.nh-noscroll .tt-goc { display: none; }
 .nh-nx ol { margin: 2px 0 6px; padding-left: 22px; }
 .nh-nx ul ul { margin: 2px 0; list-style: circle; }
 .nh-nx code { background: #eef1f5; border-radius: 5px; padding: 1px 5px; font-size: .9em; word-break: break-all; }
@@ -1381,16 +1381,16 @@ body.nh-noscroll .tt { display: none; }
 .nh-xong-mini.is-done { color: #0f6e56; font-weight: 600; }
 /* #285 Đét trợ thủ: kéo thả + nút tròn khi làm bài tập */
 .tt-btn { touch-action: none; user-select: none; }
-.tt.is-nho .tt-btn { padding: 3px; }
-.tt.is-nho .tt-btn img { width: 36px; height: 36px; }
-.tt.is-nho { flex-direction: row; align-items: flex-start; }
+.tt-goc.is-nho .tt-btn { padding: 3px; }
+.tt-goc.is-nho .tt-btn img { width: 36px; height: 36px; }
+.tt-goc.is-nho { flex-direction: row; align-items: flex-start; }
 .tt-x { width: 20px; height: 20px; margin-left: -14px; margin-top: -4px; border-radius: 50%; border: 1px solid var(--kt-line, #e6e8ee); background: #fff; display: grid; place-items: center; cursor: pointer; padding: 0; color: var(--kt-muted, #667); box-shadow: 0 2px 6px rgba(0,0,0,.15); }
 /* #285 trưởng nhóm: chép lời nhắc / thông báo bài mới mở gửi Zalo */
 .nh-nhaczalo { margin: 0 0 10px; font-size: 13.5px; }
 .nh-baomo { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; background: #fff7e0; border: 1px solid #f2d27a; border-radius: 12px; padding: 10px 14px; margin: 0 0 12px; }
 /* #285: nút tròn Đét khi làm bài tập — mặc định góc phải trên (không che đáp án); kéo đi đâu thì giữ chỗ đó */
-.tt.is-nho:not([style]) { top: 8px !important; bottom: auto !important; left: auto !important; right: 150px !important; z-index: 1200; }
-.tt.is-nho .tt-btn { box-shadow: 0 2px 8px rgba(0,0,0,.3); }
+.tt-goc.is-nho:not([style]) { top: 8px !important; bottom: auto !important; left: auto !important; right: 150px !important; z-index: 1200; }
+.tt-goc.is-nho .tt-btn { box-shadow: 0 2px 8px rgba(0,0,0,.3); }
 
 /* ---------- #298 Nhóm đang học: người đang học, dòng việc, khen nhanh, dải chạy, Hỏi đáp cạnh cây ---------- */
 .nh-soinoi h2 { display: flex; align-items: center; gap: 8px; }
@@ -1427,7 +1427,7 @@ body.nh-noscroll .tt { display: none; }
 .nh-chuyen summary { cursor: pointer; }
 .nh-chuyen-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
 .nh-chuyen-ma { width: 100%; box-sizing: border-box; margin: 4px 0 8px; font: 12px/1.4 ui-monospace, monospace; border: 1px solid var(--kt-line); border-radius: 10px; padding: 8px; }
-body.nh-chat-mo .tt { display: none !important; }
+body.nh-chat-mo .tt-goc { display: none !important; }
 /* #300 chuỗi ngày học */
 .nh-lua { margin-left: 4px; font-size: 11.5px; font-weight: 800; color: #c2410c; }
 .nh-lua.is-cho { opacity: .45; filter: grayscale(.6); }
@@ -1536,7 +1536,7 @@ body.nh-chat-mo .tt { display: none !important; }
 .nh-bayGio dd { margin: 0; }
 @media (max-width: 520px) { .nh-bayGio dl { grid-template-columns: 1fr; } .nh-bayGio dd { margin-bottom: 4px; } }
 /* #354 màn chào người mới · nghe chậm · bấm tin để trả lời · gợi ý bản dễ */
-body.nh-chao-mo .tt { display: none !important; }
+body.nh-chao-mo .tt-goc { display: none !important; }
 .nh-chao { position: fixed; inset: 0; z-index: 1300; background: rgba(15, 23, 42, .6); display: grid; place-items: center; padding: 12px; }
 .nh-chao-box { width: min(560px, 100%); max-height: calc(100vh - 24px); overflow: auto; background: #fff; border-radius: 20px; padding: 14px 18px 18px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 24px 70px rgba(0, 0, 0, .3); }
 .nh-chao-box > header { display: flex; align-items: center; gap: 12px; }
@@ -1593,3 +1593,36 @@ body.nh-chao-mo .tt { display: none !important; }
 .nh-chao-kq.is-doc { background: #fde5e0; }
 .nh-docnhanh { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 6px; }
 .nh-docnhanh button { font: inherit; font-size: 12.5px; padding: 4px 9px; border-radius: 999px; border: 1px solid var(--kt-line, #e3e7ee); background: var(--kt-marker-soft, #fff4c7); color: var(--kt-ink, #172033); cursor: pointer; }
+/* #370 trang có nút dính "Bắt đầu học" (điện thoại): chừa chỗ cuối trang + Đét đứng trên nút, không che chữ */
+@media (max-width: 960px) {
+  body:has(.kt-mcta) .kt-brand { padding-bottom: 96px; }
+  body:has(.kt-mcta) .tt-goc:not([style]):not(.is-nho) { bottom: 92px; }
+}
+@media (max-width: 640px) {
+  body:has(.kt-mcta) .tt-goc:not([style]):not(.is-nho) { bottom: 156px; }
+}
+/* #370 tài khoản tuỳ chọn + chế độ Chỉ hướng dẫn */
+.tk-wrap { display: grid; gap: 14px; max-width: 760px; }
+.tk-tab { display: flex; gap: 6px; margin-bottom: 12px; }
+.tk-tab button { flex: 1; padding: 8px; border-radius: 10px; border: 1px solid var(--kt-line); background: #fff; font-weight: 600; cursor: pointer; }
+.tk-tab button.is-on { background: var(--kt-pine); border-color: var(--kt-pine); color: #fff; }
+.tk-form .nh-field input, .tk-wrap .nh-field input { width: 100%; }
+.tk-loi-ich ul { margin: 6px 0 0; padding-left: 18px; }
+.tk-ds { list-style: none; padding: 0; margin: 0 0 10px; display: grid; gap: 8px; }
+.tk-ds li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--kt-line); border-radius: 10px; background: #fff; }
+.tk-lop { display: grid; gap: 10px; }
+.tk-lop-o { border: 1px solid var(--kt-line); border-radius: 12px; padding: 10px 12px; background: #fff; }
+.tk-lop-o.is-can { border-color: #f2c14e; background: #fffbea; }
+.tk-lop-o header { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.tk-lop-o p { margin: 4px 0; }
+.tk-chua { background: #fff4c7; border-radius: 999px; padding: 1px 8px; font-size: 12px; margin-left: 6px; }
+.tk-nguy .is-danger { background: #fde5e0; color: #a3271a; border-color: #f3b5aa; }
+.tk-the p { margin: 0; }
+.nh-check { display: flex; gap: 8px; align-items: flex-start; margin: 8px 0; cursor: pointer; }
+.nh-check input { margin-top: 4px; flex: none; }
+.nh-chihd { background: var(--kt-pine-soft, #e2f1ec); border-radius: 10px; padding: 8px 10px; }
+.tk-gan { color: var(--kt-pine); font-weight: 600; }
+.tk-ganTay { margin: 10px 0; }
+.tk-ganTay summary { cursor: pointer; color: var(--kt-pine); font-weight: 600; }
+.tk-ganTay form { margin-top: 8px; flex-wrap: wrap; }
+.tk-ganTay input { flex: 1 1 120px; min-width: 0; }

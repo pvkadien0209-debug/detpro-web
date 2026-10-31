@@ -9,6 +9,7 @@ import { myGroups } from "@/components/nhom/nhomClient"; // #267 nhóm học tr�
 import { hienTroThu, daAnTroThu } from "./TroThu"; // #269
 import KtShell from "./KtShell";
 import ChuyenTienDo from "./ChuyenTienDo"; // #298 TD-Q3
+import { docCo } from "@/components/taiKhoan/tkClient"; // #370
 import { TopicCard } from "./HomeKnowledge";
 import { loadUnitsIndex, readUnitProgress, unitSummary, unitDoneCount, unitPath, PARTS, partDone, seriesProgress } from "./unitData";
 
@@ -51,6 +52,7 @@ export default function MyPage() {
           </button>
         </p>
       )}
+      <TheTaiKhoan /> {/* #370 */}
       <ChuyenTienDo />
       {nhoms.length > 0 && (
         <>
@@ -122,5 +124,26 @@ export default function MyPage() {
         </>
       )}
     </KtShell>
+  );
+}
+
+// #370 thẻ tài khoản tuỳ chọn trên trang Của tôi
+function TheTaiKhoan() {
+  const [co, setCo] = useState(null);
+  useEffect(() => setCo(docCo()), []);
+  return (
+    <div className="nh-card tk-the">
+      {co ? (
+        <p>
+          👤 Đang đăng nhập <b>{co.tenHien || co.ten}</b> — tiến độ và nhóm tự đồng bộ giữa các máy.{" "}
+          <Link to="/tai-khoan">Quản lí tài khoản</Link>
+        </p>
+      ) : (
+        <p>
+          👤 <b>Tài khoản (không bắt buộc):</b> đăng nhập để giữ tiến độ khi đổi máy, nhớ các nhóm học; người hướng dẫn có bảng gom mọi lớp.{" "}
+          <Link to="/tai-khoan">Đăng nhập / Tạo tài khoản</Link>
+        </p>
+      )}
+    </div>
   );
 }

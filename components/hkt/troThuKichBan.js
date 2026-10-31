@@ -51,12 +51,12 @@ export function goiY(c) {
     if (c.lamTruoc) return { text: `Bạn xong ${c.bai} rồi — đang chờ ${c.slow || "vài"} bạn. Bạn được làm trước ${c.lamTruoc}, hoặc vào Hỏi đáp động viên mọi người.`, nut: { t: `Làm trước ${c.lamTruoc}`, lam: (x) => x.hocTiep?.() } };
     return { text: "Bạn đã làm hết phần của mình. Chờ cả nhóm xong để mở bài tiếp — bấm tên một bạn để gửi lời động viên." };
   }
-  if (c.loai === "tao") return { text: "Mở nhóm học chỉ cần: chọn chuỗi bài, gõ tên bạn và đặt PIN 4 số. Các cài đặt khác để mặc định là được." };
+  if (c.loai === "tao") return { text: "Mở nhóm học chỉ cần: chọn chuỗi bài, gõ tên bạn và đặt PIN 6 số. Các cài đặt khác để mặc định là được." };
   if (c.loai === "cua" && c.moi) {
     // #319 cầm tay chỉ việc theo bước đang làm
     const B = {
       1: "Bước 1/4: gõ tên của bạn vào ô “Tên hiển thị” — tên cả nhóm sẽ thấy, ví dụ “Oanh”. Dòng “Tên đăng nhập” máy tự tạo, không cần sửa.",
-      2: "Bước 2/4: gõ 4 số bất kỳ làm PIN (như mật khẩu ngắn). Bấm hình con mắt để xem lại. Nhớ chụp màn hình hoặc ghi ra giấy — sang máy khác cần PIN này.",
+      2: "Bước 2/4: gõ 6 số bất kỳ làm PIN (như mật khẩu ngắn). Bấm hình con mắt để xem lại. Nhớ chụp màn hình hoặc ghi ra giấy — sang máy khác cần PIN này.",
       3: "Bước 3/4: tick vào ô vuông “Tôi đồng ý…”.",
       4: "Bước 4/4: bấm nút xanh “Vào nhóm” là xong! Vào rồi mình chỉ tiếp việc đầu tiên cần làm.",
     };
@@ -129,8 +129,8 @@ export const KICH_BAN = {
     det: "Học riêng: tiến độ lưu trên trình duyệt của máy này. Đổi máy: vào trang Của tôi → “Chuyển tiến độ sang máy khác” → chép mã, dán ở máy mới (câu ở hai máy được cộng dồn). Học nhóm: tiến độ lưu trên máy chủ — máy nào cũng thấy.",
     chon: [{ t: "Mở trang Của tôi", lam: (x) => x.nav?.("/me"), chinh: true }],
   },
-  "cua-moi": { det: "Mở link nhóm trưởng nhóm gửi → bấm “Tôi là người mới” → gõ tên → đặt PIN 4 số (nhớ PIN). Lần sau trên máy này tự vào; máy khác thì bấm tên mình + gõ PIN.", chon: [{ t: "Quên PIN thì sao?", toi: "pin" }] },
-  "tao-can": { det: "Chỉ cần: chọn chuỗi bài, gõ tên bạn, đặt PIN 4 số. Xong bấm “Chép link” gửi vào nhóm Zalo — mọi người bấm link là vào.", chon: [{ t: "Cài đặt nên để thế nào?", toi: "tao-cd" }] },
+  "cua-moi": { det: "Mở link nhóm trưởng nhóm gửi → bấm “Tôi là người mới” → gõ tên → đặt PIN 6 số (nhớ PIN). Lần sau trên máy này tự vào; máy khác thì bấm tên mình + gõ PIN.", chon: [{ t: "Quên PIN thì sao?", toi: "pin" }] },
+  "tao-can": { det: "Chỉ cần: chọn chuỗi bài, gõ tên bạn, đặt PIN 6 số. Xong bấm “Chép link” gửi vào nhóm Zalo — mọi người bấm link là vào.", chon: [{ t: "Cài đặt nên để thế nào?", toi: "tao-cd" }] },
   "tao-cd": { det: "Để mặc định là ổn: Trắc nghiệm đúng 40/40, Nghe nói 30/40, True or false làm hết lượt; mỗi bài hạn 48 giờ, Đét tự nhắc người chậm. Sửa được bất cứ lúc nào trong tab “Cài đặt nhóm”.", chon: [{ t: "Quay lại", toi: "tao-can" }] },
   "ai-viec": { det: "🙋 Bạn: làm 3 bài tập để chuẩn bị (chấm ngay), rồi nói 1–2 phút bằng tiếng Anh và gửi.\n🎧 Người hướng dẫn: nghe và sửa riêng từng bài nói của bạn (phát âm – cách dùng từ – ý); trả lời thắc mắc, hỗ trợ khi cần, gửi hướng dẫn riêng; chuẩn bị bài, cùng làm với nhóm để tạo động lực, nhắc nhở.\n🤖 Đét & DetPro: soạn bài, chấm bài tập, gợi ý bài nói, nhắc lịch.\nBài tập giúp bạn sẵn sàng — phần được kèm riêng là bài nói của bạn.", chon: [{ t: "Mở hoa bài nói", lam: (c) => c?.openFlower?.(), chinh: true }, { t: "Xem lại giới thiệu nhóm", lam: (c) => c?.xemChao?.() }, { t: "Quay lại", toi: "goc" }] }, // #347 #354
   "chuoi-hh": { det: "🔥 Chuỗi ngày: hôm nào làm thêm vài câu là +1 ngày (tính theo giờ Việt Nam, tới 24h). 🔥 mờ = hôm nay chưa học. 🏅 Huy hiệu: về đích đầu tiên một bài, chuỗi 3/7/14/30 ngày, về đích cả chuỗi. Mỗi tối sau 20h Đét tổng kết trong Hỏi đáp.", chon: [{ t: "Quay lại", toi: "goc" }] },

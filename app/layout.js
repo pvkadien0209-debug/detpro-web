@@ -9,6 +9,7 @@ import "@/styles/VongDet.css";
 import "@/styles/globals.css";
 import { SITE_URL, SLOGAN, BIO } from "@/lib/seo";
 import TroThu from "@/components/hkt/TroThu"; // #269 Đét trợ thủ "Tôi cần làm gì?"
+import DongBoTaiKhoan from "@/components/taiKhoan/DongBoTaiKhoan"; // #370 tài khoản tuỳ chọn
 
 export const metadata = {
   metadataBase: new URL(SITE_URL),
@@ -53,6 +54,7 @@ export default function RootLayout({ children }) {
       <body>
         {children}
         <TroThu />
+        <DongBoTaiKhoan />
       </body>
     </html>
   );

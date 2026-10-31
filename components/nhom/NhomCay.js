@@ -52,6 +52,7 @@ export function NhomTable({ nhom, members, onCell, onNoi }) {
               <th scope="row">
                 {m.ten}
                 {m.trangThai === "tam-nghi" && <small> · tạm nghỉ</small>}
+                {m.trangThai === "huong-dan" && <small> · 🎧 hướng dẫn</small>}
               </th>
               {nhom.chuoi.bai.map((u, k) => {
                 const key = baiKey(u);
@@ -130,8 +131,8 @@ function MySettings({ ma, me, nhom, onLeft }) {
         </h2>
         <p className="kt-muted">{me.coPin ? "ID của bạn đang có PIN." : "ID chưa có PIN — ai có link nhóm cũng chọn được ID này."}</p>
         <div className="nh-row">
-          <input type="password" inputMode="numeric" autoComplete="new-password" maxLength={4} value={pin} placeholder="PIN mới ••••" onChange={(e) => setP(e.target.value.replace(/\D/g, ""))} />
-          <button type="button" className="kt-btn kt-btn--pri" disabled={pin.length !== 4} onClick={() => savePin(pin)}>
+          <input type="password" inputMode="numeric" autoComplete="new-password" maxLength={6} value={pin} placeholder="PIN mới 6 số" onChange={(e) => setP(e.target.value.replace(/\D/g, ""))} />
+          <button type="button" className="kt-btn kt-btn--pri" disabled={pin.length !== 6} onClick={() => savePin(pin)}>
             Đặt PIN
           </button>
           {me.coPin && !nhom.batBuocPin && (
@@ -346,6 +347,7 @@ function Inner({ ma, id }) {
             <Users size={16} aria-hidden="true" /> Nhóm học {ma} · {me.ten}
             {laChu && " · trưởng nhóm"}
             {me.trangThai === "tam-nghi" && " · tạm nghỉ"}
+            {me.trangThai === "huong-dan" && " · 🎧 chỉ hướng dẫn — không bắt buộc làm bài"}
           </p>
           <h1 className="kt-h1">{nhom.ten}</h1>
           {ci.xong ? (

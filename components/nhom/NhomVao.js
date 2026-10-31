@@ -38,7 +38,7 @@ function PinForm({ ma, id, ten, onOk, onCancel, msg, inline }) {
         <Lock size={18} aria-hidden="true" /> {inline ? "Gõ PIN của bạn" : `${ten || id} — gõ PIN`}
       </h2>
       {/* #267: PIN luôn hiện •••• (trưởng nhóm hay chia sẻ màn hình) */}
-      <input type="password" inputMode="numeric" autoComplete="off" pattern="\d{4}" maxLength={4} autoFocus value={pin} onChange={(e) => setP(e.target.value.replace(/\D/g, ""))} aria-label="PIN 4 số" placeholder="••••" />
+      <input type="password" inputMode="numeric" autoComplete="off" pattern="\d{4,6}" maxLength={6} autoFocus value={pin} onChange={(e) => setP(e.target.value.replace(/\D/g, ""))} aria-label="PIN (6 số; PIN cũ 4 số vẫn dùng được)" placeholder="••••••" />
       {err && <p className="hkt-u-err">{err}</p>}
       <div className="nh-row">
         {onCancel && (
@@ -46,7 +46,7 @@ function PinForm({ ma, id, ten, onOk, onCancel, msg, inline }) {
             {inline ? "Không phải tôi" : "Chọn tên khác"}
           </button>
         )}
-        <button type="submit" className="kt-btn kt-btn--pri" disabled={busy || pin.length !== 4}>
+        <button type="submit" className="kt-btn kt-btn--pri" disabled={busy || (pin.length !== 4 && pin.length !== 6)}>
           Vào
         </button>
       </div>
@@ -122,7 +122,7 @@ export default function NhomVao({ ma }) {
   const dongYRef = useRef(null);
   const formRef = useRef(null);
   // #319 bước đang làm khi tạo tên mới: 1 tên · 2 PIN · 3 đồng ý · 4 bấm Vào nhóm
-  const buoc = !ten.trim() ? 1 : pin.length !== 4 ? 2 : !dongY ? 3 : 4;
+  const buoc = !ten.trim() ? 1 : pin.length !== 6 ? 2 : !dongY ? 3 : 4;
   useBaoTroThu(() => ({ loai: "cua", moi, buoc }), [moi, buoc]);
   useEffect(() => setMsg((m) => (m.startsWith("Còn thiếu") ? "" : m)), [buoc]); // điền xong chỗ thiếu → tắt nhắc
   useEffect(() => {
@@ -184,7 +184,7 @@ export default function NhomVao({ ma }) {
   const create = async (e) => {
     e.preventDefault();
     // #319 thiếu gì nói rõ + đưa con trỏ tới đúng ô
-    const thieu = !ten.trim() ? ["tên", tenRef, "ten"] : !idOk ? ["ID hợp lệ", null, "id"] : pin.length !== 4 ? ["PIN đủ 4 số", pinRef, "pin"] : !dongY ? ["tick ô đồng ý", dongYRef, "dongy"] : null;
+    const thieu = !ten.trim() ? ["tên", tenRef, "ten"] : !idOk ? ["ID hợp lệ", null, "id"] : pin.length !== 6 ? ["PIN đủ 6 số", pinRef, "pin"] : !dongY ? ["tick ô đồng ý", dongYRef, "dongy"] : null;
     if (thieu) {
       setMsg(`Còn thiếu: ${thieu[0]}. Làm theo dòng 👉 rồi bấm “Vào nhóm” lại nhé.`);
       setNhay(thieu[2]);
@@ -245,7 +245,7 @@ export default function NhomVao({ ma }) {
           <button type="button" className="nh-door-chao" onClick={() => { setPick(null); setMoi(true); }}>
             <span aria-hidden="true">👋</span>
             <span>
-              <b>Lần đầu vào nhóm này?</b> Bấm vào đây — mình chỉ từng bước (khoảng 1 phút): gõ tên → đặt PIN 4 số → vào học.
+              <b>Lần đầu vào nhóm này?</b> Bấm vào đây — mình chỉ từng bước (khoảng 1 phút): gõ tên → đặt PIN 6 số → vào học.
             </span>
           </button>
         )}
@@ -271,6 +271,7 @@ export default function NhomVao({ ma }) {
                       </>
                     )}
                     {m.trangThai === "tam-nghi" && " · tạm nghỉ"}
+                    {m.trangThai === "huong-dan" && " · người hướng dẫn"}
                   </small>
                 </span>
               </button>
@@ -300,7 +301,7 @@ export default function NhomVao({ ma }) {
             <h2>2. Tạo tên của bạn — 4 bước</h2>
             {/* #319 hướng dẫn cầm tay chỉ việc: bước đang làm sáng lên, xong có dấu ✓ */}
             <ol className="nh-buoc" aria-label="Các bước">
-              {["Gõ tên", "Đặt PIN 4 số", "Tick đồng ý", "Bấm Vào nhóm"].map((t, k) => (
+              {["Gõ tên", "Đặt PIN 6 số", "Tick đồng ý", "Bấm Vào nhóm"].map((t, k) => (
                 <li key={t} className={k + 1 < buoc ? "is-xong" : k + 1 === buoc ? "is-nay" : ""}>
                   <i>{k + 1 < buoc ? "✓" : k + 1}</i> {t}
                 </li>
@@ -350,9 +351,9 @@ export default function NhomVao({ ma }) {
             </div>
 
             <div className={`nh-bstep ${buoc === 2 ? "is-nay" : ""}`}>
-              {buoc === 2 && <p className="nh-chi">👉 <b>Bước 2:</b> đặt 4 số bất kỳ làm PIN — như mật khẩu ngắn, để vào lại nhóm trên máy khác. <b>Chụp màn hình hoặc ghi lại.</b></p>}
+              {buoc === 2 && <p className="nh-chi">👉 <b>Bước 2:</b> đặt 6 số bất kỳ làm PIN — như mật khẩu ngắn, để vào lại nhóm trên máy khác. <b>Chụp màn hình hoặc ghi lại.</b></p>}
               <label className="nh-field">
-                <span className="nh-flabel">PIN 4 số</span>
+                <span className="nh-flabel">PIN 6 số</span>
                 <span className="nh-pinrow">
                   <input
                     ref={pinRef}
@@ -360,18 +361,18 @@ export default function NhomVao({ ma }) {
                     type={hienPin ? "text" : "password"}
                     inputMode="numeric"
                     autoComplete="new-password"
-                    maxLength={4}
+                    maxLength={6}
                     value={pin}
                     onChange={(e) => setP(e.target.value.replace(/\D/g, ""))}
-                    placeholder="••••"
+                    placeholder="••••••"
                   />
                   <button type="button" className="nh-mat" onClick={() => setHienPin((v) => !v)} aria-label={hienPin ? "Ẩn PIN" : "Xem PIN vừa gõ"} title={hienPin ? "Ẩn PIN" : "Xem PIN vừa gõ"}>
                     {hienPin ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
-                  <small className="nh-pindem">{pin.length}/4 số</small>
+                  <small className="nh-pindem">{pin.length}/6 số</small>
                 </span>
               </label>
-              {pin.length === 4 && /^(\d)\1{3}$|^1234$|^0123$|^4321$/.test(pin) && <p className="kt-muted nh-pinyeu">PIN này dễ đoán — đổi 4 số khác cho an toàn hơn (vẫn dùng được nếu bạn muốn).</p>}
+              {pin.length === 6 && /^(\d)\1{5}$|^123456$|^012345$|^654321$/.test(pin) && <p className="kt-muted nh-pinyeu">PIN này dễ đoán — đổi 6 số khác cho an toàn hơn (vẫn dùng được nếu bạn muốn).</p>}
             </div>
 
             <div className={`nh-bstep ${buoc === 3 ? "is-nay" : ""}`}>

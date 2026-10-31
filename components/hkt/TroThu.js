@@ -87,7 +87,7 @@ export default function TroThu() {
   const nho = ctx?.loai === "bai" && ["quiz", "listen-speak", "true-or-false"].includes(ctx.part) && !mo; // đang làm bài tập
   const kep = (x, y) => ({ x: Math.max(4, Math.min(window.innerWidth - 60, x)), y: Math.max(4, Math.min(window.innerHeight - 60, y)) });
   const onDown = (e) => {
-    const r = e.currentTarget.closest(".tt").getBoundingClientRect();
+    const r = e.currentTarget.closest(".tt-goc").getBoundingClientRect();
     keo.current = { sx: e.clientX, sy: e.clientY, x0: r.left, y0: window.innerHeight - r.bottom, moved: false };
     e.currentTarget.setPointerCapture?.(e.pointerId);
   };
@@ -119,7 +119,7 @@ export default function TroThu() {
     } else if (x.toi) setVet((v) => (x.toi === "goc" ? ["goc"] : [...v, x.toi]));
   };
   return (
-    <div className={`tt ${mo ? "is-open" : ""} ${nho ? "is-nho" : ""}`} style={vt ? { left: vt.x, bottom: vt.y } : undefined}>
+    <div className={`tt-goc ${mo ? "is-open" : ""} ${nho ? "is-nho" : ""}`} style={vt ? { left: vt.x, bottom: vt.y } : undefined}>
       {mo && (
         <section className="tt-panel" role="dialog" aria-label="Đét trợ thủ">
           <header>

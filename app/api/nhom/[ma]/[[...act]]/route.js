@@ -12,8 +12,11 @@
 //  GET  /api/nhom/<mã>/huong-dan          (tiêu đề x-nhom-k) mọi thứ cho người hướng dẫn
 //  POST /api/nhom/<mã>/quan-ly            { k, viec, … } cài đặt, duyệt bài nói tự do (+ nhận xét), Tạm nghỉ, PIN, xoá ID
 import {
-  HttpErr, xemNhom, vao, docTienDo, ghiTienDo, baoGuiNoi, docTin, guiTin, suaTin, docTep, guiNhan, xoaNhan, themHdr, xoaHdr, xemHuongDan, quanLy, docNhatKy, hoatDong, ghiTrinhDo,
+  chayVoiTk, HttpErr, xemNhom, vao, docTienDo, ghiTienDo, baoGuiNoi, docTin, guiTin, suaTin, docTep, guiNhan, xoaNhan, themHdr, xoaHdr, xemHuongDan, quanLy, docNhatKy, hoatDong, ghiTrinhDo,
 } from "@/lib/nhom.server";
+
+import { cookies } from "next/headers";
+import { COOKIE, uidPhien } from "@/lib/taiKhoan.server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -36,7 +39,17 @@ async function readForm(req) {
   return { b, audio };
 }
 
-export async function GET(req, { params }) {
+// #370 lượt gọi chạy kèm tài khoản đang đăng nhập (cookie httpOnly) → ID nhóm đã gắn tài khoản khỏi gõ PIN
+const voiTk = async (fn) => chayVoiTk(await uidPhien((await cookies()).get(COOKIE)?.value), fn);
+
+export async function GET(req, ctx) {
+  return voiTk(() => GET0(req, ctx));
+}
+export async function POST(req, ctx) {
+  return voiTk(() => POST0(req, ctx));
+}
+
+async function GET0(req, { params }) {
   try {
     const { ma, act = [] } = await params;
     const u = new URL(req.url);
@@ -66,7 +79,7 @@ export async function GET(req, { params }) {
   }
 }
 
-export async function POST(req, { params }) {
+async function POST0(req, { params }) {
   try {
     const { ma, act = [] } = await params;
     const form = (req.headers.get("content-type") || "").startsWith("multipart/");

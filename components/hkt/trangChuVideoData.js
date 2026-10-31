@@ -208,7 +208,7 @@ export const GUIDE_VIDEOS = [
     slides: [
       { art: "people", sec: 7, show: "**Học cùng** một nhóm", en: "Learning with friends? On DetPro, a whole group can study one series together.", vi: "Học cùng bạn bè? Trên DetPro, cả nhóm học chung một chuỗi bài." },
       { art: "screen-home", sec: 7, show: "Mở **link nhóm**", en: "Your guide sends a group link. Open it. You don't need an account.", vi: "Người hướng dẫn gửi link nhóm. Bạn mở link ra, không cần tài khoản." },
-      { art: "keyboard", sec: 8, show: "Chọn tên · đặt **PIN 4 số**", en: "Choose your name, or create a new ID. A four-digit PIN keeps your ID yours.", vi: "Chọn tên của bạn, hoặc tạo ID mới. PIN 4 số giữ ID là của riêng bạn." },
+      { art: "keyboard", sec: 8, show: "Chọn tên · đặt **PIN 6 số**", en: "Choose your name, or create a new ID. A six-digit PIN keeps your ID yours.", vi: "Chọn tên của bạn, hoặc tạo ID mới. PIN 6 số giữ ID là của riêng bạn." },
       { art: "route", sec: 8, show: "Cây = **đường đi** của nhóm", en: "The tree is the group's path. Each lesson has five leaves and one flower.", vi: "Cây là đường đi của cả nhóm. Mỗi bài có năm lá và một bông." },
       { art: "split", sec: 8, show: "Lá **1–5** = 5 phần bài", en: "Tap a numbered leaf to do that part right away, in a pop-up window.", vi: "Bấm vào lá có số để làm ngay phần đó, trong một cửa sổ nổi." },
       { art: "clock", sec: 9, show: "Bài sau mở khi **cả nhóm xong**", en: "The next lesson opens when everyone finishes. A countdown and reminders keep the pace.", vi: "Bài sau chỉ mở khi mọi người xong bài trước. Đồng hồ đếm ngược và chuông nhắc giữ nhịp cho nhóm." },
@@ -225,7 +225,7 @@ export const GUIDE_VIDEOS = [
     slides: [
       { art: "people", sec: 7, show: "**Mở lớp** hướng dẫn", en: "Want to guide a class? You can open a group on DetPro in a few steps.", vi: "Muốn hướng dẫn một lớp? Bạn mở được nhóm trên DetPro chỉ trong vài bước." },
       { art: "search", sec: 7, show: "Chọn **một chuỗi bài**", en: "Choose one series of lessons and give your class a name.", vi: "Chọn một chuỗi bài và đặt tên cho lớp." },
-      { art: "keyboard", sec: 8, show: "Bạn cũng là **người học**", en: "You learn too. Create your own ID and a four-digit PIN.", vi: "Bạn cũng là người học. Tạo ID của riêng bạn kèm PIN 4 số." },
+      { art: "keyboard", sec: 8, show: "Bạn cũng là **người học**", en: "You learn too. Create your own ID and a six-digit PIN.", vi: "Bạn cũng là người học. Tạo ID của riêng bạn kèm PIN 6 số." },
       { art: "check", sec: 8, show: "Chỉ bạn **duyệt** và đổi cài đặt", en: "Only you approve free talks and change the settings. Learners can't use your ID.", vi: "Chỉ bạn duyệt bài nói tự do và đổi cài đặt. Học viên không vào thay ID của bạn được." },
       { art: "half", sec: 8, show: "Qua phần khi **đúng ≥ 70%**…", en: "Decide when a part counts as passed, for example seventy or eighty percent correct.", vi: "Quyết định khi nào một phần được tính là qua, ví dụ đúng từ 70% hay 80%." },
       { art: "clock", sec: 9, show: "Đếm ngược **mỗi chặng**", en: "Add a countdown for each stage, like twenty-four hours, and reminders for anyone behind.", vi: "Thêm đồng hồ đếm ngược cho mỗi chặng, ví dụ 24 giờ, và lời nhắc cho người chưa xong." },

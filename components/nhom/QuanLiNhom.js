@@ -168,9 +168,10 @@ function ChiTiet({ mk, ma, onBack }) {
                     </td>
                     <td className="nh-code">{m.id}</td>
                     <td>
-                      <select value={m.trangThai === "tam-nghi" ? "tam-nghi" : "hoc"} onChange={(e) => sua({ viec: "tv", id: m.id, trangThai: e.target.value }, `${m.ten}: ${e.target.value === "hoc" ? "học" : "tạm nghỉ"}`)}>
+                      <select value={["tam-nghi", "huong-dan"].includes(m.trangThai) ? m.trangThai : "hoc"} onChange={(e) => sua({ viec: "tv", id: m.id, trangThai: e.target.value }, `${m.ten}: ${{ hoc: "học", "tam-nghi": "tạm nghỉ", "huong-dan": "chỉ hướng dẫn" }[e.target.value]}`)}>
                         <option value="hoc">Đang học</option>
                         <option value="tam-nghi">Tạm nghỉ</option>
+                        <option value="huong-dan">Chỉ hướng dẫn</option>
                       </select>
                     </td>
                     <td>
@@ -197,8 +198,8 @@ function ChiTiet({ mk, ma, onBack }) {
                     <tr>
                       <td colSpan={8}>
                         <form className="nh-row" onSubmit={(e) => { e.preventDefault(); sua({ viec: "pin", id: m.id, pin }, `Đã đặt PIN mới cho ${m.ten}`); setPinFor(""); }}>
-                          <input type="password" inputMode="numeric" autoComplete="off" maxLength={4} value={pin} placeholder="PIN mới ••••" onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))} autoFocus />
-                          <button type="submit" className="kt-btn kt-btn--pri" disabled={pin.length !== 4}>Lưu PIN mới</button>
+                          <input type="password" inputMode="numeric" autoComplete="off" maxLength={6} value={pin} placeholder="PIN mới 6 số" onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))} autoFocus />
+                          <button type="submit" className="kt-btn kt-btn--pri" disabled={pin.length !== 6}>Lưu PIN mới</button>
                         </form>
                       </td>
                     </tr>
