@@ -73,46 +73,42 @@ export function RenLuyenHome() {
   return (
     <KtShell active="ren">
       <h1 className="kt-h1">Rèn luyện</h1>
-      <p className="kt-lead">Học thuộc bảng bằng nghe nói thuần — phòng rèn luyện như bản cũ. Bấm vào bảng là vào phòng luyện.</p>
+      <p className="kt-lead">Học thuộc bảng bằng nghe nói thuần. Mỗi bộ là một bài gồm nhiều bảng — bấm vào ô là vào thẳng phòng thực hành.</p>
       {!mt && <BaoDienThoai />}
       {err && <p className="nh-err">{err}</p>}
       {!idx && !err && <p className="kt-muted">Đang tải…</p>}
-      {idx?.bo.map((bo) => (
-        <section key={bo.ma} className="rl-bo">
-          <div className="kt-row-head">
-            <h2>
-              {bo.ten} <small className="kt-muted">· {bo.moTa}</small> {bo.mau && <span className="rl-mau">bản mẫu</span>}
-            </h2>
-          </div>
-          {bo.bang.length ? (
-            <div className="rl-luoi">
-              {bo.bang.map((b) => {
-                const kq = docKq(bo.ma, b.id);
-                return (
-                  <Link key={b.id} className="kt-card rl-the" to={b.link || `/ren-luyen/${bo.ma}/${b.id}`}> {/* #414 b.link = phòng rèn luyện bản cũ */}
-                    <span className="rl-hinh">{b.svg ? <img src={b.svg} alt="" loading="lazy" /> : <Mic size={36} aria-hidden="true" />}</span>
-                    <span className="kt-card-body">
-                      <h3>{b.ten}</h3>
-                      <span className="kt-meta">
-                        <span>{b.soDong} dòng</span>
-                        {kq ? (
-                          <span className={kq.tot >= b.soDong ? "rl-ok" : ""}>
-                            tốt nhất {kq.tot}/{b.soDong} · {kq.lan} lần
-                          </span>
-                        ) : (
-                          <span>chưa luyện</span>
-                        )}
-                      </span>
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
-          ) : (
-            <p className="kt-muted rl-sap">Sắp có — nội dung đang soạn.</p>
-          )}
-        </section>
-      ))}
+      {/* #416 mỗi bộ MỘT ô bài (gồm nhiều bảng) — bấm vào là vào phòng thực hành */}
+      {idx && (
+        <div className="rl-luoi">
+          {idx.bo.map((bo) => {
+            const kq = docKq(bo.ma, "bo");
+            const the = (
+              <>
+                <span className="rl-hinh">{bo.svg ? <img src={bo.svg} alt="" loading="lazy" /> : <Mic size={36} aria-hidden="true" />}</span>
+                <span className="kt-card-body">
+                  <h3>
+                    {bo.ten} {bo.mau && <span className="rl-mau">bản mẫu</span>}
+                  </h3>
+                  <span className="kt-meta">
+                    <span>{bo.moTa}</span>
+                    {!bo.link ? <span>sắp có</span> : kq ? <span>đã luyện {kq.lan} lần</span> : <span>chưa luyện</span>}
+                  </span>
+                  {bo.mauGhi && <small className="kt-muted">{bo.mauGhi}</small>}
+                </span>
+              </>
+            );
+            return bo.link ? (
+              <Link key={bo.ma} className="kt-card rl-the" to={bo.link} onClick={() => ghiKq(bo.ma, "bo", { dung: 0, luc: Date.now() })}>
+                {the}
+              </Link>
+            ) : (
+              <div key={bo.ma} className="kt-card rl-the is-sap" aria-disabled="true">
+                {the}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </KtShell>
   );
 }

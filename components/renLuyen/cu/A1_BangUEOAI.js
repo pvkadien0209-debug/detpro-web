@@ -1,5 +1,5 @@
 "use client";
-// #414 Chép y nguyên mã nguồn cũ (AOLD\SEO-PT-projectjs - Lưu 14-9-2026\client\src) — chỉ đổi đường import.
+// #414 Chép từ mã nguồn cũ (AOLD\SEO-PT-projectjs - Lưu 14-9-2026\client\src) — giữ bố cục + logic; #416 đổi màu theo DetPro.
 import { useState, useCallback, useRef, useEffect } from "react";
 function BangUEOAI() {
   const cellStyle = {
@@ -203,7 +203,7 @@ function BangUEOAI() {
   return (
     <div
       style={{
-        fontFamily: "Arial, sans-serif",
+        fontFamily: "inherit",
         lineHeight: 1.3,
         fontSize: "18px",
         padding: "10px",
@@ -276,7 +276,7 @@ function BangUEOAI() {
               width="8"
               height="8"
               rx="2"
-              fill="#90caf9"
+              fill="#9fd3c5"
               stroke="#555"
               strokeWidth="1"
             />

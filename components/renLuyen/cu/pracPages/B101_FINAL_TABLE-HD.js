@@ -1,39 +1,39 @@
 "use client";
-// #414 Chép y nguyên mã nguồn cũ (AOLD\SEO-PT-projectjs - Lưu 14-9-2026\client\src) — chỉ đổi đường import.
+// #414 Chép từ mã nguồn cũ (AOLD\SEO-PT-projectjs - Lưu 14-9-2026\client\src) — giữ bố cục + logic; #416 đổi màu theo DetPro.
 import { useEffect, useState, useRef, useCallback } from "react";
 // ── Theme presets ────────────────────────────────────────────────────
 const THEME_PRESETS = {
   light: {
     name: "Sáng",
     bg: "#ffffff",
-    surface: "#f8fafc",
+    surface: "#eef7f3",
     border: "#d0d5dd",
-    text: "#1e293b",
+    text: "#0b5747",
     textMuted: "#64748b",
-    headerBg: "#f1f5f9",
-    rowAlt: "#fafbfc",
-    answerBg: "#eff6ff",
-    answerBorder: "#2563eb",
+    headerBg: "#eef7f3",
+    rowAlt: "#eef7f3",
+    answerBg: "#eef7f3",
+    answerBorder: "#0f6e5a",
     selectedBg: "#dcfce7",
     selectedBorder: "#16a34a",
     selectedText: "#14532d",
-    accent: "#2563eb",
+    accent: "#0f6e5a",
   },
   dark: {
     name: "Tối",
-    bg: "#0f172a",
-    surface: "#1e293b",
+    bg: "#0b5747",
+    surface: "#0b5747",
     border: "#334155",
-    text: "#e2e8f0",
+    text: "#cfe9e1",
     textMuted: "#94a3b8",
-    headerBg: "#1e293b",
-    rowAlt: "#162032",
-    answerBg: "#1e3a5f",
-    answerBorder: "#3b82f6",
+    headerBg: "#0b5747",
+    rowAlt: "#0b5747",
+    answerBg: "#0b5747",
+    answerBorder: "#3f9a84",
     selectedBg: "#14391f",
     selectedBorder: "#22c55e",
     selectedText: "#86efac",
-    accent: "#3b82f6",
+    accent: "#3f9a84",
   },
 };
 const STORAGE_KEY = "tableHD_settings_v1";
@@ -41,7 +41,7 @@ const DEFAULT_SETTINGS = {
   fontSize: 15,
   themeMode: "light", // "light" | "dark" | "custom"
   customBg: "#ffffff",
-  customText: "#1e293b",
+  customText: "#0b5747",
   density: "compact", // "compact" | "comfortable"
 };
 // Marker dùng để đánh dấu 1 row cần merge toàn bộ cột thành 1 cell
@@ -124,7 +124,7 @@ function TableHD({ data, data_TB, HINT, fnOnclick, PushAW = [] }) {
       X: "green",
       XX: "dodgerblue",
       [HINT + "#hint"]: "red",
-      MM: "purple",
+      MM: "#0f6e5a",
       XXX: "black",
     };
     const headers = data.length > 0 ? Object.keys(data[0]) : [];

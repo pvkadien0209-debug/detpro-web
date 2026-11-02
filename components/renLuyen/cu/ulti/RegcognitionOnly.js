@@ -1,5 +1,5 @@
 "use client";
-// #414 Chép y nguyên mã nguồn cũ (AOLD\SEO-PT-projectjs - Lưu 14-9-2026\client\src) — chỉ đổi đường import.
+// #414 Chép từ mã nguồn cũ (AOLD\SEO-PT-projectjs - Lưu 14-9-2026\client\src) — giữ bố cục + logic; #416 đổi màu theo DetPro.
 import React, { useEffect, useState } from "react";
 import SpeechRecognition, {
   useSpeechRecognition,
@@ -208,13 +208,13 @@ const DictaphoneONLY = ({
         .dtph-sm-btn i { font-size: 1rem; line-height: 1; }
         .dtph-btn-reset {
           background: rgba(148,163,184,0.35);
-          color: #f1f5f9;
-          border: 1px solid rgba(226,232,240,0.35);
+          color: #eef7f3;
+          border: 1px solid rgba(15, 110, 90,0.35);
         }
         .dtph-btn-next {
-          background: linear-gradient(135deg, #c4b5fd, #8b5cf6);
+          background: linear-gradient(135deg, #cfe9e1, #3f9a84);
           color: #fff;
-          box-shadow: 0 2px 10px rgba(139,92,246,0.55);
+          box-shadow: 0 2px 10px rgba(15, 110, 90,0.55);
         }
         /* ══ CENTER: Transcript — dùng height thật để animate mượt ══ */
         .dtph-center {
@@ -244,7 +244,7 @@ const DictaphoneONLY = ({
         .dtph-transcript-text {
           font-size: 0.82rem;
           line-height: 1.35;
-          color: #f1f5f9;
+          color: #eef7f3;
           word-break: break-word;
           overflow: hidden;
           display: -webkit-box;
@@ -267,7 +267,7 @@ const DictaphoneONLY = ({
         }
         .dtph-placeholder-text {
           font-size: 0.76rem;
-          color: rgba(241,245,249,0.5);
+          color: rgba(15, 110, 90,0.5);
           font-style: italic;
           text-align: right;
           width: 100%;
@@ -359,7 +359,7 @@ const DictaphoneONLY = ({
           box-sizing: border-box;
           display: flex;
           flex-direction: column;
-          background: rgba(15,23,42,0.98);
+          background: rgba(15, 110, 90,0.98);
           backdrop-filter: blur(6px);
           z-index: 9999;
         }
@@ -376,7 +376,7 @@ const DictaphoneONLY = ({
           border-radius: 10px;
           border: 1px solid rgba(255,255,255,0.18);
           background: rgba(255,255,255,0.08);
-          color: #f1f5f9;
+          color: #eef7f3;
           padding: 10px 12px;
           font-size: 0.95rem;
           outline: none;
@@ -385,7 +385,7 @@ const DictaphoneONLY = ({
           overflow-y: auto;
         }
         .dtph-mobile-input::placeholder {
-          color: rgba(241,245,249,0.5);
+          color: rgba(15, 110, 90,0.5);
           font-style: italic;
         }
         .dtph-mobile-bar {

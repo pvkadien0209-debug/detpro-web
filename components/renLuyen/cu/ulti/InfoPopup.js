@@ -1,5 +1,5 @@
 "use client";
-// #414 Chép y nguyên mã nguồn cũ (AOLD\SEO-PT-projectjs - Lưu 14-9-2026\client\src) — chỉ đổi đường import.
+// #414 Chép từ mã nguồn cũ (AOLD\SEO-PT-projectjs - Lưu 14-9-2026\client\src) — giữ bố cục + logic; #416 đổi màu theo DetPro.
 import React, { useEffect, useState } from "react";
 import { compareTwoStrings } from "string-similarity";
 import { socket } from "@/components/renLuyen/cu/appShim";
@@ -432,7 +432,7 @@ export default function InfoPopup({
         .dtph-info-overlay {
           position: fixed;
           inset: 0;
-          background: rgba(30,41,59,0.55);
+          background: rgba(15, 110, 90,0.55);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -441,14 +441,14 @@ export default function InfoPopup({
         }
 
         .dtph-info-modal {
-          background: linear-gradient(180deg, #ffffff, #f0f9ff);
+          background: linear-gradient(180deg, #ffffff, #eef7f3);
           border: 1px solid rgba(148,163,184,0.25);
           border-radius: 18px;
           width: 96vw;
           height: 92vh;
           max-width: 1100px;
           padding: 20px;
-          box-shadow: 0 20px 60px rgba(15,23,42,0.35);
+          box-shadow: 0 20px 60px rgba(15, 110, 90,0.35);
           display: flex;
           flex-direction: column;
           overflow: hidden;
@@ -464,7 +464,7 @@ export default function InfoPopup({
         }
 
         .dtph-info-header h5 {
-          color: #0e7490;
+          color: #0b5747;
           font-weight: 800;
         }
 
@@ -475,14 +475,14 @@ export default function InfoPopup({
         }
 
         .dtph-info-resize-btn {
-          background: linear-gradient(135deg, #7dd3fc, #0ea5e9);
+          background: linear-gradient(135deg, #9fd3c5, #0f6e5a);
           border: none;
           color: #fff;
           height: 36px;
           padding: 0 12px;
           border-radius: 10px;
           cursor: pointer;
-          box-shadow: 0 2px 10px rgba(14,165,233,0.4);
+          box-shadow: 0 2px 10px rgba(15, 110, 90,0.4);
           font-weight: 700;
           font-size: 0.8rem;
           display: flex;
@@ -515,15 +515,15 @@ export default function InfoPopup({
         .dtph-info-search-input {
           flex: 1;
           border-radius: 10px;
-          border: 2px solid #7dd3fc;
+          border: 2px solid #9fd3c5;
           padding: 10px 14px;
           font-size: 1rem;
         }
 
         .dtph-info-search-input:focus {
           outline: none;
-          border-color: #0ea5e9;
-          box-shadow: 0 0 0 3px rgba(14,165,233,0.2);
+          border-color: #0f6e5a;
+          box-shadow: 0 0 0 3px rgba(15, 110, 90,0.2);
         }
 
         .dtph-info-search-btn {
@@ -562,7 +562,7 @@ export default function InfoPopup({
         .dtph-info-hr {
           flex-shrink: 0;
           border: none;
-          border-top: 2px dashed #bae6fd;
+          border-top: 2px dashed #cfe9e1;
           margin: 8px 0;
         }
 
@@ -597,7 +597,7 @@ export default function InfoPopup({
 
         .dtph-match-section-title {
           font-weight: 800;
-          color: #0369a1;
+          color: #0b5747;
           margin-bottom: 2px;
         }
 
@@ -612,8 +612,8 @@ export default function InfoPopup({
           align-items: center;
           gap: 6px;
           max-width: 100%;
-          border: 2px solid #bae6fd;
-          background: #f0f9ff;
+          border: 2px solid #cfe9e1;
+          background: #eef7f3;
           border-radius: 10px;
           padding: 6px 10px;
           cursor: pointer;
@@ -628,14 +628,14 @@ export default function InfoPopup({
         }
 
         .dtph-match-btn-active {
-          border-color: #0ea5e9;
-          background: #e0f2fe;
-          box-shadow: 0 0 0 2px rgba(14,165,233,0.25);
+          border-color: #0f6e5a;
+          background: #eef7f3;
+          box-shadow: 0 0 0 2px rgba(15, 110, 90,0.25);
         }
 
         .dtph-match-rank {
           font-weight: 800;
-          color: #0369a1;
+          color: #0b5747;
           flex-shrink: 0;
         }
 
@@ -644,7 +644,7 @@ export default function InfoPopup({
           text-overflow: ellipsis;
           white-space: nowrap;
           max-width: 320px;
-          color: #0c4a6e;
+          color: #0b5747;
           font-weight: 600;
         }
 
@@ -665,11 +665,11 @@ export default function InfoPopup({
         .dtph-table-search-wrap {
           margin-top: 14px;
           padding-top: 12px;
-          border-top: 2px dashed #bae6fd;
+          border-top: 2px dashed #cfe9e1;
         }
 
         .dtph-table-search-title {
-          color: #7c3aed;
+          color: #3f9a84;
           font-weight: 800;
           margin-bottom: 8px;
           font-size: 0.95rem;
@@ -686,10 +686,10 @@ export default function InfoPopup({
           align-items: stretch;
           gap: 8px;
           background: #ffffff;
-          border: 1px solid #c4b5fd;
+          border: 1px solid #cfe9e1;
           border-radius: 10px;
           padding: 6px;
-          box-shadow: 0 2px 8px rgba(124,58,237,0.08);
+          box-shadow: 0 2px 8px rgba(15, 110, 90,0.08);
         }
 
         .dtph-table-result-meta {
@@ -700,12 +700,12 @@ export default function InfoPopup({
           align-items: center;
           justify-content: center;
           gap: 3px;
-          border-right: 1px solid #e2e8f0;
+          border-right: 1px solid #cfe9e1;
         }
 
         .dtph-table-rank {
           font-weight: 800;
-          color: #6d28d9;
+          color: #0f6e5a;
           font-size: 0.8rem;
         }
 
@@ -734,23 +734,23 @@ export default function InfoPopup({
           align-items: center;
           gap: 5px;
           padding: 5px 28px 5px 7px;
-          border: 1px solid #e2e8f0;
+          border: 1px solid #cfe9e1;
           border-radius: 7px;
-          background: #f8fafc;
+          background: #eef7f3;
         }
 
         .dtph-table-cell-best {
-          border-color: #a78bfa;
-          background: #f5f3ff;
-          box-shadow: inset 0 0 0 1px rgba(124,58,237,0.12);
+          border-color: #9fd3c5;
+          background: #eef7f3;
+          box-shadow: inset 0 0 0 1px rgba(15, 110, 90,0.12);
         }
 
         .dtph-table-cell-key {
           flex-shrink: 0;
           font-size: 0.65rem;
           font-weight: 800;
-          color: #7c3aed;
-          background: #ede9fe;
+          color: #3f9a84;
+          background: #eef7f3;
           padding: 2px 4px;
           border-radius: 4px;
         }
@@ -760,7 +760,7 @@ export default function InfoPopup({
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
-          color: #1e293b;
+          color: #0b5747;
           font-weight: 600;
           font-size: 0.82rem;
         }
@@ -772,10 +772,10 @@ export default function InfoPopup({
           transform: translateY(-50%);
           width: 23px;
           height: 23px;
-          border: 1px solid #a78bfa;
+          border: 1px solid #9fd3c5;
           border-radius: 6px;
           background: #fff;
-          color: #7c3aed;
+          color: #3f9a84;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -788,7 +788,7 @@ export default function InfoPopup({
         }
 
         .dtph-table-plus-btn:hover {
-          background: #7c3aed;
+          background: #3f9a84;
           color: #fff;
         }
 
@@ -801,11 +801,11 @@ export default function InfoPopup({
         ═══════════════════════════════════════════════════════════ */
 
         .dtph-info-textarea-wrap {
-          background: linear-gradient(180deg, #ecfeff, #d0f3ff);
-          border: 2px dashed #0ea5e9;
+          background: linear-gradient(180deg, #ecfeff, #cfe9e1);
+          border: 2px dashed #0f6e5a;
           border-radius: 16px;
           padding: 14px 16px 16px;
-          box-shadow: 0 6px 20px rgba(14,165,233,0.18);
+          box-shadow: 0 6px 20px rgba(15, 110, 90,0.18);
           height: 100%;
           box-sizing: border-box;
           display: flex;
@@ -815,7 +815,7 @@ export default function InfoPopup({
         .dtph-info-textarea-label {
           font-weight: 800;
           font-size: 1.05rem;
-          color: #0369a1;
+          color: #0b5747;
           margin-bottom: 8px;
           display: flex;
           align-items: center;
@@ -830,38 +830,38 @@ export default function InfoPopup({
           width: 8px;
           height: 8px;
           border-radius: 50%;
-          background: #0ea5e9;
-          box-shadow: 0 0 8px rgba(14,165,233,0.8);
+          background: #0f6e5a;
+          box-shadow: 0 0 8px rgba(15, 110, 90,0.8);
         }
 
         #clearClassForTable {
-          border: 3px solid #38bdf8;
+          border: 3px solid #3f9a84;
           border-radius: 12px;
           padding: 16px 18px;
           font-size: 2.5rem;
           font-weight: 700;
           line-height: 1.5;
-          color: #0c4a6e;
+          color: #0b5747;
           background: #ffffff;
           flex: 1;
           min-height: 0;
           width: 100%;
-          box-shadow: 0 2px 10px rgba(14,165,233,0.12) inset;
+          box-shadow: 0 2px 10px rgba(15, 110, 90,0.12) inset;
           transition:
             border-color 0.2s,
             box-shadow 0.2s;
         }
 
         #clearClassForTable::placeholder {
-          color: #7dd3fc;
+          color: #9fd3c5;
           font-weight: 600;
           font-style: italic;
         }
 
         #clearClassForTable:focus {
           outline: none;
-          border-color: #0284c7;
-          box-shadow: 0 0 0 4px rgba(14,165,233,0.25);
+          border-color: #0f6e5a;
+          box-shadow: 0 0 0 4px rgba(15, 110, 90,0.25);
         }
 
         /* ═══════════════════════════════════════════════════════════
@@ -888,9 +888,9 @@ export default function InfoPopup({
         }
 
         .ipa-ref-table .ipa-head td {
-          background: #eef7fb;
+          background: #eef7f3;
           font-weight: 600;
-          color: #0d6efd;
+          color: #0f6e5a;
         }
 
         @media (max-width: 768px) {
@@ -904,7 +904,7 @@ export default function InfoPopup({
             flex-direction: row;
             justify-content: flex-start;
             border-right: none;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid #cfe9e1;
             padding-bottom: 4px;
           }
 

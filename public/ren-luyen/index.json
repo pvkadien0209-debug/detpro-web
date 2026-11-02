@@ -1,5 +1,5 @@
 {
- "ghiChu": "#411/#414 Rèn luyện (máy tính). Bấm bảng → phòng rèn luyện CHÉP Y NGUYÊN project cũ (/ren-luyen/phong/<tệp jsonData>/<bài>). Bộ A1 hiện là MẪU (yyy_a1, 10 bài). Bảng mới: thêm tệp public/jsonData/<tệp>.json (định dạng cũ: HDTB + charactor) và link ở đây.",
+ "ghiChu": "#416 Rèn luyện (máy tính): MỖI BỘ MỘT Ô BÀI, trong đó nhiều bảng. Bấm ô → phòng rèn luyện (chép từ bản cũ) với tệp public/jsonData/<tệp>.json (định dạng cũ HDTB + charactor), ?a=all = luyện mọi bảng. Bộ chưa có link = Sắp có.",
  "bo": [
   {
    "ma": "a",
@@ -7,7 +7,7 @@
    "moTa": "20 bảng · mỗi bảng 20 dòng",
    "soBang": 20,
    "soDong": 20,
-   "bang": []
+   "svg": "/ren-luyen/svg/mau.svg"
   },
   {
    "ma": "a1",
@@ -16,78 +16,9 @@
    "soBang": 20,
    "soDong": 40,
    "mau": true,
-   "bang": [
-    {
-     "id": "john-is-at-home-alone",
-     "ten": "John is at home alone.",
-     "svg": "/ren-luyen/svg/mau.svg",
-     "soDong": 7,
-     "link": "/ren-luyen/phong/yyy_a1/0"
-    },
-    {
-     "id": "john-is-at-school-with-his-friends",
-     "ten": "John is at school with his friends.",
-     "svg": "/ren-luyen/svg/mau.svg",
-     "soDong": 7,
-     "link": "/ren-luyen/phong/yyy_a1/1"
-    },
-    {
-     "id": "john-is-visiting-his-grandparents",
-     "ten": "John is visiting his grandparents.",
-     "svg": "/ren-luyen/svg/mau.svg",
-     "soDong": 7,
-     "link": "/ren-luyen/phong/yyy_a1/2"
-    },
-    {
-     "id": "john-is-eating-lunch-at-a-restaurant",
-     "ten": "John is eating lunch at a restaurant.",
-     "svg": "/ren-luyen/svg/mau.svg",
-     "soDong": 7,
-     "link": "/ren-luyen/phong/yyy_a1/3"
-    },
-    {
-     "id": "john-is-playing-football-in-the-park",
-     "ten": "John is playing football in the park.",
-     "svg": "/ren-luyen/svg/mau.svg",
-     "soDong": 7,
-     "link": "/ren-luyen/phong/yyy_a1/4"
-    },
-    {
-     "id": "john-is-shopping-at-the-supermarket",
-     "ten": "John is shopping at the supermarket.",
-     "svg": "/ren-luyen/svg/mau.svg",
-     "soDong": 7,
-     "link": "/ren-luyen/phong/yyy_a1/5"
-    },
-    {
-     "id": "john-is-waiting-at-the-bus-stop",
-     "ten": "John is waiting at the bus stop.",
-     "svg": "/ren-luyen/svg/mau.svg",
-     "soDong": 7,
-     "link": "/ren-luyen/phong/yyy_a1/6"
-    },
-    {
-     "id": "john-is-watching-a-movie-at-the-cinema",
-     "ten": "John is watching a movie at the cinema.",
-     "svg": "/ren-luyen/svg/mau.svg",
-     "soDong": 7,
-     "link": "/ren-luyen/phong/yyy_a1/7"
-    },
-    {
-     "id": "john-is-staying-at-a-hotel-with-family",
-     "ten": "John is staying at a hotel with family.",
-     "svg": "/ren-luyen/svg/mau.svg",
-     "soDong": 7,
-     "link": "/ren-luyen/phong/yyy_a1/8"
-    },
-    {
-     "id": "john-is-at-the-hospital-with-his-mother",
-     "ten": "John is at the hospital with his mother.",
-     "svg": "/ren-luyen/svg/mau.svg",
-     "soDong": 7,
-     "link": "/ren-luyen/phong/yyy_a1/9"
-    }
-   ]
+   "svg": "/ren-luyen/svg/mau.svg",
+   "link": "/ren-luyen/phong/yyy_a1/0?a=all",
+   "mauGhi": "bản mẫu: 10 bảng “40 tình huống thông dụng” (project cũ)"
   },
   {
    "ma": "b",
@@ -95,7 +26,7 @@
    "moTa": "30 bảng · mỗi bảng 50 dòng",
    "soBang": 30,
    "soDong": 50,
-   "bang": []
+   "svg": "/ren-luyen/svg/mau.svg"
   }
  ]
 }

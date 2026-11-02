@@ -17,7 +17,7 @@
   padding: 6px 10px;
   font-size: 14px;
   font-weight: 600;
-  background: #1a56db;
+  background: #0f6e5a;
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -101,18 +101,18 @@
   display: flex;
   flex-direction: column; /* body trên, header dưới */
   justify-content: flex-end; /* khi closed: header ghì xuống đáy */
-  background: linear-gradient(180deg, #f5f0ff 0%, #ede9fe 100%);
-  border-top: 2px solid #c4b5fd;
+  background: linear-gradient(180deg, #eef7f3 0%, #eef7f3 100%);
+  border-top: 2px solid #cfe9e1;
   border-radius: 16px 16px 0 0;
   overflow: hidden;
-  box-shadow: 0 -4px 20px rgba(139, 92, 246, 0.12);
+  box-shadow: 0 -4px 20px rgba(15, 110, 90, 0.12);
   transition:
     max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1),
     box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .fp-bottom-panel.open,
 .fp-bottom-panel.speaking {
-  box-shadow: 0 -8px 32px rgba(139, 92, 246, 0.22);
+  box-shadow: 0 -8px 32px rgba(15, 110, 90, 0.22);
 }
 .fp-bottom-panel.closed {
   max-height: 64px;
@@ -154,8 +154,8 @@
   padding: 10px 12px;
   min-height: 56px;
   flex-shrink: 0; /* không bị co lại */
-  border-top: 1px solid #c4b5fd; /* ngăn cách với body phía trên */
-  background: linear-gradient(180deg, #ede9fe 0%, #e9d5ff 100%);
+  border-top: 1px solid #cfe9e1; /* ngăn cách với body phía trên */
+  background: linear-gradient(180deg, #eef7f3 0%, #cfe9e1 100%);
   cursor: pointer;
 }
 .fp-toggle-btn {
@@ -171,22 +171,22 @@
   flex-shrink: 0;
 }
 .fp-toggle-btn:active {
-  background: rgba(139, 92, 246, 0.12);
+  background: rgba(15, 110, 90, 0.12);
 }
 .fp-toggle-arrow {
   font-size: 11px;
-  color: #7c3aed;
+  color: #3f9a84;
 }
 .fp-toggle-label {
   font-size: 13px;
   font-weight: 700;
-  color: #5b21b6;
+  color: #0f6e5a;
   white-space: nowrap;
 }
 .fp-collapsed-clue {
   flex: 1;
   font-size: 12px;
-  color: #1a56db;
+  color: #0f6e5a;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -227,8 +227,8 @@
   transform: scale(0.9);
 }
 .fp-speak-btn {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: #cfe9e1;
+  color: #0f6e5a;
   position: relative;
 }
 #BtnFsp {
@@ -256,18 +256,18 @@
 @keyframes speakRing {
   0% {
     box-shadow:
-      0 0 0 0 rgba(29, 78, 216, 0.55),
-      0 2px 6px rgba(29, 78, 216, 0.2);
+      0 0 0 0 rgba(15, 110, 90, 0.55),
+      0 2px 6px rgba(15, 110, 90, 0.2);
   }
   60% {
     box-shadow:
-      0 0 0 10px rgba(29, 78, 216, 0),
-      0 2px 6px rgba(29, 78, 216, 0.2);
+      0 0 0 10px rgba(15, 110, 90, 0),
+      0 2px 6px rgba(15, 110, 90, 0.2);
   }
   100% {
     box-shadow:
-      0 0 0 0 rgba(29, 78, 216, 0),
-      0 2px 6px rgba(29, 78, 216, 0.2);
+      0 0 0 0 rgba(15, 110, 90, 0),
+      0 2px 6px rgba(15, 110, 90, 0.2);
   }
 }
 .fp-mic-btn {
@@ -288,8 +288,8 @@
   border-radius: 10px;
 }
 .fp-clue-box {
-  background: #eff6ff;
-  border: 1px solid #93c5fd;
+  background: #eef7f3;
+  border: 1px solid #9fd3c5;
   border-radius: 10px;
   padding: 8px 12px;
   font-size: 14px;
@@ -304,7 +304,7 @@
 .fp-hint-img {
   width: 100%;
   max-width: 280px;
-  border: 3px solid #60a5fa;
+  border: 3px solid #3f9a84;
   border-radius: 12px;
   object-fit: cover;
   align-self: center;
@@ -327,7 +327,7 @@
 .fp-hint-title {
   font-weight: 700;
   font-size: 13px;
-  color: #7c3aed;
+  color: #3f9a84;
   margin-bottom: 4px;
 }
 .fp-speech-area {
@@ -500,7 +500,7 @@
 /* ── Transcript box ─────────────────────────────────────────── */
 .dtph-transcript-box {
   background: #fff;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #cfe9e1;
   border-radius: 12px;
   padding: 10px 12px;
   display: flex;
@@ -525,23 +525,23 @@
   margin-top: 2px;
 }
 .dtph-badge-1 {
-  background: #1d4ed8;
+  background: #0f6e5a;
   color: #fff;
 }
 .dtph-badge-2 {
-  background: #7c3aed;
+  background: #3f9a84;
   color: #fff;
 }
 .dtph-transcript-text {
   font-size: clamp(15px, 4vw, 18px);
   font-weight: 600;
-  color: #1e293b;
+  color: #0b5747;
   line-height: 1.4;
   flex: 1;
 }
 .dtph-interim-text {
   font-size: clamp(14px, 3.5vw, 16px);
-  color: #7c3aed;
+  color: #3f9a84;
   font-style: italic;
   flex: 1;
   line-height: 1.4;
@@ -574,8 +574,8 @@
   color: #d97706;
 }
 .status-ready {
-  background: #eff6ff;
-  color: #1d4ed8;
+  background: #eef7f3;
+  color: #0f6e5a;
 }
 .dtph-status-dot {
   width: 8px;
@@ -642,15 +642,15 @@
   border: 1px solid #fecaca;
 }
 .dtph-btn-submit {
-  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #0f6e5a 0%, #0f6e5a 100%);
   color: #fff;
-  box-shadow: 0 3px 10px rgba(37, 99, 235, 0.35);
+  box-shadow: 0 3px 10px rgba(15, 110, 90, 0.35);
   flex: 2;
 }
 .dtph-btn-exit {
-  background: #f1f5f9;
+  background: #eef7f3;
   color: #64748b;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #cfe9e1;
 }
 .dtph-btn-processing {
   background: #fef3c7;
@@ -676,14 +676,14 @@
   align-items: center;
   gap: 6px;
   padding: 6px 8px;
-  background: #f8fafc;
+  background: #eef7f3;
   border-radius: 8px;
   font-size: clamp(11px, 2.8vw, 12px);
   color: #64748b;
   line-height: 1.4;
 }
 .dtph-info-sep {
-  color: #cbd5e1;
+  color: #9fd3c5;
 }
 @media (min-width: 769px) {
   .dtph-info-strip {

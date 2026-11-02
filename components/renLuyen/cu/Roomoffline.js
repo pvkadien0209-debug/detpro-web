@@ -1,14 +1,11 @@
 "use client";
-// #414 Chép y nguyên mã nguồn cũ (AOLD\SEO-PT-projectjs - Lưu 14-9-2026\client\src) — chỉ đổi đường import.
+// #414 Chép từ mã nguồn cũ (AOLD\SEO-PT-projectjs - Lưu 14-9-2026\client\src) — giữ bố cục + logic; #416 đổi màu theo DetPro.
 import React, { useState, useEffect } from "react";
 import { useParams, useLocation, useNavigate } from "@/components/renLuyen/cu/routerShim";
 import { socket } from "@/components/renLuyen/cu/appShim";
 import PracticeDIV from "./pracPages/B101_FINAL_PROJECTS";
-import CountdownTimer from "./pracPages/B101_FINAL_CounterTime";
 import LinkAPI, { nopBaiTaiCho } from "@/components/renLuyen/cu/ulti/T0_linkApi";
-import sendMessageToServer from "@/components/renLuyen/cu/ulti/sendMessage";
 import shuffleArray from "@/components/renLuyen/cu/ulti/shuffleArray";
-import DataPracticeComponent from "./pracPages/C_RoomOffline_LAYDULIEUTH";
 import Dictaphone from "@/components/renLuyen/cu/ulti/RegcognitionOnly";
 const Room = ({ setSttRoom }) => {
   const { roomCode, currentIndex } = useParams();
@@ -220,32 +217,12 @@ const Room = ({ setSttRoom }) => {
     fetchTitle();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!StartToGetData) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-          backgroundColor: "#f9f9f9",
-        }}
-      >
-        <DataPracticeComponent
-          roomCode={roomCode}
-          currentIndex={currentIndex}
-          setStartToGetData={setStartToGetData}
-          fetchTitle={fetchTitle}
-        />
-      </div>
-    );
-  }
+  if (!StartToGetData) return <p className="rl-phong-tai">Đang vào phòng thực hành…</p>;
 
   if (params && IndexSets && params.get("qstable")) {
     return (
       <div style={{ padding: "5%", fontSize: "larger" }}>
-        <h1 style={{ color: "blue" }}>
+        <h1 style={{ color: "#0f6e5a" }}>
           Buổi phỏng vấn qua video giữa học viên và người hướng dẫn
         </h1>
         <h5>
@@ -313,8 +290,8 @@ const Room = ({ setSttRoom }) => {
           flex-direction: column;
           height: 100vh;
           overflow: hidden;
-          background: #f5f6fa;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+          background: #eef7f3;
+          font-family: inherit;
         }
 
         /* ── Compact top bar ── */
@@ -323,8 +300,8 @@ const Room = ({ setSttRoom }) => {
           align-items: center;
           gap: 8px;
           padding: 6px 10px;
-          background: #e6ccff;
-          border-bottom: 1px solid #d0aaff;
+          background: #cfe9e1;
+          border-bottom: 1px solid #9fd3c5;
           flex-shrink: 0;
           min-height: 44px;
           overflow: hidden;
@@ -333,7 +310,7 @@ const Room = ({ setSttRoom }) => {
           width: 30px;
           height: 30px;
           border-radius: 7px;
-          border: 1.5px solid #7c3aed;
+          border: 1.5px solid #3f9a84;
           object-fit: cover;
           cursor: pointer;
           flex-shrink: 0;
@@ -360,19 +337,19 @@ const Room = ({ setSttRoom }) => {
           white-space: nowrap;
           flex-shrink: 0;
         }
-        .room-info-chip.name   { background: rgba(124,58,237,0.12); color: #5b21b6; }
-        .room-info-chip.score  { background: rgba(37,99,235,0.12);  color: #1d4ed8; font-size: 0.8rem; font-weight: 800; }
+        .room-info-chip.name   { background: rgba(15, 110, 90,0.12); color: #0f6e5a; }
+        .room-info-chip.score  { background: rgba(15, 110, 90,0.12);  color: #0f6e5a; font-size: 0.8rem; font-weight: 800; }
         .room-info-chip.turns  { background: rgba(5,150,105,0.1);   color: #065f46; }
         .room-info-chip.time   { background: rgba(217,119,6,0.1);   color: #92400e; }
         .room-info-chip.code   { background: rgba(100,116,139,0.1); color: #475569; }
-        .room-info-sep { color: #b8a0e0; font-size: 0.65rem; padding: 0 1px; flex-shrink: 0; }
+        .room-info-sep { color: #9fd3c5; font-size: 0.65rem; padding: 0 1px; flex-shrink: 0; }
 
         /* ── Camera button ── */
         .room-cam-btn {
           width: 36px;
           height: 36px;
           border-radius: 10px;
-          background: #7c3aed;
+          background: #3f9a84;
           border: none;
           cursor: pointer;
           display: flex;
@@ -380,31 +357,31 @@ const Room = ({ setSttRoom }) => {
           justify-content: center;
           flex-shrink: 0;
           transition: background 0.15s, transform 0.1s;
-          box-shadow: 0 2px 6px rgba(124,58,237,0.35);
+          box-shadow: 0 2px 6px rgba(15, 110, 90,0.35);
         }
-        .room-cam-btn:active { transform: scale(0.93); background: #6d28d9; }
+        .room-cam-btn:active { transform: scale(0.93); background: #0f6e5a; }
 
         /* ── Start person button (inside welcome card) ── */
         .room-start-person {
           width: 72px;
           height: 72px;
           border-radius: 50%;
-          background: #7c3aed;
+          background: #3f9a84;
           border: none;
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
           margin: 18px auto 0;
-          box-shadow: 0 4px 16px rgba(124,58,237,0.4);
+          box-shadow: 0 4px 16px rgba(15, 110, 90,0.4);
           transition: transform 0.15s, background 0.15s;
           animation: person-pulse 2s ease-in-out infinite;
         }
-        .room-start-person:active { transform: scale(0.93); animation: none; background: #6d28d9; }
+        .room-start-person:active { transform: scale(0.93); animation: none; background: #0f6e5a; }
 
         @keyframes person-pulse {
-          0%, 100% { box-shadow: 0 4px 16px rgba(124,58,237,0.4); }
-          50%       { box-shadow: 0 4px 26px rgba(124,58,237,0.65); }
+          0%, 100% { box-shadow: 0 4px 16px rgba(15, 110, 90,0.4); }
+          50%       { box-shadow: 0 4px 26px rgba(15, 110, 90,0.65); }
         }
 
         /* ── Practice area ── */
@@ -459,7 +436,7 @@ const Room = ({ setSttRoom }) => {
         }
         .room-welcome-card h2 {
           font-size: 1.4rem;
-          color: #2c3e50;
+          color: #0b5747;
           margin: 0 0 8px;
           font-weight: 800;
         }
@@ -478,8 +455,8 @@ const Room = ({ setSttRoom }) => {
           display: flex;
           align-items: center;
           width: 100%;
-          background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-          border-top: 1.5px solid rgba(124, 58, 237, 0.4);
+          background: linear-gradient(135deg, #0b5747 0%, #0b5747 100%);
+          border-top: 1.5px solid rgba(15, 110, 90, 0.4);
           padding: 6px 4px;
           min-height: 60px;
           box-sizing: border-box;
@@ -661,7 +638,7 @@ const Room = ({ setSttRoom }) => {
                     </svg>
                   </button>
                   {IsReading && (
-                    <p style={{ color: "#7c3aed", fontWeight: "600" }}>
+                    <p style={{ color: "#3f9a84", fontWeight: "600" }}>
                       Đang đọc nội dung, vui lòng chờ...
                     </p>
                   )}

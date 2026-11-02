@@ -3,8 +3,8 @@
 const LinkAPI = "/api/";
 export default LinkAPI;
 
-/** #414 "Nộp bài tập" của bản cũ gửi thư qua máy chủ Heroku (đã bỏ) → không gửi đi đâu (dữ liệu học viên không ra ngoài),
- *  trả "thành công" để màn hình y như cũ: hiện khung kết quả, người học chụp gửi người hướng dẫn. */
+/** #414 "Nộp bài tập" / thư 10 điểm của bản cũ gửi qua máy chủ Heroku (đã bỏ) → không gửi đi đâu (dữ liệu học viên không ra ngoài),
+ *  trả "thành công" để màn hình y như cũ. */
 export function nopBaiTaiCho() {
   return Promise.resolve({ ok: true, status: 200, statusText: "OK", json: async () => ({ success: true }) });
 }

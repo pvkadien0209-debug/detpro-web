@@ -1,5 +1,5 @@
 "use client";
-// #414 Chép y nguyên mã nguồn cũ (AOLD\SEO-PT-projectjs - Lưu 14-9-2026\client\src) — chỉ đổi đường import.
+// #414 Chép từ mã nguồn cũ (AOLD\SEO-PT-projectjs - Lưu 14-9-2026\client\src) — giữ bố cục + logic; #416 đổi màu theo DetPro.
 import {
   useEffect,
   useState,
@@ -254,7 +254,7 @@ function FINAL_PROJECT({
             <>
               <hr />
               <b>Clue:</b>
-              <h5 style={{ color: "blue" }}>{Clue}</h5>
+              <h5 style={{ color: "#0f6e5a" }}>{Clue}</h5>
             </>
           )}
           <hr />
@@ -455,7 +455,7 @@ function FINAL_PROJECT({
                 <div className="fp-clue-box">
                   <span>📌</span>
                   <b>Gợi ý: </b>
-                  <span style={{ color: "#1a56db" }}>{Clue}</span>
+                  <span style={{ color: "#0f6e5a" }}>{Clue}</span>
                 </div>
               )}
 
