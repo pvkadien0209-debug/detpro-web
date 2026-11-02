@@ -1,0 +1,36 @@
+{
+ "id": "john-is-eating-lunch-at-a-restaurant",
+ "ten": "John is eating lunch at a restaurant.",
+ "svg": "/ren-luyen/svg/mau.svg",
+ "nguon": "mẫu từ project cũ (yyy_a1 · 40 tình huống thông dụng)",
+ "dong": [
+  {
+   "h": "Is this food for me?",
+   "d": "No, that is not yours."
+  },
+  {
+   "h": "Can I get more water?",
+   "d": "Yes, I will bring some."
+  },
+  {
+   "h": "Can you make it cooler?",
+   "d": "Wait a minute, it will cool."
+  },
+  {
+   "h": "Can you take this back?",
+   "d": "Yes, we will change it."
+  },
+  {
+   "h": "What happened to John?",
+   "d": "What question did John ask?"
+  },
+  {
+   "h": "What question did John ask?",
+   "d": "What answer did John receive?"
+  },
+  {
+   "h": "What answer did John receive?",
+   "d": "What did John do next?"
+  }
+ ]
+}

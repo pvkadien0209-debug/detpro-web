@@ -13,7 +13,7 @@ export const MAN_CHAO = [
     id: "muc-tieu",
     icon: "🎯",
     tieuDe: "Mục tiêu của mỗi bài: một bài nói thật",
-    dong: ["Cuối mỗi bài, bạn nói 1–2 phút bằng tiếng Anh về điều đã học.", "Mọi bài tập trước đó (Trắc nghiệm, Nghe nói, True or false) là để CHUẨN BỊ cho phần nói này.", "Người hướng dẫn nghe và sửa riêng bài nói của bạn — đó là phần bạn được kèm riêng."],
+    dong: ["Cuối mỗi bài, bạn nói 1–2 phút bằng tiếng Anh về điều đã học.", "Mọi bài tập trước đó (Trắc nghiệm, True or false) là để CHUẨN BỊ cho phần nói này.", "Người hướng dẫn nghe và sửa riêng bài nói của bạn — đó là phần bạn được kèm riêng."],
   },
   {
     id: "ai-lam-gi",
@@ -24,8 +24,8 @@ export const MAN_CHAO = [
   {
     id: "mot-bai",
     icon: "🌿",
-    tieuDe: "Một bài đi thế nào: 5 lá → 1 hoa",
-    dong: ["① Đọc bài viết (tiếng Việt, chữ đậm là ý sẽ hỏi) · ② Bảng 40 câu (xem trước hoặc bỏ qua).", "③ Trắc nghiệm — mỗi câu chọn 1 lần · ④ Nghe nói — nói lại đáp án · ⑤ True or false — phản xạ nhanh.", "Xong 5 lá → hoa mở 🌸: bấm hoa lấy gợi ý, nói và gửi bài nói. Cả nhóm xong thì bài sau mở."],
+    tieuDe: "Một bài đi thế nào: 3 lá → 1 hoa",
+    dong: ["① Đọc bài viết / xem video (tiếng Việt, chữ đậm là ý sẽ hỏi) · Bảng 40 câu luôn mở được bằng nút trong bài.", "② Trắc nghiệm — mỗi câu chọn 1 lần · ③ True or false — phản xạ nhanh.", "Xong 3 lá → hoa mở 🌸: bấm hoa lấy gợi ý, nói và gửi bài nói. Cả nhóm xong thì bài sau mở."],
   },
   {
     id: "tieng-anh-yeu",
@@ -37,7 +37,7 @@ export const MAN_CHAO = [
     id: "tuan-dau",
     icon: "📅",
     tieuDe: "Tuần đầu nên làm thế này",
-    dong: ["Ngày 1: đọc bài + Trắc nghiệm. Ngày 2: Nghe nói + True or false.", "Ngày 3: bấm hoa xem gợi ý, nói 1–2 phút và gửi — 30 giây cũng được, quan trọng là bắt đầu.", "Sai là đang học: đọc Giải thích, luyện lại câu sai. Đều đặn mỗi ngày quan trọng hơn làm nhiều một lúc."],
+    dong: ["Ngày 1: đọc bài / xem video + Trắc nghiệm. Ngày 2: True or false.", "Ngày 3: bấm hoa xem gợi ý, nói 1–2 phút và gửi — 30 giây cũng được, quan trọng là bắt đầu.", "Sai là đang học: đọc Giải thích, luyện lại câu sai. Đều đặn mỗi ngày quan trọng hơn làm nhiều một lúc."],
   },
 ];
 

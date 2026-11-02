@@ -118,9 +118,9 @@ function ChiTiet({ mk, ma, onBack }) {
         <h2>Cài đặt nhóm</h2>
         <div className="ql-grid">
           <label className="nh-field"><span className="nh-flabel">Tên nhóm</span><input value={f.ten} onChange={set("ten")} /></label>
-          <label className="nh-field"><span className="nh-flabel">Tên trưởng nhóm (hiển thị)</span><input value={f.tenHuongDan} onChange={set("tenHuongDan")} /></label>
+          <label className="nh-field"><span className="nh-flabel">Tên người hướng dẫn (hiển thị)</span><input value={f.tenHuongDan} onChange={set("tenHuongDan")} /></label>
           <label className="nh-field">
-            <span className="nh-flabel">Trưởng nhóm (ID)</span>
+            <span className="nh-flabel">Người hướng dẫn (ID)</span>
             <select value={f.nguoiTaoId} onChange={set("nguoiTaoId")}>
               {d.members.map((m) => (
                 <option key={m.id} value={m.id}>{m.ten} ({m.id})</option>
@@ -128,7 +128,6 @@ function ChiTiet({ mk, ma, onBack }) {
             </select>
           </label>
           <label className="nh-field"><span className="nh-flabel">Trắc nghiệm đúng /40</span><input type="number" min={1} max={40} value={f.quiz} onChange={set("quiz")} /></label>
-          <label className="nh-field"><span className="nh-flabel">Nghe nói đúng /40</span><input type="number" min={1} max={40} value={f.say} onChange={set("say")} /></label>
           <label className="nh-field"><span className="nh-flabel">True or false (“xong” hoặc % đúng)</span><input value={f.tf} onChange={set("tf")} /></label>
           <label className="nh-field"><span className="nh-flabel">Thời hạn mỗi bài (giờ, 0 = tắt)</span><input type="number" min={0} value={f.hanChangGio} onChange={set("hanChangGio")} /></label>
           <label className="nh-field"><span className="nh-flabel">Nhắc mỗi (giờ, 0 = tắt)</span><input type="number" min={0} value={f.nhacGio} onChange={set("nhacGio")} /></label>
@@ -164,7 +163,7 @@ function ChiTiet({ mk, ma, onBack }) {
                   <tr>
                     <td>
                       <input className="ql-ten" defaultValue={m.ten} onBlur={(e) => e.target.value.trim() && e.target.value !== m.ten && sua({ viec: "tv", id: m.id, ten: e.target.value }, `Đổi tên ${m.id}`)} />
-                      {m.laNguoiTao && <small> · trưởng nhóm</small>}
+                      {m.laNguoiTao && <small> · người hướng dẫn</small>}
                     </td>
                     <td className="nh-code">{m.id}</td>
                     <td>
@@ -272,7 +271,7 @@ export default function QuanLiNhom() {
             <div className="nh-row ql-bar">
               <label className="ql-search">
                 <Search size={16} aria-hidden="true" />
-                <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Tìm mã, tên nhóm, chuỗi, trưởng nhóm…" />
+                <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Tìm mã, tên nhóm, chuỗi, người hướng dẫn…" />
               </label>
               <button type="button" className="kt-btn" onClick={load} disabled={busy}>
                 <RefreshCw size={16} className={busy ? "nh-spin" : ""} aria-hidden="true" /> Cập nhật
@@ -287,7 +286,7 @@ export default function QuanLiNhom() {
               <table className="nh-table ql-ds">
                 <thead>
                   <tr>
-                    <th>Mã</th><th>Tên nhóm</th><th>Chuỗi</th><th>Trưởng nhóm</th><th>Người</th><th>Bài mở</th><th>Hoạt động</th><th>Tạo</th>
+                    <th>Mã</th><th>Tên nhóm</th><th>Chuỗi</th><th>Người hướng dẫn</th><th>Người</th><th>Bài mở</th><th>Hoạt động</th><th>Tạo</th>
                   </tr>
                 </thead>
                 <tbody>

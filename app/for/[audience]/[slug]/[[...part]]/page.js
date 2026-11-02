@@ -4,7 +4,7 @@
 import { notFound, permanentRedirect } from "next/navigation";
 import UnitPage from "@/components/hkt/UnitPage";
 import { getUnit, findPlace, getLegacy } from "@/lib/data.server";
-import { PARTS, lowerFirst, unitPath } from "@/components/hkt/unitData";
+import { PARTS_ROUTE as PARTS, lowerFirst, unitPath } from "@/components/hkt/unitData";
 import { SITE_URL, indexable, plain } from "@/lib/seo";
 
 export const dynamicParams = true;

@@ -1626,3 +1626,36 @@ body.nh-chao-mo .tt-goc { display: none !important; }
 .tk-ganTay summary { cursor: pointer; color: var(--kt-pine); font-weight: 600; }
 .tk-ganTay form { margin-top: 8px; flex-wrap: wrap; }
 .tk-ganTay input { flex: 1 1 120px; min-width: 0; }
+/* #411 Rèn luyện (máy tính) — dùng lại kt-card / kt-btn / nh-card, chỉ thêm phần riêng */
+.rl-dt { display: flex; gap: 8px; align-items: center; background: var(--kt-marker-soft); border-radius: 10px; padding: 8px 12px; margin: 0 0 14px; }
+.rl-bo { margin: 22px 0 8px; }
+.rl-bo h2 small { font-weight: 500; font-size: 15px; }
+.rl-mau { font-size: 12px; font-weight: 600; background: var(--kt-marker-soft); color: #7a5a00; border-radius: 999px; padding: 2px 10px; vertical-align: middle; }
+.rl-luoi { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; }
+.rl-the { display: flex; flex-direction: column; text-decoration: none; }
+.rl-hinh { display: grid; place-items: center; aspect-ratio: 4 / 3; background: var(--kt-pine-soft); color: var(--kt-pine); border-radius: 12px 12px 0 0; overflow: hidden; }
+.rl-hinh img { width: 100%; height: 100%; object-fit: contain; }
+.rl-the h3 { font-size: 16px; margin: 0 0 6px; }
+.rl-ok { color: var(--kt-pine); font-weight: 600; }
+.rl-sap { padding: 10px 0; }
+.rl-duong a { color: var(--kt-pine); }
+.rl-khung { max-width: 720px; margin: 8px auto 0; background: var(--kt-surface); border: 1px solid var(--kt-line); border-radius: 16px; padding: 18px 20px; display: grid; gap: 12px; }
+.rl-tren { display: flex; align-items: center; gap: 14px; font-size: 15px; }
+.rl-tren .kt-cham { margin-left: auto; }
+.rl-diem { color: var(--kt-pine); font-weight: 700; }
+.rl-hinh-lon { display: grid; place-items: center; background: var(--kt-pine-soft); border-radius: 12px; height: 200px; }
+.rl-hinh-lon img { max-height: 180px; max-width: 90%; }
+.rl-yeucau { font-size: 18px; margin: 0; text-align: center; }
+.rl-nut { justify-content: center; }
+.rl-nghe { text-align: center; font-size: 20px; margin: 0; color: var(--kt-ink-2); }
+.rl-kq { border-radius: 12px; padding: 12px 14px; display: grid; gap: 6px; }
+.rl-kq p { margin: 0; }
+.rl-kq.is-dung { background: var(--kt-pine-soft); }
+.rl-kq.is-sai { background: var(--kt-coral-soft); }
+.rl-kq .kt-btn--pri { justify-self: start; }
+.rl-ketqua { max-width: 720px; margin: 8px auto; }
+.rl-sai { padding-left: 18px; }
+
+/* #412 gợi ý bài nói: 3 bước viết → đọc → ghi âm */
+.nh-goiy-cach { margin: 8px 0 12px; padding: 10px 12px 10px 30px; background: var(--kt-marker-soft, #fff4c7); border-radius: 10px; display: grid; gap: 4px; font-size: 14.5px; }
+.nh-goiy .nh-goiy-cach li b { display: inline; font-size: inherit; }

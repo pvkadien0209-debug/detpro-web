@@ -12,7 +12,7 @@ import { VongDetLoading } from "@/components/hkt/VongDet";
 import { useBodyClass } from "@/components/hkt/KtShell";
 import { NhomChatHd } from "./NhomSoiNoi"; // #298 Hỏi đáp có dòng hoạt động
 import { useNhomView, useNow, changInfo, baiLabel, Countdown, NhacBell, NhomChat } from "./NhomShared";
-import { NGUONG_MAC_DINH, PART_SHORT, nhomPath, nhomUnitPath, baiKey, gopTienDo } from "@/components/hkt/nhomRules";
+import { NGUONG_MAC_DINH, PART_KEYS, PART_SHORT, nhomPath, nhomUnitPath, baiKey, gopTienDo } from "@/components/hkt/nhomRules";
 
 const SAVE_MS = 2500;
 // #262: trang bài trong nhóm dựng lại mỗi lần đổi phần → giữ tiến độ mới nhất trong bộ nhớ trang (bản đọc từ máy chủ có thể chưa kịp nhận lần ghi vừa rồi)
@@ -143,8 +143,8 @@ function Inner({ ma, id, initialProg, initialUnit }) {
           <h1 className="kt-h1">{baiLabel(nhom.chuoi.bai[k], k)} chưa mở</h1>
           <p>
             {k === (nhom.changHienTai || 0) + 1
-              ? <>Bạn được làm trước bài này khi <b>chính bạn</b> đã xong cả 5 phần của {baiLabel(nhom.chuoi.bai[k - 1], k - 1)} (bấm "Đã xong mốc này" ở từng phần).</>
-              : <>Bài này mở khi cả nhóm xong 5 phần của {baiLabel(nhom.chuoi.bai[k - 1], k - 1)}.</>}
+              ? <>Bạn được làm trước bài này khi <b>chính bạn</b> đã xong cả 3 phần của {baiLabel(nhom.chuoi.bai[k - 1], k - 1)} (bấm "Đã xong mốc này" ở từng phần).</>
+              : <>Bài này mở khi cả nhóm xong 3 phần của {baiLabel(nhom.chuoi.bai[k - 1], k - 1)}.</>}
           </p>
           <Link className="kt-btn kt-btn--pri" to={nhomPath(ma, id)}>
             Về cây nhóm
@@ -196,7 +196,7 @@ function Bar({ ma, id, nhom, me, skew }) {
   const now = useNow(skew);
   const pop = inPopup(); // #250: đang mở trong cửa sổ nổi trên cây → không có nút "Về cây nhóm"
   const ci = changInfo(nhom, now);
-  const myDone = me && ci.u ? (me.tom?.[baiKey(ci.u)]?.g || []).filter(Boolean).length === 5 : true;
+  const myDone = me && ci.u ? (me.tom?.[baiKey(ci.u)]?.g || []).filter(Boolean).length === PART_KEYS.length : true; // #411
   return (
     <div className="nh-bar" role="region" aria-label="Đang ở nhóm">
       <Users size={16} aria-hidden="true" />

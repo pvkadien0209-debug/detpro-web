@@ -1,0 +1,36 @@
+{
+ "id": "john-is-at-the-hospital-with-his-mother",
+ "ten": "John is at the hospital with his mother.",
+ "svg": "/ren-luyen/svg/mau.svg",
+ "nguon": "mẫu từ project cũ (yyy_a1 · 40 tình huống thông dụng)",
+ "dong": [
+  {
+   "h": "Why are so many people here?",
+   "d": "It is very busy today."
+  },
+  {
+   "h": "Can I buy some snacks?",
+   "d": "Yes, from the shop downstairs."
+  },
+  {
+   "h": "Can I stay with my mother?",
+   "d": "Yes, you can sit by her."
+  },
+  {
+   "h": "Is that nurse calling me?",
+   "d": "No, she called another name."
+  },
+  {
+   "h": "What happened to John?",
+   "d": "What question did John ask?"
+  },
+  {
+   "h": "What question did John ask?",
+   "d": "What answer did John receive?"
+  },
+  {
+   "h": "What answer did John receive?",
+   "d": "What did John do next?"
+  }
+ ]
+}

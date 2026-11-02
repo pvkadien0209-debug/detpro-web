@@ -65,8 +65,8 @@ export const GUIDES = {
     video: "hd8", // #255 (trước: hd7)
     buoc: [
       "Bấm nút xanh “Học tiếp” là vào đúng phần cần làm. Bài làm mở trong cửa sổ lớn; bấm ‹ hoặc nút Back để về cây.",
-      "Mỗi bài 5 lá: 2 lá ĐỌC (Bài viết, Bảng thông tin) xanh sẵn; 3 lá BÀI TẬP (Trắc nghiệm, Nghe nói, True or false) xanh khi bạn đạt điều kiện và bấm “Đã xong phần này”. Lá vàng = đạt rồi nhưng chưa bấm.",
-      "Bạn xong 5 phần của bài hiện tại → được làm trước 1 bài. Bài xa hơn mở khi cả nhóm xong.",
+      "Mỗi bài 3 lá: lá ĐỌC (Bài viết / video) xanh sẵn; 2 lá BÀI TẬP (Trắc nghiệm, True or false) xanh khi bạn đạt điều kiện và bấm “Đã xong phần này”. Lá vàng = đạt rồi nhưng chưa bấm.",
+      "Bạn xong 3 phần của bài hiện tại → được làm trước 1 bài. Bài xa hơn mở khi cả nhóm xong.",
       "Đồng hồ trên đầu trang = thời hạn của bài hiện tại cho cả nhóm.",
       "Bấm tên một bạn: xem thống kê, gửi icon / câu động viên. “Ai đang làm gì” cho biết bạn bè đang ở câu nào — bấm “Cập nhật” để xem mới nhất.",
       "Bông cuối cành = bài nói tự do: nói điều bạn nhớ, gửi qua kênh Zalo của nhóm rồi bấm “Đã gửi bài nói”.",
@@ -74,7 +74,7 @@ export const GUIDES = {
     ],
   },
   "huong-dan": {
-    ten: "Trưởng nhóm",
+    ten: "Người hướng dẫn",
     video: "hd9", // #255
     buoc: [
       "Gửi link nhóm (nút “Chép link nhóm”) cho mọi người qua Zalo. Ai mở link cũng chọn tên mình và gõ PIN — kể cả bạn.",

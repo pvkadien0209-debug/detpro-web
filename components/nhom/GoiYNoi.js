@@ -153,8 +153,8 @@ export async function veAnhGoiY(d) {
     c.stroke();
     c.fillStyle = INK;
     c.font = F(30, 700);
-    c.fillText("Nói chậm, không cần hoàn hảo — ghi âm", PAD + 32, fy + 50);
-    c.fillText("rồi gửi trưởng nhóm qua Zalo.", PAD + 32, fy + 92);
+    c.fillText("✍️ Viết ra giấy theo dàn ý → 🎙 ghi âm từ bài viết", PAD + 32, fy + 50); // #412
+    c.fillText("→ gửi người hướng dẫn qua Zalo.", PAD + 32, fy + 92);
     if (det) {
       const dh = 104;
       const dw = dh * (det.width / det.height || 1);
@@ -192,12 +192,18 @@ export default function GoiYNoi({ u, bai, nhom }) {
     <section className="nh-goiy">
       <header>
         <b>💡 Gợi ý bài nói (1–2 phút)</b>
-        <AnhNhacNut ten={`goi-y-noi-${u.slug}`} label="Tải ảnh gợi ý" className="kt-btn" tieuDe="Ảnh gợi ý bài nói" meo="Lưu ảnh vào điện thoại để nhìn khi ghi âm." title="Tải gợi ý về bằng ảnh" ve={veAnhGoiY} make={() => ({ g, bai, nhom })} />
+        <AnhNhacNut ten={`goi-y-noi-${u.slug}`} label="Tải ảnh gợi ý" className="kt-btn" tieuDe="Ảnh gợi ý bài nói" meo="Lưu ảnh để nhìn khi viết bài ra giấy và khi ghi âm." title="Tải gợi ý về bằng ảnh" ve={veAnhGoiY} make={() => ({ g, bai, nhom })} />
       </header>
       <div className="nh-goiy-tab" role="group" aria-label="Kiểu gợi ý">
         <button type="button" className={de ? "is-on" : ""} aria-pressed={de} onClick={() => setDe(true)}>🌱 Bản dễ (3 câu)</button>
         <button type="button" className={!de ? "is-on" : ""} aria-pressed={!de} onClick={() => setDe(false)}>Bản đầy đủ (1–2 phút)</button>
       </div>
+      {/* #412 anh dặn: viết ra giấy trước theo dàn ý, rồi từ bài viết + dàn ý mới ghi âm */}
+      <ol className="nh-goiy-cach">
+        <li>✍️ <b>Viết ra giấy trước</b> theo dàn ý dưới đây — mỗi ý 1–2 câu tiếng Anh, thêm ví dụ của bạn.</li>
+        <li>📖 Đọc to bài viết 1–2 lần, gạch chân từ khó đọc.</li>
+        <li>🎙 <b>Ghi âm từ bài viết + dàn ý</b> (nhìn giấy cũng được), rồi gửi qua Zalo nhóm và bấm “Đã gửi bài nói”.</li>
+      </ol>
       {de ? (
         <div className="nh-goiy-de">
           <p className="kt-muted">Mới bắt đầu: nói đúng 3 câu này (thay phần … bằng ý của bạn) — 30 giây cũng được, quan trọng là bắt đầu.</p>

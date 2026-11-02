@@ -1,0 +1,36 @@
+{
+ "id": "john-is-at-school-with-his-friends",
+ "ten": "John is at school with his friends.",
+ "svg": "/ren-luyen/svg/mau.svg",
+ "nguon": "mẫu từ project cũ (yyy_a1 · 40 tình huống thông dụng)",
+ "dong": [
+  {
+   "h": "Did you see my English book?",
+   "d": "Yes, it is on your chair."
+  },
+  {
+   "h": "Can you help me with this?",
+   "d": "Yes, I can show you now."
+  },
+  {
+   "h": "Can I borrow a pencil now?",
+   "d": "Sure, take this blue one."
+  },
+  {
+   "h": "Can we eat something now?",
+   "d": "No, lunch is at twelve."
+  },
+  {
+   "h": "What happened to John?",
+   "d": "What question did John ask?"
+  },
+  {
+   "h": "What question did John ask?",
+   "d": "What answer did John receive?"
+  },
+  {
+   "h": "What answer did John receive?",
+   "d": "What did John do next?"
+  }
+ ]
+}

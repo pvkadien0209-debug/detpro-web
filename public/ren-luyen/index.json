@@ -1,0 +1,91 @@
+{
+ "ghiChu": "#411 Rèn luyện (máy tính): học thuộc bảng bằng nghe nói thuần. Bộ A1 hiện là MẪU (10 bảng lấy từ project cũ) để dựng giao diện — nội dung thật soạn sau.",
+ "bo": [
+  {
+   "ma": "a",
+   "ten": "Bộ A",
+   "moTa": "20 bảng · mỗi bảng 20 dòng",
+   "soBang": 20,
+   "soDong": 20,
+   "bang": []
+  },
+  {
+   "ma": "a1",
+   "ten": "Bộ A1",
+   "moTa": "20 bảng · mỗi bảng 40 dòng",
+   "soBang": 20,
+   "soDong": 40,
+   "mau": true,
+   "bang": [
+    {
+     "id": "john-is-at-home-alone",
+     "ten": "John is at home alone.",
+     "svg": "/ren-luyen/svg/mau.svg",
+     "soDong": 7
+    },
+    {
+     "id": "john-is-at-school-with-his-friends",
+     "ten": "John is at school with his friends.",
+     "svg": "/ren-luyen/svg/mau.svg",
+     "soDong": 7
+    },
+    {
+     "id": "john-is-visiting-his-grandparents",
+     "ten": "John is visiting his grandparents.",
+     "svg": "/ren-luyen/svg/mau.svg",
+     "soDong": 7
+    },
+    {
+     "id": "john-is-eating-lunch-at-a-restaurant",
+     "ten": "John is eating lunch at a restaurant.",
+     "svg": "/ren-luyen/svg/mau.svg",
+     "soDong": 7
+    },
+    {
+     "id": "john-is-playing-football-in-the-park",
+     "ten": "John is playing football in the park.",
+     "svg": "/ren-luyen/svg/mau.svg",
+     "soDong": 7
+    },
+    {
+     "id": "john-is-shopping-at-the-supermarket",
+     "ten": "John is shopping at the supermarket.",
+     "svg": "/ren-luyen/svg/mau.svg",
+     "soDong": 7
+    },
+    {
+     "id": "john-is-waiting-at-the-bus-stop",
+     "ten": "John is waiting at the bus stop.",
+     "svg": "/ren-luyen/svg/mau.svg",
+     "soDong": 7
+    },
+    {
+     "id": "john-is-watching-a-movie-at-the-cinema",
+     "ten": "John is watching a movie at the cinema.",
+     "svg": "/ren-luyen/svg/mau.svg",
+     "soDong": 7
+    },
+    {
+     "id": "john-is-staying-at-a-hotel-with-family",
+     "ten": "John is staying at a hotel with family.",
+     "svg": "/ren-luyen/svg/mau.svg",
+     "soDong": 7
+    },
+    {
+     "id": "john-is-at-the-hospital-with-his-mother",
+     "ten": "John is at the hospital with his mother.",
+     "svg": "/ren-luyen/svg/mau.svg",
+     "soDong": 7
+    }
+   ]
+  },
+  {
+   "ma": "b",
+   "ten": "Bộ B",
+   "moTa": "30 bảng · mỗi bảng 50 dòng",
+   "soBang": 30,
+   "soDong": 50,
+   "bang": []
+  }
+ ]
+}

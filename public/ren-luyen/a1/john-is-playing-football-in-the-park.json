@@ -1,0 +1,36 @@
+{
+ "id": "john-is-playing-football-in-the-park",
+ "ten": "John is playing football in the park.",
+ "svg": "/ren-luyen/svg/mau.svg",
+ "nguon": "mẫu từ project cũ (yyy_a1 · 40 tình huống thông dụng)",
+ "dong": [
+  {
+   "h": "Where is the ball now?",
+   "d": "It is under that big tree."
+  },
+  {
+   "h": "Is that dog friendly?",
+   "d": "Yes, it likes to play."
+  },
+  {
+   "h": "Can I sit and rest now?",
+   "d": "Yes, take a short break."
+  },
+  {
+   "h": "Can you join our game?",
+   "d": "Yes, I want to play too."
+  },
+  {
+   "h": "What happened to John?",
+   "d": "What question did John ask?"
+  },
+  {
+   "h": "What question did John ask?",
+   "d": "What answer did John receive?"
+  },
+  {
+   "h": "What answer did John receive?",
+   "d": "What did John do next?"
+  }
+ ]
+}

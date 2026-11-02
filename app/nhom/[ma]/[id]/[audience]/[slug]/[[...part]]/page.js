@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import ClientOnly from "@/components/next/ClientOnly";
 import NhomBai from "@/components/nhom/NhomBai";
 import { getUnit } from "@/lib/data.server";
-import { PARTS, unitPath } from "@/components/hkt/unitData";
+import { PARTS_ROUTE as PARTS, unitPath } from "@/components/hkt/unitData";
 
 export async function generateMetadata({ params }) {
   const { audience, slug, part = [] } = await params;

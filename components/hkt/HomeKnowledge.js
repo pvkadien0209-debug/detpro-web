@@ -24,7 +24,7 @@ const nf = (n) => n.toLocaleString("vi-VN");
 const STEPS4 = [
   ["Chọn bài", "đúng hoàn cảnh của bạn"],
   ["Đọc bài", "khoảng 6 phút, hoặc xem video tóm tắt"],
-  ["Luyện 3 phần", "Trắc nghiệm · Nghe nói · True or false"],
+  ["Luyện 2 phần", "Trắc nghiệm · True or false"],
   ["Xem kết quả", "làm lại câu sai · lần sau bấm Học tiếp"],
 ];
 const FAQ = [
@@ -137,7 +137,7 @@ export default function HomeKnowledge() {
             <TopicThumb idx={idx} topic={r.t} branchTitle={r.t.branchTitle.vi} small />
             <h3>{r.u.title}</h3>
             <div className="kt-meta">
-              <span>{resume ? `Phần ${partLabel} · ${rDone}/5 phần đã xong` : `Bài tổng · ${r.u.readMin || 6} phút đọc + 40 câu`}</span>
+              <span>{resume ? `Phần ${partLabel} · ${rDone}/${PARTS.length} phần đã xong` : `Bài tổng · ${r.u.readMin || 6} phút đọc + 40 câu`}</span>
             </div>
             {resume && (
               <div className="kt-bar">

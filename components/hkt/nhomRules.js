@@ -2,7 +2,8 @@
 // Thiết kế: SEO\DetPro\research\2026-10-27-hoc-cung-nhau.md (mục 4, 4a, 5, 9).
 // Không nhập "server-only" hay React ở đây — tệp chạy được cả hai phía.
 
-export const PART_KEYS = ["", "info", "quiz", "listen-speak", "true-or-false"];
+// #411 (anh 02/11): mỗi bài còn 3 phần — Bài viết/video · Trắc nghiệm · True or false (bỏ Bảng, Nghe nói: không hợp điện thoại; Bảng tham khảo vẫn luôn mở được)
+export const PART_KEYS = ["", "quiz", "true-or-false"];
 export const PART_SHORT = { "": "Bài viết", info: "Bảng", quiz: "Trắc nghiệm", "listen-speak": "Nghe nói", "true-or-false": "True/False" };
 
 /** Ngưỡng mặc định (4a): Trắc nghiệm 40/40, Nghe nói 30/40 (#285), True or false làm xong lượt. */
@@ -55,7 +56,7 @@ export function partDatNhom(p, key, ng = NGUONG_MAC_DINH, total = 40) {
 // #260: Bảng thông tin chỉ để xem (không chọn đáp án) → mở là xong, không cần bấm nút.
 // #267 (anh chốt): lá ĐỌC (Bài viết, Bảng thông tin, xem video) xanh sẵn — chỉ 3 phần BÀI TẬP cần hoàn thành + bấm "Đã xong phần này".
 export const PHAN_DOC = ["", "info"];
-export const PHAN_TAP = ["quiz", "listen-speak", "true-or-false"];
+export const PHAN_TAP = ["quiz", "true-or-false"]; // #411
 export const partDoneNhom = (p, key, ng, total) => PHAN_DOC.includes(key) || (!!p?.xong?.[key] && partDatNhom(p, key, ng, total));
 /** #258 Mô tả điều kiện của một phần + đã đạt chưa (cho nút "Đã xong mốc này"). Bài viết / Bảng: đạt khi đã mở tới cuối trang. */
 export function dieuKien(p, key, ng = NGUONG_MAC_DINH) {
@@ -129,7 +130,7 @@ export const baiMo = (k, changHienTai, xongChang = true) => k <= (changHienTai |
 export const xongBaiTom = (m, nhom, k) => {
   const u = nhom?.chuoi?.bai?.[k];
   const g = u && m?.tom?.[`${u.audience}/${u.slug}`]?.g;
-  return !!g && g.length === 5 && g.every(Boolean);
+  return !!g && g.length === PART_KEYS.length && g.every(Boolean); // #411
 };
 /** #263 Bài thứ k đã mở cho người m chưa (m rỗng = xem chung, giữ luật cũ). */
 export const baiMoCua = (k, nhom, m) => baiMo(k, nhom.changHienTai, m ? xongBaiTom(m, nhom, nhom.changHienTai || 0) : true);
@@ -182,7 +183,7 @@ export const NHAN_MAU = [
 ];
 
 // #250 (NHA A3): MỐC NHỎ trong một chặng — 5 phần chia đều thời hạn chặng: phần thứ j (0–4) hết hạn lúc mở + hạn × (j+1)/5.
-export const mocNho = (moLuc, hanGio, j, now = Date.now()) => (hanGio ? dongHo(moLuc, (hanGio * (Math.min(j, 4) + 1)) / PART_KEYS.length, now) : null);
+export const mocNho = (moLuc, hanGio, j, now = Date.now()) => (hanGio ? dongHo(moLuc, (hanGio * (Math.min(j, PART_KEYS.length - 1) + 1)) / PART_KEYS.length, now) : null);
 /** Phần đang làm của một người trong bài (theo tóm tắt tom.g): 0–4, 5 = xong cả 5 phần. */
 export const phanDangLam = (t) => {
   const j = PART_KEYS.findIndex((_, x) => !t?.g?.[x]);
@@ -278,7 +279,7 @@ export const MUC_TIEU_NGAN = "🎯 Mục tiêu là bài nói cuối bài — bà
 export const VIEC_HUONG_DAN = "Việc chính của người hướng dẫn: nghe và sửa bài nói của từng bạn; trả lời thắc mắc, hỗ trợ khi cần, gửi hướng dẫn riêng, chuẩn bị bài, cùng làm để tạo động lực, nhắc nhở."; // #350
 // #347 "Ai làm việc gì" — để người học thấy rõ phần được kèm riêng (không phải "trả tiền mà tự học")
 export const VIEC_MOI_NGUOI = [
-  { ai: "Bạn", icon: "🙋", viec: "Làm 3 bài tập để chuẩn bị (khoảng 20 phút, chấm ngay), rồi nói 1–2 phút bằng tiếng Anh và gửi bài nói." },
+  { ai: "Bạn", icon: "🙋", viec: "Làm 2 bài tập để chuẩn bị (khoảng 20 phút, chấm ngay), rồi nói 1–2 phút bằng tiếng Anh và gửi bài nói." },
   { ai: "Người hướng dẫn", icon: "🎧", viec: "Nghe từng bài nói của bạn, sửa riêng phát âm – cách dùng từ – ý; trả lời thắc mắc trong Hỏi đáp, hỗ trợ khi bạn cần, gửi hướng dẫn riêng; chuẩn bị bài, cùng làm với nhóm để tạo động lực, nhắc nhở để không ai bị bỏ lại." }, // #350
   { ai: "Đét & DetPro", icon: "🤖", viec: "Soạn bài, chấm bài tập ngay, gợi ý bài nói, nhắc lịch và hạn cho cả nhóm." },
 ];
@@ -297,11 +298,11 @@ export function buocCua(t, noi) {
   // đã gửi bài nói → xét bước bài nói trước (gửi rồi thì không nhắc lại từ đầu)
   if (noi?.baoGui) return noi.ghiChu ? { b: "sua" } : !noi.xanh ? { b: "cho" } : { b: "xong" };
   const g = t?.g || [];
-  const lam = ["quiz", "listen-speak", "true-or-false"];
-  const j = [2, 3, 4].find((i) => !g[i]);
+  const lam = ["quiz", "true-or-false"]; // #411
+  const j = [1, 2].find((i) => !g[i]); // #411 chỉ số lá bài tập trong PART_KEYS
   if (j !== undefined) {
-    const k = lam[j - 2];
-    const chuaBatDau = !t || lam.every((x) => !t.c?.[x]) && !g[2] && !g[3] && !g[4];
+    const k = lam[j - 1];
+    const chuaBatDau = !t || lam.every((x) => !t.c?.[x]) && !g[1] && !g[2];
     return chuaBatDau ? { b: "doc" } : { b: "bai-tap", phan: k, dem: t.c?.[k] || 0, of: k === "true-or-false" ? 80 : 40, vang: !!t.a?.[j] };
   }
   if (!noi?.baoGui) return { b: "noi" };
@@ -311,8 +312,8 @@ export function buocCua(t, noi) {
 }
 const MEO = {
   doc: ["Đọc chậm ở chữ tô đậm — 40 câu hỏi đều nằm ở đó.", "Học 15–20 phút mỗi ngày đều đặn tốt hơn dồn một buổi dài."],
-  "bai-tap": ["Câu sai: đọc “Giải thích” rồi “Luyện lại câu sai” — sai là đang học.", "Ở Nghe nói, nói to thành tiếng: miệng quen thì lúc nói thật mới trôi."],
-  noi: ["Dùng lại câu tiếng Anh trong gợi ý, thêm một ví dụ của chính bạn.", "Nghe lại bài nói của mình trước khi gửi và tự sửa một chỗ."],
+  "bai-tap": ["Câu sai: đọc “Giải thích” rồi “Luyện lại câu sai” — sai là đang học.", "Đọc to câu hỏi và đáp án đúng khi xem Giải thích: miệng quen thì lúc nói thật mới trôi."],
+  noi: ["Viết bài ra giấy trước theo dàn ý gợi ý, rồi ghi âm từ bài viết — nói trôi hơn hẳn (#412).", "Dùng lại câu tiếng Anh trong gợi ý, thêm một ví dụ của chính bạn.", "Nghe lại bài nói của mình trước khi gửi và tự sửa một chỗ."],
   cho: ["Trong lúc chờ: nghe lại bài nói của mình, đoán trước chỗ cần sửa.", "Làm trước bài sau để có thêm thời gian cho bài nói kế tiếp."],
   sua: ["Ghi lại 2–3 lỗi được sửa, nói lại đúng câu đó cho tới khi trôi.", "Bài sau cố tránh đúng những lỗi vừa được sửa — đó là tiến bộ thật."],
   xong: ["Động viên bạn cùng nhóm trong Hỏi đáp — nhóm đi đều thì ai cũng xa hơn.", "Ôn lại câu sai cũ trước khi bài mới mở."],
@@ -334,15 +335,15 @@ export function nhacViec(bc, bai = "bài này", seed = 0) {
       tienBo: meo(b, seed),
     };
   if (b === "noi")
-    return { ban: `Xong 3 bài tập rồi — giờ là phần chính: nói 1–2 phút về ${bai} bằng tiếng Anh và gửi.`, cach: "Bấm hoa cuối cành → xem “Gợi ý bài nói” → ghi âm bằng Zalo → gửi vào kênh nhóm → bấm “Đã gửi bài nói”.", hd: "Nghe bài nói của bạn, sửa riêng phát âm – cách dùng từ – ý; gửi hướng dẫn riêng nếu bạn cần.", tienBo: meo(b, seed) };
+    return { ban: `Xong 2 bài tập rồi — giờ là phần chính: nói 1–2 phút về ${bai} bằng tiếng Anh và gửi.`, cach: "Bấm hoa cuối cành → xem “Gợi ý bài nói” → ✍️ viết ra giấy theo dàn ý → 🎙 ghi âm từ bài viết bằng Zalo → gửi vào kênh nhóm → bấm “Đã gửi bài nói”." /* #412 */, hd: "Nghe bài nói của bạn, sửa riêng phát âm – cách dùng từ – ý; gửi hướng dẫn riêng nếu bạn cần.", tienBo: meo(b, seed) };
   if (b === "cho")
     return { ban: "Bài nói đã gửi — chờ nhận xét. Trong lúc chờ có thể làm trước bài sau.", cach: "Nhận xét hiện ở hoa bài nói (bấm hoa để xem).", hd: "Đang nghe và sửa bài nói của bạn.", tienBo: meo(b, seed) };
   if (b === "sua")
     return { ban: "Đọc nhận xét, nói lại những câu được sửa (gửi thêm bài nếu muốn).", cach: "Bấm hoa bài nói → đọc nhận xét → ghi âm lại → “Tôi gửi thêm bài”.", hd: "Đã sửa bài nói của bạn — xem ở hoa bài nói.", tienBo: meo(b, seed) };
   if (b === "xong") return { ban: `Bạn xong ${bai} rồi — làm trước bài sau hoặc động viên bạn cùng nhóm.`, cach: "Bấm “Học tiếp” trên cây nhóm.", hd: "Đã nhận bài nói của bạn.", tienBo: meo(b, seed) };
   return {
-    ban: `Làm 3 bài tập của ${bai} để chuẩn bị, rồi nói 1–2 phút bằng tiếng Anh và gửi.`,
-    cach: "Mở link nhóm → “Học tiếp” (tự về câu đang dở) → xong 5 lá thì bấm hoa lấy gợi ý bài nói → ghi âm Zalo → gửi.",
+    ban: `Làm 2 bài tập của ${bai} để chuẩn bị, rồi nói 1–2 phút bằng tiếng Anh và gửi.`,
+    cach: "Mở link nhóm → “Học tiếp” (tự về câu đang dở) → xong 3 lá thì bấm hoa lấy gợi ý bài nói → ghi âm Zalo → gửi.",
     hd: "Nghe và sửa riêng từng bài nói (phát âm – cách dùng từ – ý); trả lời thắc mắc, gửi hướng dẫn riêng khi bạn cần; cùng làm và nhắc nhở cả nhóm.",
     tienBo: [MEO["bai-tap"][0], MEO.noi[0], MEO.doc[1], MEO.sua[0]][Math.abs(seed) % 4],
   };

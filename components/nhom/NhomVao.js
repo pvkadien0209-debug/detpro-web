@@ -37,7 +37,7 @@ function PinForm({ ma, id, ten, onOk, onCancel, msg, inline }) {
       <h2>
         <Lock size={18} aria-hidden="true" /> {inline ? "Gõ PIN của bạn" : `${ten || id} — gõ PIN`}
       </h2>
-      {/* #267: PIN luôn hiện •••• (trưởng nhóm hay chia sẻ màn hình) */}
+      {/* #267: PIN luôn hiện •••• (người hướng dẫn hay chia sẻ màn hình) */}
       <input type="password" inputMode="numeric" autoComplete="off" pattern="\d{4,6}" maxLength={6} autoFocus value={pin} onChange={(e) => setP(e.target.value.replace(/\D/g, ""))} aria-label="PIN (6 số; PIN cũ 4 số vẫn dùng được)" placeholder="••••••" />
       {err && <p className="hkt-u-err">{err}</p>}
       <div className="nh-row">
@@ -50,7 +50,7 @@ function PinForm({ ma, id, ten, onOk, onCancel, msg, inline }) {
           Vào
         </button>
       </div>
-      <p className="kt-muted">Quên PIN? Nhắn trưởng nhóm đặt lại (tab Học viên).</p>
+      <p className="kt-muted">Quên PIN? Nhắn người hướng dẫn đặt lại (tab Học viên).</p>
     </form>
   );
 }
@@ -137,7 +137,7 @@ export default function NhomVao({ ma }) {
   useEffect(() => {
     const toi = getMyId(ma);
     if (data && toi && !new URLSearchParams(window.location.search).get("doi") && data.members.some((m) => m.id === toi)) navigate(nhomPath(ma, toi));
-    // #319 nhóm mới chỉ có trưởng nhóm → người mở link gần như chắc là người mới: mở sẵn khung tạo tên
+    // #319 nhóm mới chỉ có người hướng dẫn → người mở link gần như chắc là người mới: mở sẵn khung tạo tên
     if (data && !ai && !toi && !data.nhom.khoaNguoiMoi && data.members.length <= 1) setMoi(true);
     if (data && ai && !pick) {
       const m = data.members.find((x) => x.id === ai);
@@ -151,7 +151,7 @@ export default function NhomVao({ ma }) {
         <div className="nh-wrap">
           <h1 className="kt-h1">Không mở được nhóm {ma}</h1>
           <p>{errText(err)}</p>
-          <p>Kiểm tra lại link trưởng nhóm gửi.</p>
+          <p>Kiểm tra lại link người hướng dẫn gửi.</p>
         </div>
       </KtShell>
     );

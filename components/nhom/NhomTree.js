@@ -1,10 +1,10 @@
 "use client";
 // #230 Học cùng — Cây chuỗi bài "thắp sáng" (thiết kế mục 5), vẽ bằng SVG theo dữ liệu.
-// Gốc = bài đầu, thân đi từ dưới lên; mỗi bài một cành (trái/phải xen kẽ), 5 lá = 5 phần, bông cuối cành = bài nói tự do.
+// Gốc = bài đầu, thân đi từ dưới lên; mỗi bài một cành (trái/phải xen kẽ), mỗi lá = một phần (#411: 3 lá), bông cuối cành = bài nói tự do.
 // view = "nhom" (cả nhóm: lá xanh nhạt + "2/4", xanh đậm phát sáng khi cả nhóm xong) hoặc id một người (cây riêng).
 import React, { useEffect, useRef } from "react";
 import VongDet from "@/components/hkt/VongDet";
-import { PART_KEYS, PART_SHORT, PART_TIP, baiKey, baiMo, baiMoCua } from "@/components/hkt/nhomRules";
+import { PART_KEYS, PHAN_TAP, PART_SHORT, PART_TIP, baiKey, baiMo, baiMoCua } from "@/components/hkt/nhomRules";
 
 const W = 400;
 const STEP = 132;
@@ -52,7 +52,7 @@ export default function NhomTree({ nhom, members, meId, view = "nhom", onLeaf, o
   // phần trăm cả chuỗi (vòng Đét ở ngọn)
   let done = 0;
   // #267: % chỉ tính 3 lá BÀI TẬP (lá đọc xanh sẵn không tính)
-  const TAP = [2, 3, 4];
+  const TAP = PHAN_TAP.map((k) => PART_KEYS.indexOf(k)); // #411
   bai.forEach((u) => TAP.forEach((j) => (done += leafState(members, baiKey(u), j, view).all ? 1 : 0)));
   const pct = n ? done / (n * TAP.length) : 0;
   const topY = yOf(Math.min(ch, n - 1));
@@ -92,7 +92,7 @@ export default function NhomTree({ nhom, members, meId, view = "nhom", onLeaf, o
           const fl = flowerState(members, key, view);
           // #325 hoa bài nói khoá (xám mờ + 🔒) tới khi CHÍNH MÌNH xong cả 5 lá của bài
           const gMe = members.find((m) => m.id === meId)?.tom?.[key]?.g;
-          const hoaKhoa = !!meId && (view === meId || view === "nhom") && open && !(gMe?.length === 5 && gMe.every(Boolean));
+          const hoaKhoa = !!meId && (view === meId || view === "nhom") && open && !(gMe?.length === PART_KEYS.length && gMe.every(Boolean));
           const pt = (t) => [trunkX + (x1 - trunkX) * t, y0 + (y1 - y0) * t];
           const label = u.kind === "tong" ? "Bài tổng" : `Bài ${k}`;
           return (
@@ -107,7 +107,7 @@ export default function NhomTree({ nhom, members, meId, view = "nhom", onLeaf, o
                 {groupDone ? (view === "nhom" ? "✓ cả nhóm" : "✓ xong") : !open ? (k === ch + 1 ? "🔒 xong bài trước đã" : "🔒 chờ cả nhóm") : cur ? "đang học" : k === ch + 1 ? "làm trước được" : ""}
               </text>
               {PART_KEYS.map((pk, j) => {
-                const [lx, ly] = pt(0.42 + j * 0.13);
+                const [lx, ly] = pt(0.45 + j * (0.4 / Math.max(1, PART_KEYS.length - 1))); // #411 lá giãn đều theo số phần
                 const up = j % 2 === 0 ? -1 : 1;
                 const cx = lx;
                 const cy = ly + up * 19;
@@ -160,7 +160,7 @@ export default function NhomTree({ nhom, members, meId, view = "nhom", onLeaf, o
                 className={`nh-flower ${!open ? "is-off" : hoaKhoa ? "is-khoa" : fl.all ? "is-green" : fl.vang || fl.xanh ? "is-yellow" : "is-none"}`}
                 role="button"
                 tabIndex={0}
-                aria-label={`${label} · Bài nói tự do${hoaKhoa ? " — xong cả 5 lá thì mở" : ""}`}
+                aria-label={`${label} · Bài nói tự do${hoaKhoa ? ` — xong cả ${PART_KEYS.length} lá thì mở` : ""}`}
                 onClick={() => onFlower?.({ u, k })}
                 onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onFlower?.({ u, k })}
               >

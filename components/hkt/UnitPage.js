@@ -21,7 +21,7 @@ import { Link, useLocation, useNavigate, useParams } from "@/lib/router"; // Nex
 import { Helmet } from "@/lib/helmet"; // Next.js: tiêu đề/mô tả đặt ở trang máy chủ (generateMetadata)
 import { ChevronLeft, ChevronDown, Check, PanelRight, X, CircleCheck } from "lucide-react";
 import {
-  loadUnit, loadUnitsIndex, primeUnit, PARTS, unitPath, readUnitProgress, writeUnitProgress, unitKey, unitSummary,
+  loadUnit, loadUnitsIndex, primeUnit, PARTS, PARTS_ROUTE, unitPath, readUnitProgress, writeUnitProgress, unitKey, unitSummary,
   writeLastUnit, partDone, unitDoneCount, lowerFirst, levelOfQuestions } from "./unitData";
 import { useBodyClass } from "./KtShell";
 import { PART_ICONS, partMeta } from "./TopicCourse";
@@ -133,7 +133,7 @@ export default function UnitPage({ initialUnit = null }) {
     };
   }, [audience, slug]);
 
-  const partOk = PARTS.some((p) => p.key === part);
+  const partOk = PARTS_ROUTE.some((p) => p.key === part); // #411 link cũ …/info, …/listen-speak vẫn mở
 
   // B-Q11: vào bài không ghi phần (không phải bấm thanh phần) → phần đang dở
   useEffect(() => {
@@ -319,7 +319,7 @@ export default function UnitPage({ initialUnit = null }) {
       next: list[k + 1] && !isLocked(k + 1) ? { label: unitLabel(list[k + 1], k + 1), go: () => navigate(P(list[k + 1].audience, list[k + 1].slug)) } : null,
     };
   }, [part, prog, audience, slug, grp?.nhom?.changHienTai, list.length, xemBang]);
-  const partInfo = PARTS.find((p) => p.key === part);
+  const partInfo = PARTS_ROUTE.find((p) => p.key === part);
   const drill = DRILL.includes(part);
   const PartIcon = PART_ICONS[part];
   const unitLabel = (u, i) => (u.kind === "tong" ? "Bài tổng" : `Bài ${i}`);
@@ -520,12 +520,7 @@ export default function UnitPage({ initialUnit = null }) {
                 </div>
               </div>
             )}
-            {part === "" && xemBang !== "hoi" && (
-              <p className="kt-muted kt-xembang-dat">
-                Đọc xong: {xemBang === "bo" ? "sang thẳng bài tập (bỏ qua Bảng 40 câu)" : "xem Bảng 40 câu trước"} ·{" "}
-                <button type="button" className="kt-linkbtn" onClick={() => { datXemBang("hoi"); setNhoChon(true); }}>đổi (hỏi lại lần sau)</button>
-              </p>
-            )}
+            {/* #411 bỏ "xem Bảng trước" — Bảng tham khảo vẫn mở bằng nút trong bài */}
             {summary?.started && !drill && part !== "" && (
               <details className="hkt-u-summary">
                 <summary>Kết quả của bạn ở bài này</summary>
@@ -560,12 +555,12 @@ export default function UnitPage({ initialUnit = null }) {
                             <i key={pt.key} className={pDone(p, pt.key) ? "is-done" : ""} />
                           ))}
                         </span>
-                        {pCount(p)}/5 phần{i === k ? " · đang học" : ""}
+                        {pCount(p)}/{PARTS.length} phần{i === k ? " · đang học" : ""}
                         {isLocked(i) ? " · 🔒" : ""}
                       </small>
                     </span>
                   )}
-                  <button type="button" className="kt-lexp" onClick={() => toggleUnit(i)} aria-expanded={open} aria-label={open ? "Thu gọn các phần" : "Xem 5 phần của bài"}>
+                  <button type="button" className="kt-lexp" onClick={() => toggleUnit(i)} aria-expanded={open} aria-label={open ? "Thu gọn các phần" : `Xem ${PARTS.length} phần của bài`}>
                     <ChevronDown size={18} aria-hidden="true" />
                   </button>
                 </div>

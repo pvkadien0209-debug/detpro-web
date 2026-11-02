@@ -1,7 +1,7 @@
 "use client";
 // #230 Học cùng — gọi API nhóm từ trình duyệt + ngữ cảnh nhóm cho trang bài (UnitPage, phần luyện).
 // #253: PIN lưu trên máy (localStorage) sau lần nhập đầu — lần sau không hỏi lại; máy mới thì gõ lại PIN.
-// Mã hướng dẫn: nhớ trên máy trưởng nhóm cho tiện (localStorage, có try/catch) — mất thì mở lại link hướng dẫn.
+// Mã hướng dẫn: nhớ trên máy người hướng dẫn cho tiện (localStorage, có try/catch) — mất thì mở lại link hướng dẫn.
 import { createContext, useContext } from "react";
 
 const pins = new Map(); // "MA/id" → PIN
@@ -62,7 +62,7 @@ export function loadK(ma) {
     return "";
   }
 }
-/** Nhóm học tôi đã vào / đã mở trên máy này (#267: mọi người, không chỉ trưởng nhóm). */
+/** Nhóm học tôi đã vào / đã mở trên máy này (#267: mọi người, không chỉ người hướng dẫn). */
 export function rememberGroup(ma, ten, id) {
   try {
     const l = JSON.parse(localStorage.getItem("dp.nhom.cua-toi") || "[]").filter((x) => x.ma !== ma);

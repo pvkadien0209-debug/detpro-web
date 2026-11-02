@@ -173,9 +173,9 @@ export async function veAnhNhac(d) {
     c.font = F(28, 800);
     c.fillStyle = MUTED;
     c.fillText(d.loai === "giuc" ? "TIẾN ĐỘ BÀI TẬP" : `CHƯA XONG (${(d.ds || []).length})`, PAD, y);
-    const nhanO = ["TN", "NN", "TF", "NÓI"];
+    const nhanO = ["TN", "TF", "NÓI"]; // #411
     c.font = F(22, 800);
-    nhanO.forEach((t, k) => c.fillText(t, W - PAD - 24 - (4 - k) * 76 + (k === 3 ? 6 : 16), y));
+    nhanO.forEach((t, k) => c.fillText(t, W - PAD - 24 - (3 - k) * 76 + (k === 2 ? 6 : 16), y));
     y += 18;
     for (const p of ds) {
       c.fillStyle = "#fff";
@@ -196,10 +196,10 @@ export async function veAnhNhac(d) {
       c.fillStyle = MUTED;
       c.font = F(24, 500);
       c.fillText(String(p.d || "chưa bắt đầu").slice(0, 34), PAD + 96, y + 68);
-      const g = (p.g || []).slice(2, 5);
-      for (let k = 0; k < 4; k++) {
-        c.fillStyle = k < 3 ? (g[k] ? "#22c55e" : "#e5e7eb") : p.noi === "xanh" ? "#22c55e" : p.noi === "vang" ? "#fbbf24" : "#fde2e2";
-        boGoc(c, W - PAD - 24 - (4 - k) * 76, y + 25, 64, 32, 10);
+      const g = (p.g || []).slice(1, 3); // #411 lá bài tập: Trắc nghiệm, True or false
+      for (let k = 0; k < 3; k++) {
+        c.fillStyle = k < 2 ? (g[k] ? "#22c55e" : "#e5e7eb") : p.noi === "xanh" ? "#22c55e" : p.noi === "vang" ? "#fbbf24" : "#fde2e2";
+        boGoc(c, W - PAD - 24 - (3 - k) * 76, y + 25, 64, 32, 10);
         c.fill();
       }
       y += 96;

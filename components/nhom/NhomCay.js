@@ -5,7 +5,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "@/lib/router";
 import { Users, TreeDeciduous, Table2, UserCog, Share2, ExternalLink, Check, LogOut, KeyRound, X, RefreshCw, Flower2, Settings } from "lucide-react";
 import KtShell, { useBodyClass } from "@/components/hkt/KtShell";
-import { NoiTab, HvTab, CdTab } from "./NhomHuongDan"; // #253 trưởng nhóm quản lý ngay trong trang nhóm
+import { NoiTab, HvTab, CdTab } from "./NhomHuongDan"; // #253 người hướng dẫn quản lý ngay trong trang nhóm
 import { VongDetLoading } from "@/components/hkt/VongDet";
 import NhomTree, { leafState } from "./NhomTree";
 import { PinGate } from "./NhomVao";
@@ -79,7 +79,7 @@ export function NhomTable({ nhom, members, onCell, onNoi }) {
           ))}
         </tbody>
       </table>
-      <p className="kt-muted nh-legend">● xong · ○ chưa · ✿ bài nói tự do (vàng = đã báo gửi, xanh = trưởng nhóm đã nhận)</p>
+      <p className="kt-muted nh-legend">● xong · ○ chưa · ✿ bài nói tự do (vàng = đã báo gửi, xanh = người hướng dẫn đã nhận)</p>
     </div>
   );
 }
@@ -197,7 +197,7 @@ function Inner({ ma, id }) {
     q.addEventListener("change", on);
     return () => q.removeEventListener("change", on);
   }, []);
-  // #285 (LB-Q4): bài mới mở → trưởng nhóm thấy dải "chép thông báo gửi Zalo" (nhớ đã báo tới bài nào trên máy)
+  // #285 (LB-Q4): bài mới mở → người hướng dẫn thấy dải "chép thông báo gửi Zalo" (nhớ đã báo tới bài nào trên máy)
   const [daBaoMo, setDaBaoMo] = useState(() => {
     try {
       const v = localStorage.getItem(`dp.nhom.baoMo.${ma}`);
@@ -258,8 +258,8 @@ function Inner({ ma, id }) {
   const active = data.members.filter((m) => m.trangThai === "hoc");
   const curKey = ci.u ? baiKey(ci.u) : null;
   const toDo = (m) => curKey && m.trangThai === "hoc" && !(m.tom?.[curKey]?.g || []).every(Boolean) || (curKey && !m.tom?.[curKey]);
-  const meNotDone = ci.u && me.trangThai === "hoc" && !(me.tom?.[curKey]?.g?.length === 5 && me.tom[curKey].g.every(Boolean));
-  const slow = ci.u ? active.filter((m) => !(m.tom?.[curKey]?.g?.length === 5 && m.tom[curKey].g.every(Boolean))) : [];
+  const meNotDone = ci.u && me.trangThai === "hoc" && !(me.tom?.[curKey]?.g?.length === PART_KEYS.length && me.tom[curKey].g.every(Boolean));
+  const slow = ci.u ? active.filter((m) => !(m.tom?.[curKey]?.g?.length === PART_KEYS.length && m.tom[curKey].g.every(Boolean))) : [];
   const share = `${origin()}/nhom/${ma}`;
   const unitLink = (u, pk) => nhomUnitPath(ma, id, u.audience, u.slug, pk);
   const firstOpenPart = (u) => {
@@ -316,12 +316,12 @@ function Inner({ ma, id }) {
     try {
       await api(`${ma}/noi`, { id, body: { bai: baiKey(u) } });
       await reload();
-      setMsg("Đã báo gửi — bông chuyển vàng, chờ trưởng nhóm nhận.");
+      setMsg("Đã báo gửi — bông chuyển vàng, chờ người hướng dẫn nhận.");
     } catch (e) {
       setMsg(errText(e));
     }
   };
-  const laChu = nhom.nguoiTaoId === id; // #253 trưởng nhóm: có thêm các tab quản lý
+  const laChu = nhom.nguoiTaoId === id; // #253 người hướng dẫn: có thêm các tab quản lý
   const capNhat = async () => {
     setBusyR(true);
     await reload();
@@ -345,7 +345,7 @@ function Inner({ ma, id }) {
         <div>
           <p className="kt-kicker">
             <Users size={16} aria-hidden="true" /> Nhóm học {ma} · {me.ten}
-            {laChu && " · trưởng nhóm"}
+            {laChu && " · người hướng dẫn"}
             {me.trangThai === "tam-nghi" && " · tạm nghỉ"}
             {me.trangThai === "huong-dan" && " · 🎧 chỉ hướng dẫn — không bắt buộc làm bài"}
           </p>
@@ -588,7 +588,7 @@ function Inner({ ma, id }) {
               Làm phần này
             </button>
           ) : (
-            <p>🔒 {leaf.k === (nhom.changHienTai || 0) + 1 ? `Xong cả 5 phần ${baiLabel(nhom.chuoi.bai[leaf.k - 1], leaf.k - 1)} thì được làm trước bài này.` : `Mở khi cả nhóm xong ${baiLabel(nhom.chuoi.bai[leaf.k - 1], leaf.k - 1)}.`}</p>
+            <p>🔒 {leaf.k === (nhom.changHienTai || 0) + 1 ? `Xong cả 3 phần ${baiLabel(nhom.chuoi.bai[leaf.k - 1], leaf.k - 1)} thì được làm trước bài này.` : `Mở khi cả nhóm xong ${baiLabel(nhom.chuoi.bai[leaf.k - 1], leaf.k - 1)}.`}</p>
           )}
         </Sheet>
       )}
@@ -597,10 +597,10 @@ function Inner({ ma, id }) {
           {(() => {
             // #325 hoa mở khi chính mình xong cả 5 lá
             const g = me.tom?.[baiKey(flower.u)]?.g;
-            return !(g?.length === 5 && g.every(Boolean));
+            return !(g?.length === PART_KEYS.length && g.every(Boolean));
           })() ? (
             <div className="nh-hoa-khoa">
-              <p>🔒 <b>Hoa bài nói mở khi bạn xong cả 5 lá</b> của {baiLabel(flower.u, flower.k)} (đọc bài, bảng, và bấm “Đã xong” ở 3 bài tập).</p>
+              <p>🔒 <b>Hoa bài nói mở khi bạn xong cả {PART_KEYS.length} lá</b> của {baiLabel(flower.u, flower.k)} (đọc bài và bấm “Đã xong” ở Trắc nghiệm, True or false).</p>
               <p className="kt-muted">Xong rồi, bấm lại vào hoa để lấy gợi ý bài nói (tải về bằng ảnh được).</p>
               <button type="button" className="kt-btn kt-btn--pri" onClick={() => { setFlower(null); openPart(flower.u, flower.k, firstOpenPart(flower.u)); }}>
                 Làm tiếp phần còn thiếu
@@ -616,10 +616,10 @@ function Inner({ ma, id }) {
             return (
               <>
                 <p className={`nh-noistate ${noi?.xanh ? "is-green" : noi?.baoGui ? "is-yellow" : ""}`}>
-                  {noi?.xanh ? "✓ Trưởng nhóm đã nhận" : noi?.baoGui ? `Đã báo gửi ${noi.soLan > 1 ? `${noi.soLan} lần` : ""} — chờ trưởng nhóm nhận` : "Chưa gửi"}
+                  {noi?.xanh ? "✓ Người hướng dẫn đã nhận" : noi?.baoGui ? `Đã báo gửi ${noi.soLan > 1 ? `${noi.soLan} lần` : ""} — chờ người hướng dẫn nhận` : "Chưa gửi"}
                   {noi?.ghiChu && (
                     <span className="nh-note2">
-                      <b>Nhận xét của trưởng nhóm:</b>
+                      <b>Nhận xét của người hướng dẫn:</b>
                       <NhanXet text={noi.ghiChu} />
                     </span>
                   )}
@@ -630,7 +630,7 @@ function Inner({ ma, id }) {
                       <ExternalLink size={16} aria-hidden="true" /> Mở kênh gửi bài
                     </a>
                   ) : (
-                    <span className="kt-muted">Trưởng nhóm chưa dán kênh gửi bài — hỏi trong Hỏi đáp.</span>
+                    <span className="kt-muted">Người hướng dẫn chưa dán kênh gửi bài — hỏi trong Hỏi đáp.</span>
                   )}
                   {baiMoCua(flower.k, nhom, me) && (
                     <button type="button" className="kt-btn kt-btn--pri" onClick={() => baoGui(flower.u)}>

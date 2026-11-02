@@ -172,7 +172,7 @@ const writeSeen = (ma, who, v) => {
 };
 
 /**
- * Hỏi đáp: who = { id } (học viên) hoặc { k } (trưởng nhóm). gan = nhãn tự gắn khi hỏi từ trang bài.
+ * Hỏi đáp: who = { id } (học viên) hoặc { k } (người hướng dẫn). gan = nhãn tự gắn khi hỏi từ trang bài.
  * floating: nút 💬 nổi + khung trượt; không thì hiện thẳng trong trang.
  */
 // #298 dòng "ai đang làm gì" chen trong Hỏi đáp (chỉ hiển thị, không lưu thành tin)
@@ -396,7 +396,7 @@ export function NhomChat({ ma, who, gan, floating = false, chatTat, linkFor, slo
         )}
       </header>
       <div className="nh-msgs" ref={boxRef}>
-        {!list.length && <p className="kt-muted nh-empty">Chưa có tin nào. Có gì chưa hiểu, hỏi ở đây — cả nhóm và trưởng nhóm cùng thấy.</p>}
+        {!list.length && <p className="kt-muted nh-empty">Chưa có tin nào. Có gì chưa hiểu, hỏi ở đây — cả nhóm và người hướng dẫn cùng thấy.</p>}
         {(() => {
           // #298 trộn tin + dòng hoạt động theo thời gian
           const hds = hd && hienHd && !chiBai ? hd.ds.slice(0, 30).map((x) => ({ _hd: true, ...x })) : [];
@@ -478,7 +478,7 @@ export function NhomChat({ ma, who, gan, floating = false, chatTat, linkFor, slo
         })}
       </div>
       {chatTat && !who.k ? (
-        <p className="nh-chat-off">Trưởng nhóm đang tạm tắt Hỏi đáp.</p>
+        <p className="nh-chat-off">Người hướng dẫn đang tạm tắt Hỏi đáp.</p>
       ) : (
         <div className="nh-compose">
           {reply && (

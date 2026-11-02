@@ -1,0 +1,36 @@
+{
+ "id": "john-is-staying-at-a-hotel-with-family",
+ "ten": "John is staying at a hotel with family.",
+ "svg": "/ren-luyen/svg/mau.svg",
+ "nguon": "mẫu từ project cũ (yyy_a1 · 40 tình huống thông dụng)",
+ "dong": [
+  {
+   "h": "Where are the clean towels?",
+   "d": "They are in the top drawer."
+  },
+  {
+   "h": "Can someone clean this room?",
+   "d": "Yes, at ten it will be clean."
+  },
+  {
+   "h": "What time is breakfast here?",
+   "d": "From 7 to 10 a.m."
+  },
+  {
+   "h": "What is that loud sound?",
+   "d": "There is a party outside."
+  },
+  {
+   "h": "What happened to John?",
+   "d": "What question did John ask?"
+  },
+  {
+   "h": "What question did John ask?",
+   "d": "What answer did John receive?"
+  },
+  {
+   "h": "What answer did John receive?",
+   "d": "What did John do next?"
+  }
+ ]
+}

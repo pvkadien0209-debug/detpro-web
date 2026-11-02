@@ -8,7 +8,7 @@ import { GUIDE_VIDEOS, HOME_VIDEOS } from "./trangChuVideoData";
 
 const TIPS = [
   ["Mỗi ngày 20–30 phút", "Đều đặn quan trọng hơn học dồn."],
-  ["Đi đúng thứ tự 5 phần", "Đọc → Bảng → Trắc nghiệm → Nghe nói → True or false."],
+  ["Đi đúng thứ tự 3 phần", "Đọc bài / xem video → Trắc nghiệm → True or false. Bảng 40 câu luôn mở được bằng nút trong bài."],
   ["Sai thì đọc giải thích", "Rồi bấm “Làm lại câu sai” tới khi đúng hết."],
   ["Rảnh tay thì nghe 40 câu", "Ở Bảng thông tin: hiện câu hỏi, đáp án, cả hai hoặc nghe chay."],
   ["Hôm sau ôn lại", "Làm lại câu sai trước khi học bài mới."],

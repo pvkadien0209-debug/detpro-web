@@ -73,13 +73,14 @@ export async function loadMergedCatalog() {
 }
 
 // ---------- Đường dẫn (A-Q5: /for/<người-nghe>/<bài>) ----------
+// #411 (anh 02/11): bài còn 3 phần (Bài viết/video · Trắc nghiệm · True or false). Bảng + Nghe nói không còn là phần của bài:
+// đường dẫn cũ (…/info, …/listen-speak) vẫn mở được (link cũ), Bảng tham khảo luôn mở bằng nút trong bài; nghe nói thuần → Rèn luyện (máy tính).
 export const PARTS = [
   { key: "", label: "Bài viết", short: "Bài viết" },
-  { key: "info", label: "Bảng thông tin", short: "Bảng" },
   { key: "quiz", label: "Trắc nghiệm", short: "Trắc nghiệm" },
-  { key: "listen-speak", label: "Nghe nói", short: "Nghe nói" },
   { key: "true-or-false", label: "True or false", short: "True/False" },
 ];
+export const PARTS_ROUTE = [...PARTS, { key: "info", label: "Bảng thông tin", short: "Bảng" }, { key: "listen-speak", label: "Nghe nói", short: "Nghe nói" }];
 export const audiencePath = (audience) => `/for/${audience}`;
 /** Viết thường chữ đầu, giữ hoa tên riêng ("Việt", "Anh") — thay toLowerCase() cả câu (#086). */
 export const lowerFirst = (s = "") => s.charAt(0).toLowerCase() + s.slice(1);

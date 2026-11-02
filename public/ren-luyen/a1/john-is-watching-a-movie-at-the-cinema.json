@@ -1,0 +1,36 @@
+{
+ "id": "john-is-watching-a-movie-at-the-cinema",
+ "ten": "John is watching a movie at the cinema.",
+ "svg": "/ren-luyen/svg/mau.svg",
+ "nguon": "mẫu từ project cũ (yyy_a1 · 40 tình huống thông dụng)",
+ "dong": [
+  {
+   "h": "Who is using a phone?",
+   "d": "The man in row three is."
+  },
+  {
+   "h": "Can you make it warmer?",
+   "d": "Sorry, we cannot change it."
+  },
+  {
+   "h": "Where can I buy popcorn?",
+   "d": "Outside, near the big door."
+  },
+  {
+   "h": "Can I change my seat?",
+   "d": "Yes, try row six."
+  },
+  {
+   "h": "What happened to John?",
+   "d": "What question did John ask?"
+  },
+  {
+   "h": "What question did John ask?",
+   "d": "What answer did John receive?"
+  },
+  {
+   "h": "What answer did John receive?",
+   "d": "What did John do next?"
+  }
+ ]
+}

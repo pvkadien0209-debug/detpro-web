@@ -135,13 +135,13 @@ export default function TopicCourse({ topic, persona, active = "topics" }) {
             const p = readUnitProgress(u.audience, u.slug);
             const n = unitDoneCount(p);
             const isOpen = open.has(k);
-            const isNext = started && k === nuNo && n < 5;
-            const go = n === 5 ? "Ôn lại" : n > 0 || p ? "Học tiếp" : "Bắt đầu";
+            const isNext = started && k === nuNo && n < PARTS.length;
+            const go = n === PARTS.length ? "Ôn lại" : n > 0 || p ? "Học tiếp" : "Bắt đầu";
             return (
               <div key={u.slug} className={`kt-unit ${isOpen ? "is-open" : ""} ${isNext ? "is-next" : ""}`}>
                 <div className="kt-urow">
                   <button type="button" onClick={() => toggle(k)} aria-expanded={isOpen}>
-                    <span className={`kt-n ${n === 5 ? "is-done" : ""}`}>{n === 5 ? <Check size={16} aria-hidden="true" /> : u.kind === "tong" ? "T" : k}</span>
+                    <span className={`kt-n ${n === PARTS.length ? "is-done" : ""}`}>{n === PARTS.length ? <Check size={16} aria-hidden="true" /> : u.kind === "tong" ? "T" : k}</span>
                     <span className="tt">
                       {u.title}
                       {vset && (
@@ -155,7 +155,7 @@ export default function TopicCourse({ topic, persona, active = "topics" }) {
                             <i key={pt.key} className={partDone(p, pt.key) ? "is-done" : ""} />
                           ))}
                         </span>
-                        {label(k)} · {n}/5 phần đã xong{isNext ? " · học tiếp ở đây" : ""}
+                        {label(k)} · {n}/{PARTS.length} phần đã xong{isNext ? " · học tiếp ở đây" : ""}
                       </small>
                     </span>
                     <ChevronDown size={18} className="kt-chev" aria-hidden="true" />

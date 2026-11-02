@@ -1,5 +1,5 @@
 "use client";
-// #230 Học cùng — /nhom/<mã>/huong-dan?k=<mã hướng dẫn>: trang của trưởng nhóm.
+// #230 Học cùng — /nhom/<mã>/huong-dan?k=<mã hướng dẫn>: trang của người hướng dẫn.
 // Tổng quan (cây + bảng; bấm tên một người: thống kê + lời nhắn), Bài nói tự do (nhận xét + duyệt đã nhận),
 // Học viên (PIN, Tạm nghỉ, xoá), Cài đặt (4a), Hỏi đáp. #231: bỏ tab giọng Nghe nói (không ghi giọng nữa).
 import React, { useEffect, useMemo, useState } from "react";
@@ -299,12 +299,11 @@ export function CdTab({ ma, k, uid, data, reload }) {
     <form className="nh-card nh-cdform" onSubmit={save}>
       <h2>Cài đặt nhóm</h2>
       <p className="kt-muted">
-        Đang dùng (lưu trên máy chủ): qua Trắc nghiệm {g.nguong.quiz}/40 · Nghe nói {g.nguong["listen-speak"]}/40 · True or false {g.nguong.tf === "xong" ? "làm xong lượt" : `đúng ≥ ${g.nguong.tf}%`} · đếm ngược {g.hanChangGio ? `${g.hanChangGio} giờ/bài` : "tắt"} · nhắc {g.nhacGio ? `mỗi ${g.nhacGio} giờ` : "tắt"} · tối đa {g.toiDa} người{g.batBuocPin ? " · bắt buộc PIN" : ""}. Chỉ trưởng nhóm (có link này) đổi được.
+        Đang dùng (lưu trên máy chủ): qua Trắc nghiệm {g.nguong.quiz}/40 · True or false {g.nguong.tf === "xong" ? "làm xong lượt" : `đúng ≥ ${g.nguong.tf}%`} · đếm ngược {g.hanChangGio ? `${g.hanChangGio} giờ/bài` : "tắt"} · nhắc {g.nhacGio ? `mỗi ${g.nhacGio} giờ` : "tắt"} · tối đa {g.toiDa} người{g.batBuocPin ? " · bắt buộc PIN" : ""}. Chỉ người hướng dẫn (có link này) đổi được.
       </p>
       <label className="nh-field"><span className="nh-flabel">Tên nhóm</span><input value={f.ten} onChange={set("ten")} maxLength={80} /></label>
-      <label className="nh-field"><span className="nh-flabel">Tên trưởng nhóm</span><input value={f.tenHuongDan} onChange={set("tenHuongDan")} maxLength={40} /></label>
+      <label className="nh-field"><span className="nh-flabel">Tên người hướng dẫn</span><input value={f.tenHuongDan} onChange={set("tenHuongDan")} maxLength={40} /></label>
       <label className="nh-field"><span className="nh-flabel">Qua Trắc nghiệm khi đúng (/40)</span><input type="number" min={1} max={40} value={f.quiz} onChange={set("quiz")} /></label>
-      <label className="nh-field"><span className="nh-flabel">Qua Nghe nói khi nói đúng (/40)</span><input type="number" min={1} max={40} value={f.say} onChange={set("say")} /></label>
       <label className="nh-field">
         <span className="nh-flabel">True or false</span>
         <select value={f.tf === "xong" ? "xong" : "pct"} onChange={(e) => { setDirty(true); setF((x) => ({ ...x, tf: e.target.value === "xong" ? "xong" : 80 })); }}>
@@ -331,7 +330,7 @@ function Inner({ ma, k }) {
   const [tab, setTab] = useState("tq");
   const [view, setView] = useState("nhom");
   const [tblMode, setTblMode] = useState(false);
-  const [pop, setPop] = useState(null); // #250 làm phần bài (ID học của trưởng nhóm) trong cửa sổ nổi
+  const [pop, setPop] = useState(null); // #250 làm phần bài (ID học của người hướng dẫn) trong cửa sổ nổi
   const [qa, setQa] = useState(null); // #250 Hỏi đáp riêng một bài
   useEffect(() => {
     if (data?.nhom) rememberGroup(ma, data.nhom.ten);
@@ -372,7 +371,7 @@ function Inner({ ma, k }) {
       <header className="nh-head">
         <div>
           <p className="kt-kicker">
-            <ShieldCheck size={16} aria-hidden="true" /> Trưởng nhóm · nhóm {ma}
+            <ShieldCheck size={16} aria-hidden="true" /> Người hướng dẫn · nhóm {ma}
           </p>
           <h1 className="kt-h1">{nhom.ten}</h1>
           {ci.xong ? (
@@ -449,7 +448,7 @@ function Inner({ ma, k }) {
                         Bài hiện tại: <b>{baiLabel(ci.u, ci.ch)}</b>
                       </span>
                       <Countdown dh={ci.dh} big />
-                      {meM && myJ < 5 && (
+                      {meM && myJ < PART_KEYS.length && (
                         <>
                           <span>
                             Phần của bạn: <b>{myJ + 1}. {PART_SHORT[PART_KEYS[myJ]]}</b>

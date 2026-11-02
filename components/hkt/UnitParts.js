@@ -823,6 +823,7 @@ const SHOW_MODES = [
   ["q", "Câu hỏi"],
   ["a", "Đáp án"],
   ["qa", "Cả hai"],
+  ["doc", "👀 Đọc mắt"], // #412 True or false: đọc thay nghe (không tiện nghe / mạng yếu) — không phát tiếng, không cần tải âm thanh
 ];
 function useDrillShow() {
   const [show, setShow] = useStoredState(KT_STORAGE.drillShow, "none");
@@ -835,12 +836,12 @@ function useDrillShow() {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const v = SHOW_MODES.some(([k]) => k === show) ? show : "none";
-  return { show: v, setShow, showQ: v === "q" || v === "qa", showA: v === "a" || v === "qa" };
+  return { show: v, setShow, showQ: v === "q" || v === "qa" || v === "doc", showA: v === "a" || v === "qa" || v === "doc", docMat: v === "doc" };
 }
-function ShowSeg({ show, setShow }) {
+function ShowSeg({ show, setShow, docMat = false }) {
   return (
     <div className="kt-dshow" role="group" aria-label="Hiện chữ">
-      {SHOW_MODES.map(([k, t]) => (
+      {SHOW_MODES.filter(([k]) => docMat || k !== "doc").map(([k, t]) => (
         <button key={k} type="button" className={show === k ? "is-on" : ""} aria-pressed={show === k} onClick={() => setShow(k)}>
           {k === "none" && <Headphones size={14} aria-hidden="true" />} {t}
         </button>
@@ -1159,7 +1160,19 @@ export function TrueFalsePart({ unit, prog, update, player, openExplain, refButt
   const pos = qa?.pos ?? 0;
   const it = qa?.items[pos];
   const [fb, setFb] = useState(null);
-  const { show, setShow, showQ, showA } = useDrillShow(); // #229
+  const { show, setShow, showQ, showA, docMat } = useDrillShow(); // #229 · #412 docMat
+  // #412 mất mạng → gợi ý chuyển sang Đọc mắt (chữ đã có sẵn, không cần tải âm thanh)
+  const [matMang, setMatMang] = useState(false);
+  useEffect(() => {
+    const f = () => setMatMang(typeof navigator !== "undefined" && navigator.onLine === false);
+    f();
+    window.addEventListener("online", f);
+    window.addEventListener("offline", f);
+    return () => {
+      window.removeEventListener("online", f);
+      window.removeEventListener("offline", f);
+    };
+  }, []);
   const grp = useNhom(); // #230
   const [tuSang, setTuSang] = useTuSang(); // #285
   const [dung, setDung] = useState(false);
@@ -1241,15 +1254,26 @@ export function TrueFalsePart({ unit, prog, update, player, openExplain, refButt
         <span style={{ width: `${(Object.keys(qa.done).length / qa.items.length) * 100}%` }} />
       </div>
       <div className="kt-dstage" ref={stageRef}>
-        <div className="hkt-u-btns">
-          <Listen player={player} id={`tf-q-${pos}`} text={q.q}>
-            Nghe câu hỏi
-          </Listen>
-          <Listen player={player} id={`tf-a-${pos}`} text={cand}>
-            Nghe câu trả lời
-          </Listen>
-        </div>
-        <ShowSeg show={show} setShow={setShow} />
+        {!docMat && (
+          <div className="hkt-u-btns">
+            <Listen player={player} id={`tf-q-${pos}`} text={q.q}>
+              Nghe câu hỏi
+            </Listen>
+            <Listen player={player} id={`tf-a-${pos}`} text={cand}>
+              Nghe câu trả lời
+            </Listen>
+          </div>
+        )}
+        <ShowSeg show={show} setShow={setShow} docMat />
+        {matMang && !docMat && (
+          <p className="kt-phonetip" role="note">
+            📶 Mạng đang yếu / mất — không nghe được.{" "}
+            <button type="button" className="kt-linkbtn" onClick={() => setShow("doc")}>
+              Chuyển sang 👀 Đọc mắt
+            </button>
+          </p>
+        )}
+        {docMat && <p className="kt-dnote">👀 Đọc mắt: đọc câu hỏi và câu trả lời bên dưới, chọn True / False — dùng khi không tiện nghe hoặc mạng yếu.</p>}
         {doneHere || showQ || showA ? (
           <div className="hkt-u-reveal">
             {(doneHere || showQ) && <p className="hkt-u-qen" lang="en">{q.q}</p>}

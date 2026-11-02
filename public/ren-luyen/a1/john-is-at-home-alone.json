@@ -1,0 +1,36 @@
+{
+ "id": "john-is-at-home-alone",
+ "ten": "John is at home alone.",
+ "svg": "/ren-luyen/svg/mau.svg",
+ "nguon": "mẫu từ project cũ (yyy_a1 · 40 tình huống thông dụng)",
+ "dong": [
+  {
+   "h": "What made that loud noise?",
+   "d": "A book fell off the shelf."
+  },
+  {
+   "h": "Why are the lights off now?",
+   "d": "There is no electricity now."
+  },
+  {
+   "h": "Why is this room so cold?",
+   "d": "The window is still open."
+  },
+  {
+   "h": "Where is that smell from?",
+   "d": "It is from the kitchen stove."
+  },
+  {
+   "h": "What happened to John?",
+   "d": "What question did John ask?"
+  },
+  {
+   "h": "What question did John ask?",
+   "d": "What answer did John receive?"
+  },
+  {
+   "h": "What answer did John receive?",
+   "d": "What did John do next?"
+  }
+ ]
+}

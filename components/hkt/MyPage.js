@@ -107,7 +107,7 @@ export default function MyPage() {
                     {u.title}
                     <small>{t.title.vi}</small>
                   </span>
-                  <span className="kt-my-parts" aria-label={`${unitDoneCount(p)}/5 phần đã xong`}>
+                  <span className="kt-my-parts" aria-label={`${unitDoneCount(p)}/${PARTS.length} phần đã xong`}>
                     {PARTS.map((pt) => (
                       <span key={pt.key} className={`kt-st ${partDone(p, pt.key) ? "is-done" : ""}`} title={pt.label}>
                         {partDone(p, pt.key) && <Check size={12} aria-hidden="true" />}
@@ -115,7 +115,7 @@ export default function MyPage() {
                     ))}
                   </span>
                   <span className="kt-my-r">
-                    Trắc nghiệm {s.pickOk}/40 · Nghe nói {s.sayOk}/40 · True or false {s.d2pt} điểm
+                    Trắc nghiệm {s.pickOk}/40 · True or false {s.d2pt} điểm
                   </span>
                 </Link>
               );

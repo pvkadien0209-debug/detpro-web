@@ -1,5 +1,5 @@
 "use client";
-// #230 Học cùng — /nhom/tao?chu-de=<nhánh>/<chủ đề>: trưởng nhóm mở lớp (thiết kế mục 4a).
+// #230 Học cùng — /nhom/tao?chu-de=<nhánh>/<chủ đề>: người hướng dẫn mở lớp (thiết kế mục 4a).
 import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "@/lib/router";
 import { Users, Link2 } from "lucide-react";
@@ -38,7 +38,7 @@ export default function NhomTao() {
   const [topicKey, setTopicKey] = useState("");
   const [ten, setTen] = useState("");
   const [tenHD, setTenHD] = useState("");
-  // #250 (NHA A1): trưởng nhóm cũng học → tên + ID + PIN bắt buộc
+  // #250 (NHA A1): người hướng dẫn cũng học → tên + ID + PIN bắt buộc
   const [myId, setMyId] = useState("");
   const [myPin, setMyPin] = useState("");
   const [chiHD, setChiHD] = useState(true); // #370 Chỉ hướng dẫn (mặc định)
@@ -110,7 +110,7 @@ export default function NhomTao() {
           <div className="nh-card">
             <h2>2. Vào nhóm của bạn</h2>
             <p className="kt-muted">
-              Bạn là <b>trưởng nhóm</b> và cũng học cùng (ID <b className="nh-code">{done.id}</b>). Máy này đã nhớ bạn. Sang máy khác: mở link nhóm, bấm tên bạn, gõ PIN.
+              Bạn là <b>người hướng dẫn</b> và cũng học cùng (ID <b className="nh-code">{done.id}</b>). Máy này đã nhớ bạn. Sang máy khác: mở link nhóm, bấm tên bạn, gõ PIN.
             </p>
             <Link className="kt-btn kt-btn--pri" to={nhomPath(done.ma, done.id)}>
               Vào nhóm
@@ -173,7 +173,7 @@ export default function NhomTao() {
         </div>
 
         <div className="nh-card">
-          <h2>Bạn — trưởng nhóm (vừa dẫn dắt, vừa học)</h2>
+          <h2>Bạn — người hướng dẫn (vừa dẫn dắt, vừa học)</h2>
           <label className="nh-field">
             <span className="nh-flabel">Tên của bạn (hiện trên cây và trong Hỏi đáp) *</span>
             <input
@@ -227,7 +227,6 @@ export default function NhomTao() {
         <div className="nh-card">
           <h2>Qua phần khi…</h2>
           <Choice label="Trắc nghiệm — chọn đúng" value={quiz} onChange={setQuiz} options={[[20, "20/40"], [30, "30/40"], [40, "40/40"]]} custom={{ label: "Số khác", min: 1, max: 40, unit: "/40", ph: "35" }} />
-          <Choice label="Nghe nói — nói đúng" value={say} onChange={setSay} options={[[20, "20/40"], [30, "30/40"], [40, "40/40"]]} custom={{ label: "Số khác", min: 1, max: 40, unit: "/40", ph: "35" }} />
           <Choice label="True or false" value={tf} onChange={setTf} options={[["xong", "Làm xong lượt"], [70, "Đúng ≥ 70%"], [80, "Đúng ≥ 80%"]]} custom={{ label: "Đúng ≥", min: 1, max: 100, unit: "%", ph: "90" }} />
         </div>
 

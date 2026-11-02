@@ -5,7 +5,7 @@
 // Khi vỏ đang hiện, thanh menu cũ của app (A1_Header) được ẩn (body.kt-shell).
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "@/lib/router"; // Next.js: thay react-router-dom
-import { Home, LayoutGrid, PlayCircle, Users, BarChart3, Search, Clapperboard, Megaphone } from "lucide-react";
+import { Home, LayoutGrid, PlayCircle, Users, BarChart3, Search, Clapperboard, Megaphone, Mic } from "lucide-react";
 import { loadUnitsIndex, readLastUnit, unitPath, audiencePath, topicColor, lowerFirst } from "./unitData";
 // Next.js: kt.css nạp toàn cục ở app/layout.js
 import TopicArt from "./topicArt";
@@ -17,6 +17,7 @@ export const NAV = [
   { key: "continue", to: null, label: "Học tiếp", Icon: PlayCircle },
   { key: "for", to: "/for", label: "Hoàn cảnh", Icon: Users },
   { key: "videos", to: "/videos", label: "Video", Icon: Clapperboard }, // #163
+  { key: "ren", to: "/ren-luyen", label: "Rèn luyện", Icon: Mic, mayTinh: true }, // #411 chỉ thanh trái máy tính
   { key: "me", to: "/me", label: "Của tôi", Icon: BarChart3 },
   { key: "post", to: "/dang-bai", label: "Đăng bài", Icon: Megaphone }, // #178: mục thanh trái (điện thoại: biểu tượng ở thanh trên)
 ];
@@ -148,7 +149,7 @@ export default function KtShell({ active, children }) {
         <BrandFooter />
       </main>
       <nav className="kt-tabbar" aria-label="Chính">
-        {NAV.filter((n) => n.key !== "post").map(({ key, label, Icon, ...n }) => (
+        {NAV.filter((n) => n.key !== "post" && !n.mayTinh).map(({ key, label, Icon, ...n }) => (
           <Link key={key} to={href({ key, ...n })} className={active === key ? "is-on" : ""} aria-current={active === key ? "page" : undefined}>
             <Icon size={22} aria-hidden="true" />
             {label}
@@ -164,8 +165,7 @@ export const BRAND = {
   slogan: "Mỗi ngày biết thêm một điều hay",
   sloganEn: "One a day, the DetPro way",
   meaning: "Quyết tâm mỗi ngày, tiến bộ mỗi ngày",
-  fanpage: "https://www.facebook.com/hocvoidetpro", // #309: Fanpage DetPro (lập 29/10/2026)
-  youtube: "https://www.youtube.com/@hocvoidetpro", // #309: kênh YouTube DetPro
+  fanpage: "", // dán địa chỉ Fanpage DetPro khi đã lập trang → hiện liên kết "Fanpage" ở chân trang
 };
 
 function BrandFooter() {
@@ -202,11 +202,6 @@ function BrandFooter() {
         {BRAND.fanpage && (
           <a href={BRAND.fanpage} target="_blank" rel="noopener noreferrer">
             Fanpage DetPro
-          </a>
-        )}
-        {BRAND.youtube && (
-          <a href={BRAND.youtube} target="_blank" rel="noopener noreferrer">
-            YouTube DetPro
           </a>
         )}
       </nav>

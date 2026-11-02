@@ -1,0 +1,36 @@
+{
+ "id": "john-is-waiting-at-the-bus-stop",
+ "ten": "John is waiting at the bus stop.",
+ "svg": "/ren-luyen/svg/mau.svg",
+ "nguon": "mẫu từ project cũ (yyy_a1 · 40 tình huống thông dụng)",
+ "dong": [
+  {
+   "h": "What time is the next bus?",
+   "d": "It comes at 4:30 p.m."
+  },
+  {
+   "h": "Why is the bus late?",
+   "d": "There is traffic in the city."
+  },
+  {
+   "h": "Is there space on that bus?",
+   "d": "No, it is full now."
+  },
+  {
+   "h": "Who is that man there?",
+   "d": "He is a new neighbor."
+  },
+  {
+   "h": "What happened to John?",
+   "d": "What question did John ask?"
+  },
+  {
+   "h": "What question did John ask?",
+   "d": "What answer did John receive?"
+  },
+  {
+   "h": "What answer did John receive?",
+   "d": "What did John do next?"
+  }
+ ]
+}

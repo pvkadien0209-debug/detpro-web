@@ -1,5 +1,5 @@
 "use client";
-// #260 Nhật ký học của từng người (lưu trên Mongo: nhat_ky_hoc). Học viên xem của mình; trưởng nhóm xem của mọi người (uid = ID người lập, ai = người cần xem).
+// #260 Nhật ký học của từng người (lưu trên Mongo: nhat_ky_hoc). Học viên xem của mình; người hướng dẫn xem của mọi người (uid = ID người lập, ai = người cần xem).
 import React, { useCallback, useEffect, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { api } from "./nhomClient";

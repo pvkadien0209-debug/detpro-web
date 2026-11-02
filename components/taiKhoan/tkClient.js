@@ -4,7 +4,7 @@ import { gopTienDo } from "@/components/hkt/nhomRules";
 
 const CO = "dp.tk"; // { ten, tenHien, dongBoLuc } — chỉ để biết máy này đang đăng nhập (phiên thật nằm trong cookie httpOnly)
 const UNIT = "hkt.unit.";
-export const KHOA_DONG_BO = ["hkt.unit.", "hkt.progress.", "hkt.last", "dp.video.history", "dp.nhom.pin.", "dp.nhom.toi.", "dp.nhom.k.", "dp.nhom.cua-toi", "dp.nhom.chao.", "hkt.cheDo", "hkt.ngheCham", "hkt.viMoSan"];
+export const KHOA_DONG_BO = ["hkt.unit.", "hkt.progress.", "hkt.last", "dp.video.history", "dp.nhom.pin.", "dp.nhom.toi.", "dp.nhom.k.", "dp.nhom.cua-toi", "dp.nhom.chao.", "hkt.cheDo", "hkt.ngheCham", "hkt.viMoSan", "hkt.ren."] /* #411 kết quả Rèn luyện */;
 export const EV = "dp-tai-khoan";
 
 const ls = {
