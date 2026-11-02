@@ -1659,3 +1659,6 @@ body.nh-chao-mo .tt-goc { display: none !important; }
 /* #412 gợi ý bài nói: 3 bước viết → đọc → ghi âm */
 .nh-goiy-cach { margin: 8px 0 12px; padding: 10px 12px 10px 30px; background: var(--kt-marker-soft, #fff4c7); border-radius: 10px; display: grid; gap: 4px; font-size: 14.5px; }
 .nh-goiy .nh-goiy-cach li b { display: inline; font-size: inherit; }
+/* #414 phòng rèn luyện bản cũ: ẩn Đét trợ thủ (bản cũ không có, che khung điểm) */
+body:has(#NOPBAITAP) .tt-goc, body:has(.rl-phong) .tt-goc { display: none !important; }
+.rl-phong { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif; } /* #414 font như bản cũ (index.css) */

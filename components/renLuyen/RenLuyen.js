@@ -73,7 +73,7 @@ export function RenLuyenHome() {
   return (
     <KtShell active="ren">
       <h1 className="kt-h1">Rèn luyện</h1>
-      <p className="kt-lead">Học thuộc bảng bằng nghe nói thuần: máy đọc một vế, bạn nói vế còn lại. Mỗi dòng một lần, thứ tự và chiều hỏi–đáp trộn ngẫu nhiên. Bấm vào bảng là luyện luôn.</p>
+      <p className="kt-lead">Học thuộc bảng bằng nghe nói thuần — phòng rèn luyện như bản cũ. Bấm vào bảng là vào phòng luyện.</p>
       {!mt && <BaoDienThoai />}
       {err && <p className="nh-err">{err}</p>}
       {!idx && !err && <p className="kt-muted">Đang tải…</p>}
@@ -89,7 +89,7 @@ export function RenLuyenHome() {
               {bo.bang.map((b) => {
                 const kq = docKq(bo.ma, b.id);
                 return (
-                  <Link key={b.id} className="kt-card rl-the" to={`/ren-luyen/${bo.ma}/${b.id}`}>
+                  <Link key={b.id} className="kt-card rl-the" to={b.link || `/ren-luyen/${bo.ma}/${b.id}`}> {/* #414 b.link = phòng rèn luyện bản cũ */}
                     <span className="rl-hinh">{b.svg ? <img src={b.svg} alt="" loading="lazy" /> : <Mic size={36} aria-hidden="true" />}</span>
                     <span className="kt-card-body">
                       <h3>{b.ten}</h3>
