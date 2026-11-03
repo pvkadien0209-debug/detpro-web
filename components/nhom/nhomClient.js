@@ -2,7 +2,7 @@
 // #230 Học cùng — gọi API nhóm từ trình duyệt + ngữ cảnh nhóm cho trang bài (UnitPage, phần luyện).
 // #253: PIN lưu trên máy (localStorage) sau lần nhập đầu — lần sau không hỏi lại; máy mới thì gõ lại PIN.
 // Mã hướng dẫn: nhớ trên máy người hướng dẫn cho tiện (localStorage, có try/catch) — mất thì mở lại link hướng dẫn.
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 const pins = new Map(); // "MA/id" → PIN
 // #250: phần bài mở trong cửa sổ nổi (iframe cùng trang web) dùng chung PIN với trang cây → không hỏi lại PIN
@@ -154,3 +154,28 @@ export async function guiCho(ma, id) {
   }
   return n;
 }
+
+/** #434 Tóm tắt các nhóm (chủ đề, người hướng dẫn, thành viên) để phân biệt nhóm trùng tên. Lỗi → {} (chỉ thiếu dòng phụ). */
+export function useTomNhom(mas) {
+  const key = [...new Set(mas.filter(Boolean))].sort().join(",");
+  const [tom, setTom] = useState({});
+  useEffect(() => {
+    if (!key) return;
+    let huy = false;
+    fetch(`/api/nhom?tom=${key}`, { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : {}))
+      .then((x) => !huy && setTom(x && !x.error ? x : {}))
+      .catch(() => {});
+    return () => {
+      huy = true;
+    };
+  }, [key]);
+  return tom;
+}
+/** #434 "Hướng dẫn: Điện · 3 người: Oanh, Minh, Hà…" */
+export function moTaThanhVien(t) {
+  if (!t) return "";
+  const hv = t.soThanhVien ? `${t.soThanhVien} người: ${t.thanhVien.join(", ")}${t.soThanhVien > t.thanhVien.length ? "…" : ""}` : "chưa có học viên";
+  return `${t.huongDan ? `Hướng dẫn: ${t.huongDan} · ` : ""}${hv}`;
+}
+

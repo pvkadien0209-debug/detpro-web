@@ -1312,6 +1312,8 @@ body.nh-in .kt-learn.is-drill .nh-xong { margin-top: 18px; }
 .nh-mygroups { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; margin-bottom: 18px; }
 .nh-mygroup { justify-content: flex-start; text-align: left; gap: 10px; padding: 12px 14px; }
 .nh-mygroup small { display: block; font-weight: 500; color: var(--kt-muted); }
+.nh-mygroup { height: auto; min-height: 46px; border-radius: 14px; align-items: flex-start; white-space: normal; } /* #434 thêm dòng thành viên → thẻ cao hơn, chữ xuống dòng */
+.nh-mygroup .nh-mygroup-tv { color: var(--kt-ink); }
 @media (max-width: 700px) { .nh-pop-in.is-wide > header { display: none; } .nh-pop { padding: 0; } .nh-pop-in.is-wide { width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 0; } }
 /* #268 nhận xét bài nói: khung soạn lớn + hiển thị có định dạng */
 .nh-nxed { width: min(760px, 100%); height: min(88vh, 760px); }
@@ -1669,3 +1671,5 @@ body:has(#NOPBAITAP) .tt-goc, body:has(.rl-phong) .tt-goc { display: none !impor
 .rl-phong { --bs-primary: #0f6e5a; --bs-primary-rgb: 15, 110, 90; --bs-link-color: #0f6e5a; --bs-link-hover-color: #0b5747; }
 .rl-phong .btn-primary { --bs-btn-bg: #0f6e5a; --bs-btn-border-color: #0f6e5a; --bs-btn-hover-bg: #0b5747; --bs-btn-hover-border-color: #0b5747; --bs-btn-active-bg: #0b5747; --bs-btn-active-border-color: #0b5747; --bs-btn-disabled-bg: #3f9a84; --bs-btn-disabled-border-color: #3f9a84; }
 .rl-phong .btn-outline-primary { --bs-btn-color: #0f6e5a; --bs-btn-border-color: #0f6e5a; --bs-btn-hover-bg: #0f6e5a; --bs-btn-hover-border-color: #0f6e5a; --bs-btn-active-bg: #0b5747; --bs-btn-active-border-color: #0b5747; }
+.nh-warn { background: #fff7e0; border: 1px solid #f0d48a; border-radius: 10px; padding: 8px 12px; } /* #434 */
+.nh-mygroup svg { flex-shrink: 0; margin-top: 3px; } /* #434 */

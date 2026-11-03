@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "@/lib/router"; // Next.js: thay react-router-dom
 import { Helmet } from "@/lib/helmet"; // Next.js: tiêu đề/mô tả đặt ở trang máy chủ (generateMetadata)
 import { Check, Users } from "lucide-react";
-import { myGroups } from "@/components/nhom/nhomClient"; // #267 nhóm học trên máy này
+import { myGroups, useTomNhom, moTaThanhVien } from "@/components/nhom/nhomClient"; // #267 nhóm học trên máy này
 import { hienTroThu, daAnTroThu } from "./TroThu"; // #269
 import KtShell from "./KtShell";
 import ChuyenTienDo from "./ChuyenTienDo"; // #298 TD-Q3
@@ -22,6 +22,7 @@ export default function MyPage() {
     setNhoms(myGroups());
     setTtAn(daAnTroThu());
   }, []);
+  const tom = useTomNhom(nhoms.map((g) => g.ma)); // #434 ai trong nhóm, chủ đề gì — để phân biệt nhóm
   const topics = idx ? idx.branches.flatMap((b) => b.topics.map((t) => ({ ...t, branch: b.slug, branchTitle: b.title }))) : [];
   const learning = topics.filter((t) => t.units.some((u) => readUnitProgress(u.audience, u.slug)));
   const rows = learning.flatMap((t) =>
@@ -64,10 +65,14 @@ export default function MyPage() {
               <Link key={g.ma} className="kt-btn nh-mygroup" to={g.id ? `/nhom/${g.ma}/${g.id}` : `/nhom/${g.ma}`}>
                 <Users size={18} aria-hidden="true" />
                 <span>
-                  <b>{g.ten}</b>
+                  <b>{tom[g.ma]?.ten || g.ten}</b>
+                  {tom[g.ma]?.chuDe && tom[g.ma].chuDe !== (tom[g.ma].ten || g.ten) && <small>📚 {tom[g.ma].chuDe}</small>}
+                  {tom[g.ma] && (
+                    <small className="nh-mygroup-tv">{moTaThanhVien(tom[g.ma])}</small>
+                  )}
                   <small>
                     Nhóm {g.ma}
-                    {g.id ? ` · ${g.id}` : ""} — Học tiếp
+                    {g.id ? ` · bạn là ${g.id}` : ""} — Học tiếp
                   </small>
                 </span>
               </Link>

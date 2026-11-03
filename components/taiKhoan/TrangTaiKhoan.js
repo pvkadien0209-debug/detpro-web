@@ -4,7 +4,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Link } from "@/lib/router";
 import KtShell from "@/components/hkt/KtShell";
-import { myGroups, getMyId, loadK, getPin, setMyId, rememberGroup } from "@/components/nhom/nhomClient";
+import { myGroups, getMyId, loadK, getPin, setMyId, rememberGroup, useTomNhom, moTaThanhVien } from "@/components/nhom/nhomClient";
 import { baiKey } from "@/components/hkt/nhomRules";
 import { tk, docCo, ghiCo, dongBoNgay, xoaMay, EV } from "./tkClient";
 
@@ -95,7 +95,8 @@ function VaoTaiKhoan({ onVao }) {
         </label>
         <label className="nh-field">
           <span className="nh-flabel">Mật khẩu</span>
-          <input type="password" value={f.mk} onChange={set("mk")} autoComplete={moi ? "new-password" : "current-password"} minLength={6} required />
+          <input type="password" value={f.mk} onChange={set("mk")} autoComplete={moi ? "new-password" : "current-password"} minLength={moi ? 6 : undefined} required />
+          {!moi && <small className="kt-muted">Đã có tên (ID) + PIN trong nhóm học? Gõ ID và PIN vào đây là đăng nhập được, khỏi tạo tài khoản.</small>}
         </label>
         {moi && (
           <>
@@ -257,6 +258,7 @@ function QuanLi({ u, setU, onRa, thongBao, nhomTk0 }) {
   };
 
   const hocVien = nhoms.filter((x) => !loadK(x.ma));
+  const tom = useTomNhom(hocVien.map((x) => x.ma)); // #434
   return (
     <div className="tk-wrap">
       <div className="nh-card tk-dau">
@@ -269,6 +271,7 @@ function QuanLi({ u, setU, onRa, thongBao, nhomTk0 }) {
             Đồng bộ ngay
           </button>
         </p>
+        {u.tuPin && <p className="nh-warn">🔑 Mật khẩu đang là PIN nhóm của bạn — nên đổi mật khẩu riêng (ít nhất 6 ký tự) ở mục “Đổi mật khẩu” bên dưới.</p>}
         {msg && <p className="nh-ok">{msg}</p>}
         {err && <p className="nh-err">{err}</p>}
       </div>
@@ -289,8 +292,14 @@ function QuanLi({ u, setU, onRa, thongBao, nhomTk0 }) {
               return (
                 <li key={x.ma}>
                   <span>
-                    <Link to={`/nhom/${x.ma}${id ? `/${id}` : ""}`}>{x.ten || x.ma}</Link> <span className="nh-code">{x.ma}</span>
+                    <Link to={`/nhom/${x.ma}${id ? `/${id}` : ""}`}>{tom[x.ma]?.ten || x.ten || x.ma}</Link> <span className="nh-code">{x.ma}</span>
                     {id && <small className="kt-muted"> · ID {id}</small>}
+                    {tom[x.ma] && (
+                      <>
+                        <br />
+                        <small>{moTaThanhVien(tom[x.ma])}</small>
+                      </>
+                    )}
                     <br />
                     <small className={da ? "tk-gan" : "kt-muted"}>{da ? "🔗 đã gắn tài khoản — máy nào đăng nhập cũng vào được, khỏi PIN" : "chưa gắn tài khoản (vào bằng PIN)"}</small>
                   </span>
