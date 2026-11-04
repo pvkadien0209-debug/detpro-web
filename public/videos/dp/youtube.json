@@ -24,6 +24,7 @@
   },
   "how-to-plan-your-work-week--w01": {
     "id": "W_VaVBpIluU",
+    "cheDo": "cong-khai",
     "at": "2026-11-02T11:00:00Z"
   },
   "huong-dan-hd4--w01": {
@@ -86,6 +87,7 @@
   },
   "bar-admission-overview--w01": {
     "id": "SyGvgsjb8tg",
+    "cheDo": "cong-khai",
     "at": "2026-11-03T02:00:00Z"
   },
   "bar-oral-overview--w01": {
@@ -118,6 +120,7 @@
   },
   "how-to-break-down-a-big-task--w01": {
     "id": "k6wAIY6XdDI",
+    "cheDo": "cong-khai",
     "at": "2026-11-03T11:00:00Z"
   },
   "how-to-stop-procrastinating-at-work--w01": {
@@ -131,5 +134,9 @@
   "how-to-estimate-time-and-meet-deadlines--w01": {
     "id": "lL7Pb8mLUJM",
     "at": "2026-11-05T11:00:00Z"
+  },
+  "a-day-within-a-day--w01": {
+    "id": "Yw3LXWNIgUU",
+    "at": "2026-11-11T02:00:00Z"
   }
 }
