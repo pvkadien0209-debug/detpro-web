@@ -1673,3 +1673,9 @@ body:has(#NOPBAITAP) .tt-goc, body:has(.rl-phong) .tt-goc { display: none !impor
 .rl-phong .btn-outline-primary { --bs-btn-color: #0f6e5a; --bs-btn-border-color: #0f6e5a; --bs-btn-hover-bg: #0f6e5a; --bs-btn-hover-border-color: #0f6e5a; --bs-btn-active-bg: #0b5747; --bs-btn-active-border-color: #0b5747; }
 .nh-warn { background: #fff7e0; border: 1px solid #f0d48a; border-radius: 10px; padding: 8px 12px; } /* #434 */
 .nh-mygroup svg { flex-shrink: 0; margin-top: 3px; } /* #434 */
+/* #467 trang quản lý: lỗi web gửi về */
+.ql-loi { margin: 8px 0 12px; border: 1px solid var(--kt-line); border-radius: 12px; padding: 8px 12px; background: #fffaf0; }
+.ql-loi summary { cursor: pointer; font-weight: 700; color: #6b4e00; }
+.ql-loi .nh-table td { white-space: normal; vertical-align: top; }
+.ql-loi .kt-btn { margin-top: 8px; height: 38px; }
+.ql-loi .nh-code { white-space: nowrap; }

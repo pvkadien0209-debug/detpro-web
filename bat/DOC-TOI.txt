@@ -1,9 +1,9 @@
 DETPRO WEB - CAC TEP .BAT (#326, 30/10/2026: sap xep lai bang Excel)
 
-*** MO BANG DIEU KHIEN: DetPro-WEB-DIEU-KHIEN.xlsx ***
-    Trang Bam: moi nut bam (o xanh "▶"), lan bam cuoi, tinh trang.
-    Trang Goi: cac goi Claude gui, goi nao chua bam.
-    Lan dau: DONG Excel -> bam 0-gan-du-lieu-excel.bat (gan Power Query). Bam nut: Excel hoi "Hyperlinks can be harmful" -> Yes.
+*** #455 MO BANG DIEU KHIEN CHUNG: C:\Dienpham\App\Web\WEB-DIEU-KHIEN.xlsx (trang DetPro) ***
+    Trang DetPro: moi nut bam (o xanh "▶"), lan bam cuoi, tinh trang. Trang DetPro-Goi: cac goi Claude gui.
+    Lan dau: bam Web\0-gan-du-lieu-excel.bat (tu doi Excel dong). Bam nut: Excel hoi "Hyperlinks can be harmful" -> Yes.
+    DetPro-WEB-DIEU-KHIEN.xlsx trong thu muc nay = BAN CU, xoa duoc (Thung rac) khi bang chung chay dung.
 
 MOI KHI CLAUDE BAO CO GOI MOI:  5-cap-nhat-goi\1-cap-nhat-goi-moi-nhat.bat
     (tu lay goi so lon nhat trong bat\goi\ -> giai nen -> day len web). Khong con thu muc BAT-... cho moi viec.

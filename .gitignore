@@ -22,3 +22,6 @@ npm-debug.log*
 /bat/BAT-*/
 /bat/_nhat-ky-bam.csv
 /bat/*.xlsx
+
+# #426 #457 tep khoa tam cua Excel / Word khi dang mo bang (~$...) - git add khong doc duoc
+~$*

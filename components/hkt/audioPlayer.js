@@ -13,6 +13,18 @@
 // Next.js (#190): máy chủ âm thanh là /api/tts của chính trang (Express/Heroku đã bỏ, #189)
 const LinkAPI = "/api/";
 import { IOS_AUDIO_SESSION } from "./config";
+import { baoLoi } from "./baoLoi"; // #467 lỗi âm thanh → MongoDB
+
+const laIOS = () => typeof navigator !== "undefined" && (/iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
+// môi trường âm thanh kèm theo mỗi dòng lỗi (để biết máy nào, phiên âm thanh gì)
+const mt = () => {
+  try {
+    return `ios=${laIOS() ? 1 : 0} as=${navigator.audioSession ? navigator.audioSession.type : "khong"} ctx=${ctx ? ctx.state : "-"} mang=${navigator.onLine ? 1 : 0}`;
+  } catch {
+    return "";
+  }
+};
+const loi = (loai, e, them = "") => baoLoi(loai, `${String(e?.name || "")}:${String(e?.message || e || "").slice(0, 160)} ${them} | ${mt()}`);
 
 const bufCache = new Map(); // text -> AudioBuffer (Web Audio)
 const urlCache = new Map(); // text -> objectURL (dự phòng <audio>)
@@ -30,6 +42,16 @@ try {
   }
 } catch {
   /* bỏ qua */
+}
+
+// #467 iPhone gạt Im lặng: Web Audio bị tắt tiếng (thẻ <audio> thì không). Khi phát → xin phiên "playback"
+// (bỏ qua nút Im lặng, Safari 16.4+); khi bật mic → trả "auto" để iOS tự chuyển sang ghi (giữ cách #045).
+function datPhien(t) {
+  try {
+    if (!IOS_AUDIO_SESSION && typeof navigator !== "undefined" && navigator.audioSession && navigator.audioSession.type !== t) navigator.audioSession.type = t;
+  } catch {
+    /* bỏ qua */
+  }
 }
 
 function getCtx() {
@@ -55,6 +77,9 @@ async function fetchRaw(text) {
     if (!buf.byteLength) throw new Error("empty audio");
     rawCache.set(text, buf.slice(0));
     return buf;
+  } catch (e) {
+    loi("am-tai-mp3", e, `dai=${text.length}`);
+    throw e;
   } finally {
     clearTimeout(t);
   }
@@ -136,6 +161,7 @@ export function stopAudio() {
  */
 export function releaseAudioForMic() {
   stopAudio();
+  datPhien("auto");
   try {
     if (window.speechSynthesis && (window.speechSynthesis.speaking || window.speechSynthesis.pending)) window.speechSynthesis.cancel();
   } catch {
@@ -156,6 +182,7 @@ import { tocDoNghe } from "./hoTro"; // #354 nghe chậm
 export function playText(text) {
   stopAudio();
   const token = ++tokenSeq;
+  datPhien("playback");
   // Mở khoá / đánh thức AudioContext ngay trong cú bấm (iOS yêu cầu cử chỉ người dùng)
   const c = getCtx();
   try {
@@ -167,7 +194,11 @@ export function playText(text) {
     current = { token, source: null, audio: null, utter: null, resolve };
     // #354 nghe chậm: dùng thẻ <audio> (giữ cao độ giọng khi chậm lại); bình thường giữ Web Audio như cũ
     if (tocDoNghe() < 1) playElement(text, token);
-    else playWebAudio(text, token).catch(() => playElement(text, token));
+    else
+      playWebAudio(text, token).catch((e) => {
+        if (!/^HTTP|empty audio|abort/i.test(String(e?.message || e?.name))) loi("am-webaudio", e);
+        playElement(text, token);
+      });
   });
 }
 
@@ -184,6 +215,23 @@ async function playWebAudio(text, token) {
   src.onended = () => finish(token);
   current.source = src;
   src.start();
+  // #467 kiểm sau khi phát: AudioContext không chạy = iPhone/Android chặn tiếng
+  setTimeout(() => {
+    if (current && current.source === src && c.state !== "running") loi("am-ctx-dung", "ctx khong chay sau khi phat");
+  }, 400);
+  if (laIOS()) {
+    // ghi 1 lần / ngày / máy: iPhone phát bằng phiên nào (để đối chiếu khi anh báo "bấm mà im")
+    try {
+      const k = "dp.amIos";
+      const hom = new Date().toISOString().slice(0, 10);
+      if (localStorage.getItem(k) !== hom) {
+        localStorage.setItem(k, hom);
+        baoLoi("am-ios-phat", `thong tin | ${mt()}`);
+      }
+    } catch {
+      /* bỏ qua */
+    }
+  }
 }
 
 async function playElement(text, token) {
@@ -199,9 +247,13 @@ async function playElement(text, token) {
     }
     current.audio = audio;
     audio.onended = () => finish(token);
-    audio.onerror = () => speakBrowser(text, token);
+    audio.onerror = () => {
+      loi("am-audio-the", audio.error ? `code ${audio.error.code}` : "onerror");
+      speakBrowser(text, token);
+    };
     await audio.play();
-  } catch {
+  } catch (e) {
+    if (!/^HTTP|empty audio|abort/i.test(String(e?.message || e?.name))) loi("am-audio-the", e);
     speakBrowser(text, token);
   }
 }
@@ -209,7 +261,11 @@ async function playElement(text, token) {
 function speakBrowser(text, token) {
   if (!current || current.token !== token || current.utter) return;
   const synth = window.speechSynthesis;
-  if (!synth) return finish(token);
+  loi("am-giong-tb", "chuyen sang giong trinh duyet", `dai=${text.length}`);
+  if (!synth) {
+    loi("am-khong-giong", "khong co speechSynthesis");
+    return finish(token);
+  }
   synth.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = "en-US";
@@ -217,7 +273,10 @@ function speakBrowser(text, token) {
   const voice = synth.getVoices().find((v) => v.lang && v.lang.startsWith("en"));
   if (voice) u.voice = voice;
   u.onend = () => finish(token);
-  u.onerror = () => finish(token);
+  u.onerror = (ev) => {
+    loi("am-giong-loi", ev?.error || "onerror");
+    finish(token);
+  };
   current.utter = u;
   synth.speak(u);
 }

@@ -228,6 +228,63 @@ function ChiTiet({ mk, ma, onBack }) {
   );
 }
 
+// #467 Lỗi web gửi về từ trình duyệt (âm thanh, …) — đọc từ MongoDB `loi_web`, tự xoá sau 60 ngày
+function LoiWeb({ mk }) {
+  const [mo, setMo] = useState(false);
+  const [ds, setDs] = useState(null);
+  const [err, setErr] = useState("");
+  const tai = useCallback(async () => {
+    try {
+      const r = await fetch("/api/loi?n=200", { headers: { "x-quanli": mk }, cache: "no-store" });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(d.error || `Lỗi ${r.status}`);
+      setDs(d.loi || []);
+      setErr("");
+    } catch (x) {
+      setErr(x.message);
+    }
+  }, [mk]);
+  useEffect(() => {
+    if (mo) tai();
+  }, [mo, tai]);
+  const dem = useMemo(() => {
+    const m = {};
+    for (const x of ds || []) m[x.loai] = (m[x.loai] || 0) + 1;
+    return Object.entries(m).sort((a, b) => b[1] - a[1]);
+  }, [ds]);
+  return (
+    <details className="ql-loi" open={mo} onToggle={(e) => setMo(e.currentTarget.open)}>
+      <summary>⚠ Lỗi web gửi về (âm thanh trên điện thoại, …){ds ? ` — ${ds.length} dòng gần nhất` : ""}</summary>
+      {err && <p className="hkt-u-err">{err}</p>}
+      {ds && !ds.length && <p className="kt-muted">Chưa có lỗi nào.</p>}
+      {dem.length > 0 && <p className="kt-muted">{dem.map(([k, n]) => `${k}: ${n}`).join(" · ")}</p>}
+      {ds && ds.length > 0 && (
+        <div className="nh-table-wrap">
+          <table className="nh-table">
+            <thead>
+              <tr><th>Lúc</th><th>Loại</th><th>Chi tiết</th><th>Trang</th><th>Máy</th></tr>
+            </thead>
+            <tbody>
+              {ds.map((x, i) => (
+                <tr key={i}>
+                  <td>{t(x.luc)}</td>
+                  <td className="nh-code">{x.loai}</td>
+                  <td><small>{x.chiTiet}</small></td>
+                  <td><small>{x.trang}</small></td>
+                  <td><small>{x.ua}</small></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      <button type="button" className="kt-btn" onClick={tai}>
+        <RefreshCw size={16} aria-hidden="true" /> Tải lại lỗi
+      </button>
+    </details>
+  );
+}
+
 export default function QuanLiNhom() {
   const [mk, setMk] = useState("");
   const [ds, setDs] = useState(null);
@@ -281,6 +338,7 @@ export default function QuanLiNhom() {
               </button>
             </div>
             {err && <p className="hkt-u-err">{err}</p>}
+            <LoiWeb mk={mk} />
             {ds && <p className="kt-muted">{loc.length}/{ds.length} nhóm · {ds.reduce((n, g) => n + g.soNguoi, 0)} người</p>}
             <div className="nh-table-wrap">
               <table className="nh-table ql-ds">
