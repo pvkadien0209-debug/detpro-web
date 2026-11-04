@@ -306,7 +306,7 @@ const playFromBlob = (blob) => {
  * @param {number} timeout - Timeout (ms)
  * @returns {Promise<Blob>} Audio blob
  */
-const fetchAudioFromServer = async (text, timeout = 5000) => {
+const fetchAudioFromServer = async (text, timeout = 12000) => { // #476 Kokoro + Google dự phòng
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
   try {
@@ -384,7 +384,7 @@ export default async function read_by_Tts(
     }
     // BƯỚC 2: Fetch từ server
     try {
-      const blob = await fetchAudioFromServer(text, 5000);
+      const blob = await fetchAudioFromServer(text, 12000);
       // BƯỚC 3: Lưu vào cache
       await saveAudioToDB(db, key, blob);
       // BƯỚC 4: Phát audio

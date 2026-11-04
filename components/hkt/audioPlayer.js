@@ -29,11 +29,15 @@ const loi = (loai, e, them = "") => baoLoi(loai, `${String(e?.name || "")}:${Str
 const bufCache = new Map(); // text -> AudioBuffer (Web Audio)
 const urlCache = new Map(); // text -> objectURL (dự phòng <audio>)
 const rawCache = new Map(); // text -> ArrayBuffer gốc (để giải mã lại nếu cần)
+const mayCache = new Map(); // #476 text -> "kokoro" | "google" (tiêu đề X-TTS-May)
+// #476 Google đọc giọng thường, phát chậm lại 0,9 (giữ cao độ, qua thẻ <audio>) cho dễ nghe; Kokoro giữ tốc độ gốc
+const TOC_GOOGLE = 0.9;
+const tocDo = (text) => tocDoNghe() * (mayCache.get(text) === "google" ? TOC_GOOGLE : 1);
 let current = null; // { token, source, audio, utter, resolve }
 let tokenSeq = 0;
 let ctx = null;
 
-const TIMEOUT_MS = 8000;
+const TIMEOUT_MS = 12000; // #476 đủ cho Kokoro chậm (5 giây) + Google dự phòng
 
 // Thử đặt phiên âm thanh cho cả trang (chỉ khi bật trong config và trình duyệt hỗ trợ — Safari mới).
 try {
@@ -76,6 +80,7 @@ async function fetchRaw(text) {
     const buf = await res.arrayBuffer();
     if (!buf.byteLength) throw new Error("empty audio");
     rawCache.set(text, buf.slice(0));
+    mayCache.set(text, res.headers.get("X-TTS-May") === "google" ? "google" : "kokoro");
     return buf;
   } catch (e) {
     loi("am-tai-mp3", e, `dai=${text.length}`);
@@ -193,10 +198,10 @@ export function playText(text) {
   return new Promise((resolve) => {
     current = { token, source: null, audio: null, utter: null, resolve };
     // #354 nghe chậm: dùng thẻ <audio> (giữ cao độ giọng khi chậm lại); bình thường giữ Web Audio như cũ
-    if (tocDoNghe() < 1) playElement(text, token);
+    if (tocDo(text) < 1) playElement(text, token);
     else
       playWebAudio(text, token).catch((e) => {
-        if (!/^HTTP|empty audio|abort/i.test(String(e?.message || e?.name))) loi("am-webaudio", e);
+        if (!/^HTTP|empty audio|abort|can-cham/i.test(String(e?.message || e?.name))) loi("am-webaudio", e);
         playElement(text, token);
       });
   });
@@ -207,6 +212,7 @@ async function playWebAudio(text, token) {
   if (!c) throw new Error("no-webaudio");
   const buf = await getBuffer(text);
   if (!current || current.token !== token) return;
+  if (tocDo(text) < 1) throw new Error("can-cham"); // #476 âm thanh Google: chuyển sang <audio> để phát 0,9 giữ cao độ
   if (c.state !== "running") await c.resume();
   if (!current || current.token !== token) return;
   const src = c.createBufferSource();
@@ -240,7 +246,7 @@ async function playElement(text, token) {
     const url = await getUrl(text);
     if (!current || current.token !== token) return;
     const audio = new Audio(url);
-    const r = tocDoNghe();
+    const r = tocDo(text);
     if (r !== 1) {
       audio.preservesPitch = true;
       audio.playbackRate = r;
