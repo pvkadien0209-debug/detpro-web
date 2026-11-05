@@ -300,7 +300,8 @@ const TEN_PHAN_TAP = { quiz: "Trắc nghiệm", "listen-speak": "Nghe nói", "tr
 /** Bước hiện tại của một người ở một bài: t = tom[bài] (g, a, c), noi = noi[bài]. */
 export function buocCua(t, noi) {
   // đã gửi bài nói → xét bước bài nói trước (gửi rồi thì không nhắc lại từ đầu)
-  if (noi?.baoGui) return noi.ghiChu ? { b: "sua" } : !noi.xanh ? { b: "cho" } : { b: "xong" };
+  // #535 người hướng dẫn duyệt cho qua (chưa báo gửi) = đã xong bài nói
+  if (noi?.baoGui || noi?.xanh) return noi.ghiChu ? { b: "sua" } : !noi.xanh ? { b: "cho" } : { b: "xong" };
   const g = t?.g || [];
   const lam = ["quiz", "true-or-false"]; // #411
   const j = [1, 2].find((i) => !g[i]); // #411 chỉ số lá bài tập trong PART_KEYS
@@ -309,7 +310,7 @@ export function buocCua(t, noi) {
     const chuaBatDau = !t || lam.every((x) => !t.c?.[x]) && !g[1] && !g[2];
     return chuaBatDau ? { b: "doc" } : { b: "bai-tap", phan: k, dem: t.c?.[k] || 0, of: k === "true-or-false" ? 80 : 40, vang: !!t.a?.[j] };
   }
-  if (!noi?.baoGui) return { b: "noi" };
+  if (!noi?.baoGui && !noi?.xanh) return { b: "noi" };
   if (noi.ghiChu) return { b: "sua" };
   if (!noi.xanh) return { b: "cho" };
   return { b: "xong" };

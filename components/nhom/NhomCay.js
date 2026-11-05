@@ -298,7 +298,7 @@ function Inner({ ma, id }) {
   // #347 lời nhắc luôn ghi mục tiêu: bài nói cuối bài (bài tập = chuẩn bị); kèm tình trạng bài nói từng người
   // #350 lời nhắc chung: mục tiêu + 4 ý + việc ngắn của từng người
   const loiNhac = ci.u
-    ? `⏰ ${nhom.ten} — ${baiLabel(ci.u, ci.ch)}: ${ci.u.title}${ci.dh ? ` (${fmtHan(ci.dh.con)})` : ""}\n${MUC_TIEU}\n${nhacChu(nhacViec(null, baiLabel(ci.u, ci.ch), ngaySeed()))}\nTừng bạn: ${slow.map((m) => `${m.ten} — ${viecNgan(buocCua(m.tom?.[curKey], m.noi?.[curKey]))}`).join("; ") || "mọi người đã xong"}\nVào học: ${share}`
+    ? `⏰ ${nhom.ten} — ${baiLabel(ci.u, ci.ch)}: ${ci.u.title}${ci.dh ? ` (${fmtHan(ci.dh.con)})` : ""}\n${MUC_TIEU}\n${nhacChu(nhacViec(null, baiLabel(ci.u, ci.ch), ngaySeed()))}\nTừng bạn: ${slow.map((m) => `${m.ten} — ${viecNgan(buocCua(m.tom?.[curKey], m.noi?.[curKey]))}`).join("; ") || "mọi người đã xong"}${active.some((m) => !slow.includes(m)) ? `\n🎉 Đã xong: ${active.filter((m) => !slow.includes(m)).map((m) => m.ten).join(", ")}` : ""}\nVào học: ${share}`
     : "";
   // #321 dữ liệu ảnh nhắc nhở (chung)
   const anhGoc = () => ({ nv: nhacViec(null, baiLabel(ci.u, ci.ch), ngaySeed()), nhom: nhom.ten, bai: baiLabel(ci.u, ci.ch), tieuDe: ci.u.title, han: ci.dh ? hanChu(ci.dh.con) : "", link: share, tu: me.ten });
@@ -470,7 +470,7 @@ function Inner({ ma, id }) {
                       <CopyBtn text={loiNhac} className="kt-btn nh-nhaczalo">
                         Chép lời nhắc gửi Zalo
                       </CopyBtn>
-                      <AnhNhacNut ten="loi-nhac" label="Ảnh nhắc" className="kt-btn nh-nhaczalo" make={() => ({ ...anhGoc(), loai: "nhac", ds: slow.map(nguoiAnh) })} />
+                      <AnhNhacNut ten="loi-nhac" label="Ảnh nhắc" className="kt-btn nh-nhaczalo" make={() => ({ ...anhGoc(), loai: "nhac", ds: slow.map(nguoiAnh), xong: active.filter((m) => !slow.includes(m)).map((m) => m.ten) })} />
                     </div>
                   )}
                   {slow.length ? (
@@ -616,7 +616,7 @@ function Inner({ ma, id }) {
             return (
               <>
                 <p className={`nh-noistate ${noi?.xanh ? "is-green" : noi?.baoGui ? "is-yellow" : ""}`}>
-                  {noi?.xanh ? "✓ Người hướng dẫn đã nhận" : noi?.baoGui ? `Đã báo gửi ${noi.soLan > 1 ? `${noi.soLan} lần` : ""} — chờ người hướng dẫn nhận` : "Chưa gửi"}
+                  {noi?.xanh ? (noi.baoGui ? "✓ Người hướng dẫn đã nhận" : "✓ Người hướng dẫn đã duyệt cho qua") : noi?.baoGui ? `Đã báo gửi ${noi.soLan > 1 ? `${noi.soLan} lần` : ""} — chờ người hướng dẫn nhận` : "Chưa gửi"}
                   {noi?.ghiChu && (
                     <span className="nh-note2">
                       <b>Nhận xét của người hướng dẫn:</b>

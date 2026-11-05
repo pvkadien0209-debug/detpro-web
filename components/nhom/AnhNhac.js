@@ -207,6 +207,35 @@ export async function veAnhNhac(d) {
     y -= 14;
   }
 
+  // #535 người ĐÃ XONG (ảnh nhắc) — thẻ tên xanh, để hối người chưa xong
+  const xong = (d.xong || []).filter(Boolean);
+  if (xong.length) {
+    y += 56;
+    c.font = F(28, 800);
+    c.fillStyle = "#146c43";
+    c.fillText(`🎉 ĐÃ XONG (${xong.length})`, PAD, y);
+    y += 22;
+    c.font = F(28, 700);
+    const toi = 24;
+    const the = xong.slice(0, toi).map((t) => `✓ ${t.length > 16 ? `${t.slice(0, 15)}…` : t}`);
+    if (xong.length > toi) the.push(`+${xong.length - toi} bạn`);
+    let x = PAD;
+    for (const t of the) {
+      const w = c.measureText(t).width + 40;
+      if (x + w > W - PAD) {
+        x = PAD;
+        y += 70;
+      }
+      c.fillStyle = "#dcfce7";
+      boGoc(c, x, y, w, 56, 28);
+      c.fill();
+      c.fillStyle = "#146c43";
+      c.fillText(t, x + 20, y + 38);
+      x += w + 14;
+    }
+    y += 56;
+  }
+
   // chân: link vào học (+ Đét gọn trong khung)
   const fy = y + 56;
   c.fillStyle = "#fff";

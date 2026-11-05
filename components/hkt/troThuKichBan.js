@@ -47,7 +47,7 @@ export function goiY(c) {
     if (c.chuaBatDau) return { text: `Bắt đầu ${c.bai}: đọc Bài viết trước, rồi làm 2 bài tập.`, nut: { t: "Đọc Bài viết", lam: (x) => x.openPart?.("") } };
     const j = [1, 2].find((i) => !c.g?.[i]); // #411 lá bài tập
     if (j !== undefined) return { text: `Việc tiếp theo: ${PHAN[KEYS[j]]} của ${c.bai}${c.c?.[KEYS[j]] ? ` (đang ${c.c[KEYS[j]]}/${KEYS[j] === "true-or-false" ? 80 : 40})` : ""} — chuẩn bị cho bài nói cuối bài 🎯.`, nut: { t: `Làm ${PHAN[KEYS[j]]}`, lam: (x) => x.openPart?.(KEYS[j]) } };
-    if (!c.noi?.baoGui) return { text: `Bạn xong 2 bài tập của ${c.bai} — giờ tới phần quan trọng nhất 🎯: bài nói thật. Bấm hoa cuối cành lấy gợi ý, nói 1–2 phút bằng tiếng Anh, gửi qua kênh Zalo của nhóm rồi bấm “Đã gửi bài nói” — người hướng dẫn sẽ nghe và sửa cho bạn.`, nut: { t: "Mở bài nói tự do", lam: (x) => x.openFlower?.() } };
+    if (!c.noi?.baoGui && !c.noi?.xanh) return { text: `Bạn xong 2 bài tập của ${c.bai} — giờ tới phần quan trọng nhất 🎯: bài nói thật. Bấm hoa cuối cành lấy gợi ý, nói 1–2 phút bằng tiếng Anh, gửi qua kênh Zalo của nhóm rồi bấm “Đã gửi bài nói” — người hướng dẫn sẽ nghe và sửa cho bạn.`, nut: { t: "Mở bài nói tự do", lam: (x) => x.openFlower?.() } };
     if (c.lamTruoc) return { text: `Bạn xong ${c.bai} rồi — đang chờ ${c.slow || "vài"} bạn. Bạn được làm trước ${c.lamTruoc}, hoặc vào Hỏi đáp động viên mọi người.`, nut: { t: `Làm trước ${c.lamTruoc}`, lam: (x) => x.hocTiep?.() } };
     return { text: "Bạn đã làm hết phần của mình. Chờ cả nhóm xong để mở bài tiếp — bấm tên một bạn để gửi lời động viên." };
   }

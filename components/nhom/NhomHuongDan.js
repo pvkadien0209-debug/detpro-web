@@ -126,7 +126,7 @@ export function NoiTab({ ma, k, uid, data, reload, now }) {
     <div className="nh-card">
       <h2>Bài nói tự do — kiểm tra, nhận xét, duyệt đã nhận</h2>
       <p className="kt-muted">
-        Học viên gửi audio qua kênh nhóm{nhom.kenhGuiBai ? "" : " (bạn chưa dán kênh gửi bài — vào Cài đặt)"} rồi bấm “Đã gửi bài nói” → ô vàng. Bạn nghe bên đó, bấm <b>✎ Nhận xét</b> để viết nhận xét (học viên thấy trên bông của mình), rồi bấm <b>Duyệt</b> → bông xanh. Vàng quá 2 ngày có dấu ⚠.
+        Học viên gửi audio qua kênh nhóm{nhom.kenhGuiBai ? "" : " (bạn chưa dán kênh gửi bài — vào Cài đặt)"} rồi bấm “Đã gửi bài nói” → ô vàng. Bạn nghe bên đó, bấm <b>✎ Nhận xét</b> để viết nhận xét (học viên thấy trên bông của mình), rồi bấm <b>Duyệt</b> → bông xanh. Vàng quá 2 ngày có dấu ⚠. Người chưa bấm “Đã gửi” (vd gửi thẳng cho bạn) → bấm <b>Cho qua</b> ở ô, hoặc <b>Cho qua cả cột</b>.
       </p>
       <div className="nh-table-wrap">
         <table className="nh-table nh-noi">
@@ -138,6 +138,9 @@ export function NoiTab({ ma, k, uid, data, reload, now }) {
                   {baiLabel(u, i)}
                   <button type="button" className="nh-mini" onClick={() => call({ viec: "tich-cot", bai: baiKey(u) })} title="Duyệt hết các bài đã báo gửi ở cột này">
                     Duyệt cột
+                  </button>
+                  <button type="button" className="nh-mini" onClick={() => window.confirm(`Cho qua bài nói ${baiLabel(u, i)} của mọi người đang học — kể cả người chưa bấm “Đã gửi bài nói”?`) && call({ viec: "tich-cot", bai: baiKey(u), ca: true })} title="Duyệt cho qua cả cột, kể cả người chưa báo gửi">
+                    Cho qua cả cột
                   </button>
                 </th>
               ))}
@@ -153,8 +156,8 @@ export function NoiTab({ ma, k, uid, data, reload, now }) {
                   const old = n?.baoGui && !n.xanh && now - new Date(n.baoGui).getTime() > 2 * 864e5;
                   return (
                     <td key={key} className={`nh-noicell ${n?.xanh ? "is-on" : n?.baoGui ? "is-yellow" : ""}`}>
-                      <button type="button" onClick={() => call({ viec: "tich-noi", id: m.id, bai: key, xanh: !n?.xanh })}>
-                        {n?.xanh ? "✓ Đã duyệt" : n?.baoGui ? `${old ? "⚠ " : ""}Đã gửi${n.soLan > 1 ? ` ×${n.soLan}` : ""} · Duyệt` : "— · Duyệt"}
+                      <button type="button" onClick={() => call({ viec: "tich-noi", id: m.id, bai: key, xanh: !n?.xanh })} title={n?.xanh ? "Bấm để bỏ duyệt" : n?.baoGui ? "Duyệt bài đã gửi" : "Chưa báo gửi — bấm để duyệt cho qua"}>
+                        {n?.xanh ? (n.baoGui ? "✓ Đã duyệt" : "✓ Cho qua") : n?.baoGui ? `${old ? "⚠ " : ""}Đã gửi${n.soLan > 1 ? ` ×${n.soLan}` : ""} · Duyệt` : "Chưa gửi · Cho qua"}
                       </button>
                       <button type="button" className={`nh-noinote ${n?.ghiChu ? "has-nx" : ""}`} onClick={() => setSua({ m, u, key })} title={n?.ghiChu || "Viết nhận xét"}>
                         {n?.ghiChu ? `✎ ${n.ghiChu.replace(/\*\*/g, "").replace(/\s+/g, " ").slice(0, 28)}…` : "✎ Nhận xét"}
