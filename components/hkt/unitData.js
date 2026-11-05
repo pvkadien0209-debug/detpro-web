@@ -154,7 +154,28 @@ export function shuffle(arr) {
   return a;
 }
 
-/** Số câu phần True or false của một bài 40 câu: 80 (#060). */
+// ---------- #534 Hai bản bài tập (anh 05/11): Trắc nghiệm 20 câu · True or false 40 câu, chọn làm 1 trong 2 bản ----------
+// 40 câu chia 2 bộ A / B xen kẽ theo đoạn (câu cùng đoạn chia đều 2 bộ) → bộ nào cũng rải khắp bài.
+// Trắc nghiệm Bản 1 = A, Bản 2 = B · True or false Bản 1 = B, Bản 2 = A (mỗi câu 1 lần Đúng + 1 lần Sai = 40)
+// → làm "Bản 1 + Bản 1" (hoặc "2 + 2") là phủ đủ 40 ý của bài. Tiến độ vẫn lưu theo số câu gốc 0–39.
+export const BAN_SO_CAU = { quiz: 20, "true-or-false": 40 };
+export function boCau(qs) {
+  const thu = [];
+  qs.forEach((q, i) => {
+    if (!thu.includes(q.para)) thu.push(q.para);
+  });
+  const xep = qs.map((q, i) => i).sort((a, b) => thu.indexOf(qs[a].para) - thu.indexOf(qs[b].para) || a - b);
+  return [xep.filter((_, k) => k % 2 === 0).sort((a, b) => a - b), xep.filter((_, k) => k % 2 === 1).sort((a, b) => a - b)];
+}
+export const banCuaPhan = (prog, kind) => (prog?.ban?.[kind] === 2 ? 2 : 1);
+/** Số câu gốc của một bản: quiz Bản 1 = A, Bản 2 = B; True or false ngược lại. */
+export function cauCuaBan(qs, kind, ban) {
+  const [A, B] = boCau(qs);
+  const dau = kind === "quiz" ? ban === 1 : ban === 2;
+  return dau ? A : B;
+}
+
+/** Số câu phần True or false của một bài 40 câu: 80 (#060). #534: một bản 20 câu hỏi → 40. */
 export const qaTotal = (n) => n * 2;
 
 /**
@@ -350,7 +371,7 @@ export function partDone(p, key, total = 40) {
   if (!p) return false;
   if (key === "") return !!p.seen?.article;
   if (key === "info") return !!p.seen?.info;
-  if (key === "quiz") return Object.keys(p.pick?.ok || {}).length >= total;
+  if (key === "quiz") return Object.keys(p.pick?.ok || {}).length >= total / 2; // #534 đúng hết 1 bản (20 câu)
   if (key === "listen-speak") return Object.keys(p.say?.ok || {}).length >= total;
   if (key === "true-or-false") return !!p.qa?.finished;
   return false;

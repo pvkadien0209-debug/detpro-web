@@ -32,6 +32,9 @@ export function idFromName(name = "") {
 }
 
 const nOk = (o) => Object.keys(o || {}).length;
+// #534 Trắc nghiệm còn 20 câu / bản: ngưỡng nhóm (đặt trên thang 40) quy về thang 20; True or false 1 bản = 40 câu
+export const canQuiz = (ng) => Math.max(1, Math.ceil((Math.min(40, +ng?.quiz || 40) * 20) / 40));
+const tfSo = (p) => p?.qa?.items?.length || 40;
 
 /** ĐẠT điều kiện của một phần trong nhóm — ngưỡng nhóm thay cho "xong phần" mặc định (4a). p = tiến độ một bài (như localStorage). */
 export function partDatNhom(p, key, ng = NGUONG_MAC_DINH, total = 40) {
@@ -39,14 +42,14 @@ export function partDatNhom(p, key, ng = NGUONG_MAC_DINH, total = 40) {
   ng = { ...NGUONG_MAC_DINH, ...(ng || {}) };
   if (key === "") return !!p.seen?.article;
   if (key === "info") return !!p.seen?.info;
-  if (key === "quiz") return nOk(p.pick?.ok) >= Math.min(total, +ng.quiz || total);
+  if (key === "quiz") return nOk(p.pick?.ok) >= canQuiz(ng);
   if (key === "listen-speak") return nOk(p.say?.ok) >= Math.min(total, +ng["listen-speak"] || total);
   if (key === "true-or-false") {
     const qa = p.qa;
     if (!qa) return false;
     if (ng.tf === "xong" || !ng.tf) return !!qa.finished;
     // đúng ≥ N% số câu của lượt (tính khi đã làm hết lượt hoặc đã đủ số câu đúng)
-    const items = qa.items?.length || total * 2;
+    const items = qa.items?.length || total;
     const right = Object.values(qa.done || {}).filter((d) => d.right).length;
     return right >= Math.ceil((items * +ng.tf) / 100);
   }
@@ -65,11 +68,11 @@ export function dieuKien(p, key, ng = NGUONG_MAC_DINH) {
   const dat = partDatNhom(pp, key, ng);
   if (key === "") return { dat, text: "Đọc hết bài viết" };
   if (key === "info") return { dat, text: "Bảng chỉ để xem, không chọn đáp án — mở là xong", tuXong: true };
-  if (key === "quiz") return { dat, text: `Trắc nghiệm đúng ${ng.quiz}/40 — đang ${partCount(p, "quiz")}/40` };
+  if (key === "quiz") return { dat, text: `Trắc nghiệm đúng ${canQuiz(ng)}/20 (1 bản) — đang ${Math.min(20, partCount(p, "quiz"))}/20` };
   if (key === "listen-speak") return { dat, text: `Nghe nói đúng ${ng["listen-speak"]}/40 — đang ${partCount(p, "listen-speak")}/40` };
   if (key === "true-or-false") {
     const right = Object.values(p?.qa?.done || {}).filter((d) => d.right).length;
-    return { dat, text: ng.tf === "xong" || !ng.tf ? `Làm hết lượt True or false — đã làm ${partCount(p, key)}/${p?.qa?.items?.length || 80}` : `True or false đúng từ ${ng.tf}% — đang đúng ${right}/${p?.qa?.items?.length || 80}` };
+    return { dat, text: ng.tf === "xong" || !ng.tf ? `Làm hết lượt True or false — đã làm ${partCount(p, key)}/${tfSo(p)}` : `True or false đúng từ ${ng.tf}% — đang đúng ${right}/${tfSo(p)}` };
   }
   return { dat, text: "" };
 }
@@ -93,8 +96,9 @@ export function dangDo(p, ng) {
   if (k === undefined) return "xong";
   if (PHAN_TAP.every((x) => !partCount(p, x)) && !PHAN_TAP.some((x) => p?.xong?.[x])) return "chưa bắt đầu";
   if (partDatNhom(p, k, ng)) return `${PART_SHORT[k]}: đạt, chưa bấm "Đã xong"`;
-  if (k === "quiz" || k === "listen-speak") return `${PART_SHORT[k]} ${partCount(p, k)}/40`;
-  if (k === "true-or-false") return `${PART_SHORT[k]} ${partCount(p, k)}/80`;
+  if (k === "quiz") return `${PART_SHORT[k]} ${Math.min(20, partCount(p, k))}/20`;
+  if (k === "listen-speak") return `${PART_SHORT[k]} ${partCount(p, k)}/40`;
+  if (k === "true-or-false") return `${PART_SHORT[k]} ${partCount(p, k)}/${tfSo(p)}`;
   return `chưa xem ${PART_SHORT[k]}`;
 }
 
@@ -193,9 +197,9 @@ export const phanDangLam = (t) => {
 export const PART_TIP = {
   "": "Đọc bài viết — chú ý chữ tô đậm",
   info: "Bảng 40 câu — tự tìm đáp án trong bài",
-  quiz: "Trắc nghiệm 40 câu, mỗi câu chọn 1 lần",
+  quiz: "Trắc nghiệm 20 câu (2 bản, chọn 1), mỗi câu chọn 1 lần",
   "listen-speak": "Nghe câu hỏi, nói lại đáp án đúng",
-  "true-or-false": "80 câu đúng / sai, luyện phản xạ",
+  "true-or-false": "40 câu đúng / sai (2 bản, chọn 1), luyện phản xạ",
 };
 
 // ---------- #290 Đợt 3: gộp tiến độ theo TỪNG CÂU (hai máy / hai tab cùng làm một bài không ghi đè nhau) ----------
@@ -235,7 +239,7 @@ function gopPhan(cu, moi, key) {
   if (!cu || typeof cu !== "object") return moi;
   if (!moi || typeof moi !== "object") return cu;
   if (luOf(cu) !== luOf(moi)) return luOf(moi) > luOf(cu) ? moi : cu;
-  if (key === "qa") return gopQa(cu, moi);
+  if (key === "qa") return (cu.ban || 0) !== (moi.ban || 0) ? moi : gopQa(cu, moi); // #534 khác bản → lấy bản mới gửi
   const o = { ...cu, ...moi, ok: { ...(cu.ok || {}), ...(moi.ok || {}) }, wrong: Math.max(+cu.wrong || 0, +moi.wrong || 0) };
   if (key === "pick") o.bad = { ...(cu.bad || {}), ...(moi.bad || {}) };
   else {

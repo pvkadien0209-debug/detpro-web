@@ -38,7 +38,7 @@ export const GUIDES = {
     buoc: [
       "Nghe / đọc câu hỏi, chọn 1 trong 3 đáp án — mỗi câu chỉ chọn 1 lần. Sai thì thấy ngay đáp án đúng, không tự sang câu: xem lại rồi tự bấm “Câu tiếp”.",
       "Bấm “Giải thích” để hiểu vì sao đúng — đọc lại đoạn bài liên quan.",
-      "Xong cả 40 câu có báo cáo: bấm “Luyện lại câu sai” để làm lại những câu sai.",
+      "Có 2 bản, mỗi bản 20 câu — chọn làm 1. Xong 20 câu có báo cáo: bấm “Luyện lại câu sai” để làm lại những câu sai.",
     ],
   },
   "listen-speak": {
@@ -57,7 +57,7 @@ export const GUIDES = {
     buoc: [
       "Nghe câu hỏi và một câu trả lời — câu trả lời đó đúng hay sai?",
       "Bấm True / False (hoặc nói “true” / “false”). Đúng +1, sai −1, không chọn lại.",
-      "80 câu: 40 đúng + 40 sai trộn đều — trả lời nhanh để luyện phản xạ.",
+      "Mỗi bản 40 câu: 20 đúng + 20 sai trộn đều — trả lời nhanh để luyện phản xạ. Có 2 bản, chọn làm 1.",
     ],
   },
   nhom: {

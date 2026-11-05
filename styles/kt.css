@@ -1679,3 +1679,10 @@ body:has(#NOPBAITAP) .tt-goc, body:has(.rl-phong) .tt-goc { display: none !impor
 .ql-loi .nh-table td { white-space: normal; vertical-align: top; }
 .ql-loi .kt-btn { margin-top: 8px; height: 38px; }
 .ql-loi .nh-code { white-space: nowrap; }
+/* #534 chọn bản bài tập (Trắc nghiệm 20 câu · True or false 40 câu) */
+.kt-ban { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 0 0 8px; }
+.kt-ban-nut { border: 1px solid #9fd3c5; background: #fff; color: #0b5747; border-radius: 999px; padding: 5px 12px; font-weight: 700; font-size: 14px; cursor: pointer; }
+.kt-ban-nut small { font-weight: 500; color: #3f9a84; }
+.kt-ban-nut.is-on { background: #0f6e5a; border-color: #0f6e5a; color: #fff; }
+.kt-ban-nut.is-on small { color: #cfe9e1; }
+.kt-ban-goi { flex-basis: 100%; font-size: 12.5px; color: var(--kt-muted, #5b6b66); }

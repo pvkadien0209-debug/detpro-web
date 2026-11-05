@@ -13,7 +13,7 @@ import PartGuide from "./PartGuide"; // #231 hướng dẫn riêng từng phần
 import { useNhom, inPopup } from "@/components/nhom/nhomClient";
 import { NutCham } from "./hoTro"; // #354
 import { useBaoTroThu } from "./troThuCtx"; // #269
-import { partDoneNhom, unitGreenCount, unitGreen, baiMo, dieuKien, PHAN_TAP, gopTienDo } from "./nhomRules";
+import { partDoneNhom, unitGreenCount, unitGreen, baiMo, dieuKien, PHAN_TAP, gopTienDo, canQuiz } from "./nhomRules";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import HomeVideos from "./HomeVideos"; // #253
 import { GUIDE_VIDEOS } from "./trangChuVideoData";
@@ -23,6 +23,7 @@ import { ChevronLeft, ChevronDown, Check, PanelRight, X, CircleCheck } from "luc
 import {
   loadUnit, loadUnitsIndex, primeUnit, PARTS, PARTS_ROUTE, unitPath, readUnitProgress, writeUnitProgress, unitKey, unitSummary,
   writeLastUnit, partDone, unitDoneCount, lowerFirst, levelOfQuestions } from "./unitData";
+import BanPart from "./BanPart"; // #534 2 bản bài tập
 import { useBodyClass } from "./KtShell";
 import { PART_ICONS, partMeta } from "./TopicCourse";
 import {
@@ -308,7 +309,7 @@ export default function UnitPage({ initialUnit = null }) {
   // #269 báo cho Đét trợ thủ: bài này đã làm tới đâu, đi tới phần nào
   useBaoTroThu(() => {
     const nOk = (o) => Object.keys(o || {}).length;
-    const dem = { quiz: [nOk(prog.pick?.ok), 40, grp?.ng.quiz], "listen-speak": [nOk(prog.say?.ok), 40, grp?.ng["listen-speak"]], "true-or-false": [nOk(prog.qa?.done), prog.qa?.items?.length || 80, null] };
+    const dem = { quiz: [Math.min(20, nOk(prog.pick?.ok)), 20, grp ? canQuiz(grp.ng) : undefined], "listen-speak": [nOk(prog.say?.ok), 40, grp?.ng["listen-speak"]], "true-or-false": [nOk(prog.qa?.done), prog.qa?.items?.length || 40, null] }; // #534 2 bản
     return {
       loai: "bai", nhom: !!grp, part,
       parts: PARTS.map((p) => ({ key: p.key, done: pDone(prog, p.key), dat: !!grp && PHAN_TAP.includes(p.key) && dieuKien(prog, p.key, grp.ng).dat, count: dem[p.key]?.[0], of: dem[p.key]?.[1], can: dem[p.key]?.[2] })),
@@ -493,9 +494,9 @@ export default function UnitPage({ initialUnit = null }) {
                 <QuestionTable questions={qs} player={player} />
               </>
             )}
-            {part === "quiz" && <PickPart {...common} onNextPart={nextStep ? onNextPart : null} />}
+            {part === "quiz" && <BanPart kind="quiz" Comp={PickPart} {...common} onNextPart={nextStep ? onNextPart : null} />}
             {part === "listen-speak" && <SayPart {...common} onNextPart={nextStep ? onNextPart : null} />}
-            {part === "true-or-false" && <TrueFalsePart {...common} results={<UnitResults s={summary} />} onNextPart={nextStep ? onNextPart : null} />}
+            {part === "true-or-false" && <BanPart kind="true-or-false" Comp={TrueFalsePart} {...common} results={<UnitResults s={summary} />} onNextPart={nextStep ? onNextPart : null} />}
             {grp && PHAN_TAP.includes(part) && <XongMoc prog={prog} part={part} ng={grp.ng} label={partInfo?.label} onXong={() => {
               update((p) => ({ xong: { ...(p.xong || {}), [part]: Date.now() }, ...(part === "" || part === "info" ? { seen: { ...(p.seen || {}), [part === "" ? "article" : "info"]: 1 } } : {}) }));
               grp.flushNow?.();

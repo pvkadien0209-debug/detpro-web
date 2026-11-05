@@ -14,7 +14,7 @@ import { LEVELS, bandOf } from "./unitData"; // #244
 import { loadUnitsIndex, unitPath, audiencePath, readUnitProgress, partDone, unitDoneCount, PARTS, learnTypePath, lowerFirst } from "./unitData";
 
 export const PART_ICONS = { "": BookOpen, info: Table2, quiz: MousePointerClick, "listen-speak": Mic, "true-or-false": ListChecks };
-export const partMeta = (key, u) => ({ "": `${u.readMin || 6} phút đọc`, info: "40 câu", quiz: "40 câu", "listen-speak": "40 câu", "true-or-false": "80 câu" }[key]);
+export const partMeta = (key, u) => ({ "": `${u.readMin || 6} phút đọc`, info: "40 câu", quiz: "20 câu · 2 bản", "listen-speak": "40 câu", "true-or-false": "40 câu · 2 bản" }[key]);
 
 /** Bài nên học tiếp trong chuỗi: bài đầu tiên chưa xong đủ 5 phần. */
 export function nextUnit(units) {
