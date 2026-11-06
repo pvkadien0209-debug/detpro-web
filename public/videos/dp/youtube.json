@@ -20,6 +20,7 @@
   },
   "how-to-plan-your-workday--w01": {
     "id": "yVa57DKmUrM",
+    "cheDo": "cong-khai",
     "at": "2026-11-04T11:00:00Z"
   },
   "how-to-plan-your-work-week--w01": {
@@ -97,6 +98,7 @@
   },
   "bar-exam-overview-main--w01": {
     "id": "1jJ63xkCAeg",
+    "cheDo": "cong-khai",
     "at": "2026-11-05T02:00:00Z"
   },
   "bar-w1-civil-overview--w01": {
@@ -143,5 +145,9 @@
   "family-debt-overview--w01": {
     "id": "DSgf0hcjHaA",
     "at": "2026-11-11T11:00:00Z"
+  },
+  "finance-epc-overview--w01": {
+    "id": "zFOFyAsmj5U",
+    "at": "2026-11-12T02:00:00Z"
   }
 }
