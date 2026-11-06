@@ -42,10 +42,12 @@ export async function POST(req) {
     } catch {
       /* giữ nguyên */
     }
+    // #606 đường trang nhóm có mã người học (/nhom/<mã>/<người>/…) → che phần người (không lưu tên)
+    const che = (t) => t.replace(/\/nhom\/([A-Za-z0-9]+)\/[^/\s·?#]+/g, "/nhom/$1/*");
     await (await col()).insertOne({
       loai,
-      chiTiet: cat(b.chiTiet, 500),
-      trang,
+      chiTiet: che(cat(b.chiTiet, 500)),
+      trang: che(trang),
       ua: cat(req.headers.get("user-agent"), 200),
       luc: new Date(),
     });

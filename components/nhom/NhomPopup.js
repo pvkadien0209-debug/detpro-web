@@ -2,8 +2,9 @@
 // #250 (NHA A3, D, E) — cửa sổ nổi trong trang nhóm:
 //   PartPopup: làm một phần bài NGAY TRÊN CÂY (iframe cùng trang web, dùng chung PIN — xem nhomClient.inPopup), đóng lại thì cây tải lại.
 //   QaPopup: Hỏi đáp của MỘT bài (nút nhỏ trên thân cây) — chỉ hiện tin gắn bài đó, gửi tin mới tự gắn nhãn bài.
-import React, { useEffect, useRef } from "react";
-import { X } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { X, Maximize2 } from "lucide-react";
+import { baoLoi } from "@/components/hkt/baoLoi";
 import { NhomChat } from "./NhomShared";
 import { PART_SHORT } from "@/components/hkt/nhomRules";
 
@@ -52,15 +53,53 @@ function Shell({ title, onClose, wide, children, extra }) {
   );
 }
 
-/** Làm phần bài trong cửa sổ nổi. href = đường dẫn bài trong nhóm (nhomUnitPath). */
+/** Làm phần bài trong cửa sổ nổi. href = đường dẫn bài trong nhóm (nhomUnitPath).
+ *  #581 khung không tải được (trình duyệt hiện "This page couldn't load" — vd Cốc Cốc) → phát hiện (trang lỗi của trình duyệt
+ *  không đọc được địa chỉ / quá 25 giây chưa tải) → hiện nút "Mở toàn trang" + gửi lỗi về loi_web. Luôn có nút "Mở toàn trang". */
 export function PartPopup({ title, href, onClose }) {
+  const [loi, setLoi] = useState(false);
+  const xong = useRef(false);
+  useEffect(() => {
+    const t = setTimeout(() => {
+      if (xong.current) return;
+      setLoi(true);
+      baoLoi("nhom-khung-cham", href);
+    }, 25000);
+    return () => clearTimeout(t);
+  }, [href]);
+  const onLoad = (e) => {
+    xong.current = true;
+    let hong = false;
+    try {
+      const d = e.currentTarget.contentWindow.location.href; // trang lỗi của trình duyệt (chrome-error://) → đọc là ném lỗi
+      hong = !d || d === "about:blank";
+    } catch {
+      hong = true;
+    }
+    if (hong) {
+      setLoi(true);
+      baoLoi("nhom-khung-loi", `${href} · ${navigator.userAgent.slice(0, 160)}`);
+    } else setLoi(false);
+  };
+  const toanTrang = (
+    <a className="nh-pop-full" href={href} target="_top">
+      <Maximize2 size={15} aria-hidden="true" /> Mở toàn trang
+    </a>
+  );
   return (
-    <Shell
-      title={title}
-      onClose={onClose}
-      wide
-    >
-      <iframe className="nh-pop-frame" src={href} title={title} />
+    <Shell title={title} onClose={onClose} wide extra={toanTrang}>
+      <iframe className="nh-pop-frame" src={href} title={title} onLoad={onLoad} />
+      {loi && (
+        <div className="nh-pop-loi" role="alert">
+          <p>Khung bài chưa tải được trên trình duyệt này.</p>
+          <a className="nh-pop-full is-to" href={href} target="_top">
+            <Maximize2 size={18} aria-hidden="true" /> Mở bài toàn trang
+          </a>
+          <button type="button" onClick={onClose}>
+            Quay lại cây nhóm
+          </button>
+        </div>
+      )}
     </Shell>
   );
 }
