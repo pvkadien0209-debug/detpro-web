@@ -16,6 +16,7 @@
   },
   "how-to-prioritize-urgent-and-important-tasks--w01": {
     "id": "3SZiztJhcaE",
+    "cheDo": "cong-khai",
     "at": "2026-11-06T11:00:00Z"
   },
   "how-to-plan-your-workday--w01": {
@@ -103,6 +104,7 @@
   },
   "bar-w1-civil-overview--w01": {
     "id": "ejA9Npt8TJQ",
+    "cheDo": "cong-khai",
     "at": "2026-11-06T02:00:00Z"
   },
   "bar-w2-overview--w01": {
@@ -136,6 +138,7 @@
   },
   "how-to-estimate-time-and-meet-deadlines--w01": {
     "id": "lL7Pb8mLUJM",
+    "cheDo": "cong-khai",
     "at": "2026-11-05T11:00:00Z"
   },
   "a-day-within-a-day--w01": {
@@ -149,5 +152,9 @@
   "finance-epc-overview--w01": {
     "id": "zFOFyAsmj5U",
     "at": "2026-11-12T02:00:00Z"
+  },
+  "first-startup-after-35-overview--w01": {
+    "id": "J43-N_1A8L8",
+    "at": "2026-11-12T11:00:00Z"
   }
 }
