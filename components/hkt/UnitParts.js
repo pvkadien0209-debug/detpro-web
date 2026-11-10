@@ -4,7 +4,7 @@
 // Kế hoạch: DetPro/san-pham/sp08-bai-hoc-theo-nguoi-nghe.md §3–§4, §8.
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@/lib/router"; // Next.js: thay react-router-dom
-import { Volume2, Square, Mic, Keyboard, Check, X, ClipboardList, ArrowRight, ArrowLeft, RotateCcw, Headphones, Send, Grid3x3, Shuffle, Languages, BarChart3, Eraser } from "lucide-react";
+import { Volume2, Square, Loader2, Mic, Keyboard, Check, X, ClipboardList, ArrowRight, ArrowLeft, RotateCcw, Headphones, Send, Grid3x3, Shuffle, Languages, BarChart3, Eraser } from "lucide-react";
 import { KT_STORAGE } from "./config";
 import useStoredState from "./useStoredState";
 import useSpeechInput, { speechSupported } from "./useSpeechInput";
@@ -21,38 +21,45 @@ const html = (s) => ({ __html: s });
 // ---------- Phát âm: một khoá chung cho cả trang (không phát chồng) ----------
 export function usePlayer() {
   const [playing, setPlaying] = useState(null);
+  const [cho, setCho] = useState(null); // #706 id đang chờ máy chủ trả tiếng (đã nhận bấm, chưa có tiếng)
   const ref = useRef(null);
   ref.current = playing;
   const play = useCallback(async (id, text) => {
     if (ref.current === id) {
       stopAudio();
       setPlaying(null);
+      setCho(null);
       return;
     }
     stopAudio();
     setPlaying(id);
-    await playText(text);
+    setCho(id);
+    await playText(text, { onStart: () => setCho((c) => (c === id ? null : c)) });
     setPlaying((p) => (p === id ? null : p));
+    setCho((c) => (c === id ? null : c));
   }, []);
   const stop = useCallback(() => {
     stopAudio();
     setPlaying(null);
+    setCho(null);
   }, []);
   useEffect(() => () => stopAudio(), []);
-  return { playing, play, stop };
+  return { playing, cho, play, stop };
 }
 
 export function Listen({ player, id, text, children, className = "", title }) {
   const on = player.playing === id;
+  const tai = on && player.cho === id; // #706 đã nhận bấm, đang chờ tiếng
   return (
     <button
       type="button"
-      className={`hkt-listen ${className} ${on ? "is-playing" : ""}`}
+      className={`hkt-listen ${className} ${on ? "is-playing" : ""} ${tai ? "is-loading" : ""}`}
       onClick={() => player.play(id, text)}
       aria-pressed={on}
-      title={title}
+      aria-busy={tai || undefined}
+      title={tai ? "Đang tải âm thanh… bấm lần nữa để huỷ" : title}
     >
-      {on ? <Square size={16} aria-hidden="true" /> : <Volume2 size={16} aria-hidden="true" />}
+      {tai ? <Loader2 size={16} className="hkt-xoay" aria-hidden="true" /> : on ? <Square size={16} aria-hidden="true" /> : <Volume2 size={16} aria-hidden="true" />}
       {children}
     </button>
   );

@@ -116,6 +116,18 @@ async function getUrl(text) {
   return url;
 }
 
+// #706 báo tiếng đã bắt đầu (một lần / lượt)
+function batDau(token) {
+  if (!current || current.token !== token || !current.onStart) return;
+  const f = current.onStart;
+  current.onStart = null;
+  try {
+    f();
+  } catch {
+    /* bỏ qua */
+  }
+}
+
 function finish(token) {
   if (!current || current.token !== token) return;
   const { resolve } = current;
@@ -184,7 +196,10 @@ export function releaseAudioForMic() {
  */
 import { tocDoNghe } from "./hoTro"; // #354 nghe chậm
 
-export function playText(text) {
+/**
+ * #706 opts.onStart(): gọi MỘT lần khi tiếng thật sự bắt đầu (để nút đổi từ "đang tải" sang "đang phát").
+ */
+export function playText(text, opts = {}) {
   stopAudio();
   const token = ++tokenSeq;
   datPhien("playback");
@@ -196,7 +211,7 @@ export function playText(text) {
     /* bỏ qua */
   }
   return new Promise((resolve) => {
-    current = { token, source: null, audio: null, utter: null, resolve };
+    current = { token, source: null, audio: null, utter: null, resolve, onStart: typeof opts.onStart === "function" ? opts.onStart : null };
     // #354 nghe chậm: dùng thẻ <audio> (giữ cao độ giọng khi chậm lại); bình thường giữ Web Audio như cũ
     if (tocDo(text) < 1) playElement(text, token);
     else
@@ -221,6 +236,7 @@ async function playWebAudio(text, token) {
   src.onended = () => finish(token);
   current.source = src;
   src.start();
+  batDau(token);
   // #467 kiểm sau khi phát: AudioContext không chạy = iPhone/Android chặn tiếng
   setTimeout(() => {
     if (current && current.source === src && c.state !== "running") loi("am-ctx-dung", "ctx khong chay sau khi phat");
@@ -258,6 +274,7 @@ async function playElement(text, token) {
       speakBrowser(text, token);
     };
     await audio.play();
+    batDau(token);
   } catch (e) {
     if (!/^HTTP|empty audio|abort/i.test(String(e?.message || e?.name))) loi("am-audio-the", e);
     speakBrowser(text, token);
@@ -278,6 +295,7 @@ function speakBrowser(text, token) {
   u.rate = 0.9 * tocDoNghe();
   const voice = synth.getVoices().find((v) => v.lang && v.lang.startsWith("en"));
   if (voice) u.voice = voice;
+  u.onstart = () => batDau(token);
   u.onend = () => finish(token);
   u.onerror = (ev) => {
     loi("am-giong-loi", ev?.error || "onerror");

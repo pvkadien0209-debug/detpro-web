@@ -3,7 +3,7 @@
 // chọn cách hiện chữ: Câu hỏi · Đáp án · Cả hai · Không hiện (nghe chay). Bấm một câu để nghe từ câu đó.
 // Giọng: playText (audioPlayer.js → /api/tts, dự phòng giọng trình duyệt). Tự cuộn tới câu đang đọc.
 import React, { useEffect, useRef, useState } from "react";
-import { Play, Pause, SkipBack, SkipForward, Repeat } from "lucide-react";
+import { Play, Pause, SkipBack, SkipForward, Repeat, Loader2 } from "lucide-react";
 import { playText, stopAudio } from "./audioPlayer";
 
 const SHOW = [
@@ -22,6 +22,7 @@ export default function ListenAll({ questions }) {
   const [cur, setCur] = useState(-1);
   const [step, setStep] = useState(""); // "q" | "a" — đang đọc câu hỏi hay đáp án
   const [playing, setPlaying] = useState(false);
+  const [cho, setCho] = useState(false); // #706 đang chờ tiếng câu hiện tại
   const run = useRef(0);
   const listRef = useRef(null);
   const n = questions.length;
@@ -47,13 +48,17 @@ export default function ListenAll({ questions }) {
       const q = questions[i];
       setCur(i);
       setStep("q");
-      await playText(q.q);
+      setCho(true);
+      await playText(q.q, { onStart: () => setCho(false) });
+      setCho(false);
       if (id !== run.current) return;
       if (readAnswer) {
         await wait(700);
         if (id !== run.current) return;
         setStep("a");
-        await playText(q.options[0]);
+        setCho(true);
+        await playText(q.options[0], { onStart: () => setCho(false) });
+        setCho(false);
         if (id !== run.current) return;
       }
       await wait(1200);
@@ -62,6 +67,7 @@ export default function ListenAll({ questions }) {
     if (id === run.current) {
       setPlaying(false);
       setStep("");
+      setCho(false);
     }
   }
   function stop() {
@@ -69,6 +75,7 @@ export default function ListenAll({ questions }) {
     stopAudio();
     setPlaying(false);
     setStep("");
+    setCho(false);
   }
   const go = (d) => start(Math.max(0, Math.min(n - 1, (cur < 0 ? 0 : cur) + d)));
 
@@ -77,8 +84,8 @@ export default function ListenAll({ questions }) {
       <div className="kt-la-bar">
         <div className="kt-la-main">
           <button type="button" className="kt-la-play" onClick={() => (playing ? stop() : start(cur < 0 || cur >= n - 1 ? 0 : cur))} aria-label={playing ? "Dừng" : "Nghe tất cả"}>
-            {playing ? <Pause size={20} /> : <Play size={20} fill="currentColor" />}
-            <span>{playing ? "Dừng" : cur > 0 ? "Nghe tiếp" : `Nghe tất cả ${n} câu`}</span>
+            {playing && cho ? <Loader2 size={20} className="hkt-xoay" aria-hidden="true" /> : playing ? <Pause size={20} /> : <Play size={20} fill="currentColor" />}
+            <span>{playing && cho ? "Đang tải…" : playing ? "Dừng" : cur > 0 ? "Nghe tiếp" : `Nghe tất cả ${n} câu`}</span>
           </button>
           <button type="button" className="kt-la-ico" onClick={() => go(-1)} aria-label="Câu trước" disabled={cur <= 0}>
             <SkipBack size={18} />
