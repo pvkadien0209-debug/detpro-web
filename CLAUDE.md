@@ -25,7 +25,7 @@
 
 ## Bảo mật
 - Không in / ghi / commit giá trị `MONGODB_URI`, `DRIVE_API_KEY`, `QUANLI_MATKHAU`; `.env.local` chỉ ở máy; khoá gốc ở `DetPro-QuanTri\bi-mat\`.
-- Dữ liệu học viên chỉ ở MongoDB, không xuất ra tệp / mail (route `mail-homework` cũ là giả, không gửi gì).
+- Dữ liệu học viên chỉ ở MongoDB, không xuất ra tệp / mail. Ngoại lệ #709: `lib/baoMail.server.js` gửi thư "xong một phần bài tập" CHỈ về mail anh (khoá `GMAIL_USER`, `GMAIL_APP_PASSWORD`; `BAO_MAIL_TAT=1` để tắt).
 
 ## Kỹ thuật
 - Next.js 16 App Router (JS, Turbopack), React 19, MongoDB 7. `npm run dev` / `build` / `start` cổng 3001; `npm run dong-bo` chép dữ liệu bài từ project cũ.
