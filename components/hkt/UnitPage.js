@@ -31,6 +31,7 @@ import {
 } from "./UnitParts";
 import UnitVideo, { useVideoSet, hasVideo } from "./UnitVideo";
 import VongDet, { SIGN, VongDetLoading } from "./VongDet";
+import EmailBaoCao from "@/components/nhom/EmailBaoCao"; // #900
 // Next.js: KnowledgeLesson.css nạp toàn cục ở app/layout.js
 // Next.js: KnowledgePages.css nạp toàn cục ở app/layout.js
 // Next.js: UnitPage.css nạp toàn cục ở app/layout.js
@@ -83,6 +84,7 @@ export default function UnitPage({ initialUnit = null }) {
   const sideRef = useRef(null);
   useBodyClass("kt-shell");
   const grp = useNhom(); // null khi học riêng
+  const [vuaXong, setVuaXong] = useState(null); // #900
   const [vidsOpen, setVidsOpen] = useState(false); // #253 trong nhóm: xem video hướng dẫn trong cửa sổ, không rời nhóm
   const vset = useVideoSet(); // #241 tick xanh bài có video trong mục lục
   const readProg = grp ? grp.readProg : readUnitProgress;
@@ -500,7 +502,9 @@ export default function UnitPage({ initialUnit = null }) {
             {grp && PHAN_TAP.includes(part) && <XongMoc prog={prog} part={part} ng={grp.ng} label={partInfo?.label} onXong={() => {
               update((p) => ({ xong: { ...(p.xong || {}), [part]: Date.now() }, ...(part === "" || part === "info" ? { seen: { ...(p.seen || {}), [part === "" ? "article" : "info"]: 1 } } : {}) }));
               grp.flushNow?.();
+              setVuaXong(part); // #900 mời nhận báo cáo qua email ngay lúc vừa xong
             }} onNext={nextStep ? () => goStep(nextStep) : null} />}
+            {grp && vuaXong === part && <EmailBaoCao ma={grp.ma} id={grp.id} kieu="xong" />}
             {hoiBang && (
               <div className="kt-hoibang" role="dialog" aria-modal="true" aria-label="Xem Bảng 40 câu trước?">
                 <div className="kt-hoibang-box">

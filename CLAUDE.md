@@ -26,6 +26,7 @@
 ## Bảo mật
 - Không in / ghi / commit giá trị `MONGODB_URI`, `DRIVE_API_KEY`, `QUANLI_MATKHAU`; `.env.local` chỉ ở máy; khoá gốc ở `DetPro-QuanTri\bi-mat\`.
 - Dữ liệu học viên chỉ ở MongoDB, không xuất ra tệp / mail. Ngoại lệ #709: `lib/baoMail.server.js` gửi thư "xong một phần bài tập" CHỈ về mail anh (khoá `GMAIL_USER`, `GMAIL_APP_PASSWORD`; `BAO_MAIL_TAT=1` để tắt).
+- #900 thư cho NGƯỜI HỌC: chỉ gửi về email CHÍNH họ đã bấm link xác nhận (`thanh_vien.mail`; không bao giờ trả email qua `pubMember`/API công khai): nhắc 19:00 (Vercel Cron `/api/cron/nhac-email`, `CRON_SECRET` tuỳ chọn), chúc mừng xong phần, nhận xét bài nói mới; mỗi thư có link tắt.
 
 ## Kỹ thuật
 - Next.js 16 App Router (JS, Turbopack), React 19, MongoDB 7. `npm run dev` / `build` / `start` cổng 3001; `npm run dong-bo` chép dữ liệu bài từ project cũ.

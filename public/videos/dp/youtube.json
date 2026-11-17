@@ -81,10 +81,12 @@
   },
   "english-interview-questions-to-prepare--w01": {
     "id": "9G7jO2AwQ7Q",
+    "cheDo": "cong-khai",
     "at": "2026-11-09T11:00:00Z"
   },
   "b2-grammar-range--w01": {
     "id": "ECMmH9bbxxY",
+    "cheDo": "cong-khai",
     "at": "2026-11-10T11:00:00Z"
   },
   "bar-admission-overview--w01": {
@@ -109,18 +111,22 @@
   },
   "bar-w2-overview--w01": {
     "id": "vLSlQcm0b08",
+    "cheDo": "cong-khai",
     "at": "2026-11-07T02:00:00Z"
   },
   "bar-inhouse-path-overview--w01": {
     "id": "NuKU74nrbpY",
+    "cheDo": "cong-khai",
     "at": "2026-11-08T02:00:00Z"
   },
   "bar-certificate-overview--w01": {
     "id": "R3hS6a3IfWc",
+    "cheDo": "cong-khai",
     "at": "2026-11-09T02:00:00Z"
   },
   "bar-roadmap-overview--w01": {
     "id": "P2GJMRpRO14",
+    "cheDo": "cong-khai",
     "at": "2026-11-10T02:00:00Z"
   },
   "how-to-break-down-a-big-task--w01": {
@@ -130,10 +136,12 @@
   },
   "how-to-stop-procrastinating-at-work--w01": {
     "id": "JZOZMxziUzY",
+    "cheDo": "cong-khai",
     "at": "2026-11-07T11:00:00Z"
   },
   "how-to-focus-with-constant-messages-and-interruptions--w01": {
     "id": "Lc7sMVQSgxM",
+    "cheDo": "cong-khai",
     "at": "2026-11-08T11:00:00Z"
   },
   "how-to-estimate-time-and-meet-deadlines--w01": {
@@ -143,18 +151,64 @@
   },
   "a-day-within-a-day--w01": {
     "id": "Yw3LXWNIgUU",
+    "cheDo": "cong-khai",
     "at": "2026-11-11T02:00:00Z"
   },
   "family-debt-overview--w01": {
     "id": "DSgf0hcjHaA",
+    "cheDo": "cong-khai",
     "at": "2026-11-11T11:00:00Z"
   },
   "finance-epc-overview--w01": {
     "id": "zFOFyAsmj5U",
+    "cheDo": "cong-khai",
     "at": "2026-11-12T02:00:00Z"
   },
   "first-startup-after-35-overview--w01": {
     "id": "J43-N_1A8L8",
+    "cheDo": "cong-khai",
     "at": "2026-11-12T11:00:00Z"
+  },
+  "founder-find-paying-customer-problem--w01": {
+    "id": "RGMe_tzDleg",
+    "at": "2026-12-03T11:00:00Z"
+  },
+  "first-stock-investing-overview--w01": {
+    "id": "91BdPgc43NM",
+    "at": "2026-11-19T11:00:00Z"
+  },
+  "free-placement-test--w01": {
+    "id": "l5mUHSHpYKg",
+    "at": "2026-12-10T11:00:00Z"
+  },
+  "five-whys-root-cause-analysis--w01": {
+    "id": "5EGd0O-9vaI",
+    "at": "2026-11-26T11:00:00Z"
+  },
+  "from-a1-to-b1-listening--w01": {
+    "id": "Kn96mg01ZX4",
+    "at": "2026-12-17T11:00:00Z"
+  },
+  "from-colleague-to-team-leader--w01": {
+    "id": "zMJM38ew0oo",
+    "at": "2026-12-24T11:00:00Z"
+  },
+  "from-savings-deposit-to-funds--w01": {
+    "id": "MzxRbEkMFK4",
+    "cheDo": "cong-khai",
+    "at": "2026-11-14T11:00:00Z"
+  },
+  "future-continuous-and-future-perfect--w01": {
+    "id": "GHkzv_Zr6qs",
+    "cheDo": "cong-khai",
+    "at": "2026-11-15T11:00:00Z"
+  },
+  "graded-readers-extensive-reading--w01": {
+    "id": "Zcnn8UmmpU4",
+    "at": "2026-12-31T11:00:00Z"
+  },
+  "grammar-from-zero-roadmap--w01": {
+    "id": "O3rwI6pFOyo",
+    "at": "2026-11-17T11:00:00Z"
   }
 }

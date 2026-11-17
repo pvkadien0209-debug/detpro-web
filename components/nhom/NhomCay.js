@@ -18,6 +18,7 @@ import { api, setPin, setMyId, rememberGroup, guiCho } from "./nhomClient";
 import { useBaoTroThu } from "@/components/hkt/troThuCtx";
 import { AnhNhacNut, hanChu } from "./AnhNhac";
 import GoiYNoi from "./GoiYNoi";
+import EmailBaoCao from "./EmailBaoCao"; // #900 báo cáo qua email cho người học
 import ManChao, { docChao, ghiChao } from "./ManChao"; // #354 màn chào người mới // #325 gợi ý bài nói // #321 nhắc nhở dạng ảnh
 import { SoiNoiCard, SoiNoiStrip, useHoatDong, HuyHieuRow } from "./NhomSoiNoi"; // #298
 import { PART_KEYS, PART_SHORT, baiKey, baiMo, baiMoCua, nhomPath, nhomUnitPath, unitGreen, dangDo, mocNho, phanDangLam, fmtHan, MUC_TIEU, MUC_TIEU_NGAN, VIEC_HUONG_DAN, VIEC_MOI_NGUOI, buocCua, nhacViec, nhacChu, viecNgan, ngaySeed } from "@/components/hkt/nhomRules";
@@ -125,6 +126,7 @@ function MySettings({ ma, me, nhom, onLeft }) {
   };
   return (
     <div className="nh-my">
+      <EmailBaoCao ma={ma} id={me.id} kieu="cai-dat" />
       <section className="nh-card">
         <h2>
           <KeyRound size={18} aria-hidden="true" /> PIN cho ID “{me.id}”
@@ -387,6 +389,7 @@ function Inner({ ma, id }) {
         </CopyBtn>
       </div>
 
+      {me.trangThai === "hoc" && <EmailBaoCao ma={ma} id={id} kieu="bang" />}
       {laChu && (() => {
         // #347 việc chính của người hướng dẫn: nghe & sửa bài nói
         const cho = data.members.reduce((n, m) => n + Object.values(m.noi || {}).filter((x) => x?.baoGui && !x.xanh).length, 0);

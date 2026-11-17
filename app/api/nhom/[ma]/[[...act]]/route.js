@@ -10,9 +10,11 @@
 //  POST /api/nhom/<mã>/nhan               #231 lời nhắn / chọc nhau trên cây (icon + câu mẫu)  ·  POST …/nhan/xoa
 //  GET  /api/nhom/<mã>/nhat-ky?ai=       #260 nhật ký học (của tôi; người lập nhóm xem ai=)
 //  GET  /api/nhom/<mã>/huong-dan          (tiêu đề x-nhom-k) mọi thứ cho người hướng dẫn
+//  GET  /api/nhom/<mã>/email             #900 email báo cáo của tôi · POST …/email { email } | { tat: true }
+//  GET  /api/nhom/<mã>/email-xn?id=&t=    #900 link xác nhận trong thư · GET …/email-tat?id=&t= link tắt thư
 //  POST /api/nhom/<mã>/quan-ly            { k, viec, … } cài đặt, duyệt bài nói tự do (+ nhận xét), Tạm nghỉ, PIN, xoá ID
 import {
-  chayVoiTk, HttpErr, xemNhom, vao, docTienDo, ghiTienDo, baoGuiNoi, docTin, guiTin, suaTin, docTep, guiNhan, xoaNhan, themHdr, xoaHdr, xemHuongDan, quanLy, docNhatKy, hoatDong, ghiTrinhDo,
+  chayVoiTk, HttpErr, xemNhom, emailCuaToi, dangKyEmail, xacNhanEmail, tatEmailLink, vao, docTienDo, ghiTienDo, baoGuiNoi, docTin, guiTin, suaTin, docTep, guiNhan, xoaNhan, themHdr, xoaHdr, xemHuongDan, quanLy, docNhatKy, hoatDong, ghiTrinhDo,
 } from "@/lib/nhom.server";
 
 import { cookies } from "next/headers";
@@ -65,6 +67,12 @@ async function GET0(req, { params }) {
         return ok(await xemHuongDan(ma, w.k || u.searchParams.get("k"), w.id, w.pin)); // #253: người lập nhóm = id + PIN
       case "nhat-ky": // #260 nhật ký người học: của tôi, hoặc người lập nhóm xem ?ai=
         return ok(await docNhatKy(ma, { id: w.id, pin: w.pin, k: w.k, ai: u.searchParams.get("ai") }));
+      case "email": // #900
+        return ok(await emailCuaToi(ma, w));
+      case "email-xn": // #900 bấm link trong thư → về cây nhóm kèm ?email=ok|het|sai
+        return Response.redirect(new URL(await xacNhanEmail(ma, u.searchParams.get("id"), u.searchParams.get("t")), u.origin), 303);
+      case "email-tat":
+        return Response.redirect(new URL(await tatEmailLink(ma, u.searchParams.get("id"), u.searchParams.get("t")), u.origin), 303);
       case "hoat-dong": // #298 nhóm đang học
         return ok(await hoatDong(ma, { id: w.id, pin: w.pin }));
       case "tep": {
@@ -93,6 +101,8 @@ async function POST0(req, { params }) {
         return ok(await ghiTienDo(ma, body));
       case "noi":
         return ok(await baoGuiNoi(ma, body));
+      case "email": // #900 đăng ký / đổi / tắt email báo cáo
+        return ok(await dangKyEmail(ma, body));
       case "trinh-do": // #354 tự đánh giá lúc vào nhóm
         return ok(await ghiTrinhDo(ma, body));
       case "tin":
