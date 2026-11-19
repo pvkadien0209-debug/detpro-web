@@ -128,6 +128,13 @@ export default function MyPage() {
           </div>
         </>
       )}
+      {/* #1039 mục nhỏ: tài liệu học riêng của anh (cần mật khẩu quản lý) */}
+      <div className="kt-row-head">
+        <h2>Legal contract learning</h2>
+      </div>
+      <p className="kt-muted">
+        📘 <Link to="/me/legal-contract-learning">Cây ngược HĐ EPC</Link> — tài liệu học riêng, cần mật khẩu quản lý.
+      </p>
     </KtShell>
   );
 }

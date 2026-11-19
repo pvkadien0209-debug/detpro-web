@@ -5,6 +5,8 @@ const nextConfig = {
   // Trang máy chủ đọc bài từ public/jsonData (lib/data.server.js) → đưa các tệp này vào hàm máy chủ trên Vercel
   outputFileTracingIncludes: {
     "/**": ["./public/jsonData/units/**/*.json", "./public/jsonData/knowledge/**/*.json"],
+    // #1039 tài liệu học riêng (không ở public/) → chỉ hàm /api/hoc-rieng mang theo
+    "/api/hoc-rieng/**": ["./rieng/hoc/**"],
   },
   // các đường /api không đọc dữ liệu bài → không mang theo
   outputFileTracingExcludes: {
