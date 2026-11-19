@@ -1,4 +1,4 @@
-// #1039 /me/legal-contract-learning — tài liệu học riêng của anh (cần mật khẩu quản lý). Không lập chỉ mục.
+// #1039 /me/legal-contract-learning — tài liệu học của anh (không cần mật khẩu). Không lập chỉ mục.
 import ClientOnly from "@/components/next/ClientOnly";
 import HocRieng from "@/components/hkt/HocRieng";
 
